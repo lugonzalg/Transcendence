@@ -3,7 +3,7 @@ name: Deploy to Hostinger
 on:
   push:
     branches:
-      - main
+      - main  # Ajusta esto a la rama sobre la que quieres desplegar
 
 jobs:
   deploy:
@@ -17,6 +17,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y sshpass
+        mkdir -p ~/.ssh
         ssh-keyscan -H 195.35.48.173 >> ~/.ssh/known_hosts
         sshpass -p ${{ secrets.HOSTINGER_PASSWORD }} ssh -o StrictHostKeyChecking=no root@195.35.48.173 "comandos para desplegar tu aplicación"
       shell: bash
