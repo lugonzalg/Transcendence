@@ -3,7 +3,7 @@ name: Deploy to Hostinger
 on:
   push:
     branches:
-      - main  # Ajusta esto a tu rama de producción
+      - main
 
 jobs:
   deploy:
@@ -13,7 +13,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Deploy to Hostinger
+    - name: Setup SSH and Deploy
       run: |
-        sshpass -p ${{ secrets.HOSTINGER_PASSWORD }} ssh root@195.35.48.173 "comandos para desplegar tu aplicación"
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+        ssh-keyscan -H 195.35.48.173 >> ~/.ssh/known_hosts
+        sshpass -p ${{ secrets.HOSTINGER_PASSWORD }} ssh -o StrictHostKeyChecking=no root@195.35.48.173 "comandos para desplegar tu aplicación"
       shell: bash
