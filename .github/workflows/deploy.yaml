@@ -15,5 +15,5 @@ jobs:
 
     - name: Deploy to Hostinger
       run: |
-        sshpass -p ${{ secrets.HOSTINGER_PASSWORD }} ssh your_username@your_hostinger_host "comandos para desplegar tu aplicación"
+        sshpass -p ${{ secrets.HOSTINGER_PASSWORD }} ssh root@195.35.48.173 "comandos para desplegar tu aplicación"
       shell: bash
