@@ -3,25 +3,17 @@ name: Deploy to Hostinger
 on:
   push:
     branches:
-      - main  # Set this to your default branch
+      - main  # Ajusta esto a tu rama de producción
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout
       uses: actions/checkout@v2
-
-    - name: Set up SSH
-      run: |
-        mkdir -p ~/.ssh/
-        echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H 195.35.48.173 > ~/.ssh/known_hosts
-      env:
-        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
 
     - name: Deploy to Hostinger
       run: |
-        ssh -i ~/.ssh/id_rsa root@195.35.48.173
+        sshpass -p ${{ secrets.HOSTINGER_PASSWORD }} ssh your_username@your_hostinger_host "comandos para desplegar tu aplicación"
+      shell: bash
