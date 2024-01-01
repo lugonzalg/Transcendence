@@ -19,6 +19,5 @@ jobs:
         sudo apt-get install -y sshpass
         mkdir -p ~/.ssh
         ssh-keyscan -H 195.35.48.173 >> ~/.ssh/known_hosts
-        - name: Deploy to Hostinger
         sshpass -p ${{ secrets.HOSTINGER_PASSWORD }} rsync -av --delete --exclude='.git*' ./ root@195.35.48.173:/var/www/trascendence.tech/
       shell: bash
