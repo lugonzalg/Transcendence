@@ -1,0 +1,73 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Lobby from '../components/Lobby.astro';
+import Login from '../components/Login.astro';
+import 'bootstrap/dist/css/bootstrap.css'
+
+
+let show_user_lobby = false;
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const name = data.get("username");
+    const email = data.get("email");
+    const password = data.get("password");
+    // Do something with the data
+    fetch('http://localhost:5000/ruta', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ /* datos a enviar */ }),
+    })
+    .then(response => response.json())
+    .then(data => console.log(data));
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+  }
+}
+---
+
+<Layout title="Trascendence">
+  <main>
+    <div id="componentContainer">
+      <Header style="display: block;" />
+      <Lobby style="display: none;" />
+	  <Login class="login_stack"/>
+    </div>
+  </main>
+
+</Layout>
+
+
+
+<style>
+	main {
+		margin: auto;
+		padding: 1rem;
+		width: 10000px;
+		max-width: calc(100% - 2rem);
+		color: rgb(255, 255, 255);
+		font-size: 20px;
+		line-height: 1.6;
+	}
+	h1 {
+		font-size: 4rem;
+		font-weight: 700;
+		line-height: 1;
+		text-align: center;
+		margin-bottom: 1em;
+	}
+	.login_stack {
+		height: 100%;
+  		margin: 0;
+  		display: flex;
+  		flex-direction: column;
+  		justify-content: center;
+  		align-items: center;
+	}
+</style>

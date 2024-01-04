@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  astro:
+    build: ./Services/frontend
+    ports:
+      - "4321:4321"
+    volumes:
+      - ./Volumes/Frontend:/app
