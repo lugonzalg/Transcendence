@@ -11,6 +11,10 @@ migrate=false
 clean_name=""
 build_name=""
 
+backend_opts=login
+database_opts=login
+general_opts="$backend_opts/$database_opts"
+
 services_path="./transcendence/volumes"
 
 if [ "$#" -eq 0 ]; then
@@ -84,7 +88,7 @@ Clean () {
         fi
     else
 
-        echo -n "What is the service name that you want to delete? [login/postgres]: "
+        echo -n "What is the service name that you want to delete? [$general_opts]: "
         read service
 
         case $service in
@@ -125,7 +129,7 @@ Command () {
 
     else
 
-        echo -n "What is the service you want to $mode? [login/postgres]: "
+        echo -n "What is the service you want to $mode? [$general_opts]: "
         read service
 
         make $mode SERVICE=$service

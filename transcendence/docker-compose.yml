@@ -26,6 +26,10 @@ services:
 
     environment:
       - ADMIN
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_HOST
 
     ports:
       - 8080:8000
