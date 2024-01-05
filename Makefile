@@ -1,6 +1,6 @@
 COMPOSE=docker compose -f transcendence/docker-compose.yml
 
-.PHONY: all build build-all clean clean-all down fclean restart restart-all stop stop-all
+.PHONY: all build build-all clean clean-all down fclean follow follow-all ps restart restart-all stop stop-all
 
 all:
 	$(COMPOSE) up -d
@@ -19,6 +19,19 @@ cleant-all:
 
 down:
 	$(COMPOSE) down
+
+follow:
+	$(COMPOSE) logs --follow --tail 1000 $(SERVICE)
+
+follow-all:
+	$(COMPOSE) logs --follow --tail 1000
+
+migrate:
+	$(COMPOSE) exec $(SERVICE) python /app/manage.py makemigrations $(SERVICE)
+	$(COMPOSE) exec $(SERVICE) python /app/manage.py migrate
+
+migrate-all:
+	@echo "hehe"
 
 ps:
 	$(COMPOSE) ps

@@ -7,6 +7,7 @@ build=false
 restart=false
 stop=false
 raise=false
+migrate=false
 clean_name=""
 build_name=""
 
@@ -50,7 +51,7 @@ delete_service () {
 
     echo "Deleteing service $1 dependencies!" 
 
-    rm -rf $services_path/$2/$1
+    rm -rf $services_path/$volume/$service
 }
 
 clean_service () {
@@ -125,30 +126,33 @@ Command () {
     else
 
         echo -n "What is the service you want to $mode? [login/postgres]: "
-        read choice_name
+        read service
 
-        make $mode SERVICE=$choice_name
+        make $mode SERVICE=$service
     fi
 }
 
 while [ "$#" -gt 0 ]; do
     case $1 in
-    --clean)
+    --clean|-C)
         clean=true
         ;;
-    --build)
+    --build|-B)
         build=true
         ;;
-    --restart)
+    --restart|-RE)
         restart=true
         ;;
-    --stop)
+    --stop|-S)
         stop=true
         ;;
-    --raise)
+    --raise|-RA)
         raise=true
         ;;
-    --all)
+    --migrate|-M)
+        migrate=true
+        ;;
+    --all|-A)
         all_services=true
         ;;
     #help
@@ -177,4 +181,8 @@ fi
 
 if $raise; then
     Command raise
+fi
+
+if $migrate; then
+    Command migrate
 fi
