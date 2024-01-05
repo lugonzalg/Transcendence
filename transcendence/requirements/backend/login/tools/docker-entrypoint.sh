@@ -2,10 +2,8 @@
 
 if [ ! -d "/app/login" ]; then
 
-    echo "Login project not found!"
-    mkdir -p /app/login
-    django-admin startproject transcendence /app
-    django-admin startapp login /app/login
+    echo "Project not found!"
+    django-admin startproject login /app
 
 else
     echo "Login project found"
