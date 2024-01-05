@@ -1,12 +1,9 @@
 COMPOSE=docker compose -f transcendence/docker-compose.yml
 
-PHONY: all build build-all clean clean-all fclean restart restart-all
+.PHONY: all build build-all clean clean-all down fclean restart restart-all stop stop-all
 
-clean:
-	./manager.sh --clean
-
-cleant-all:
-	./manager.sh --clean -all
+all:
+	$(COMPOSE) up -d
 
 build:
 	$(COMPOSE) build $(SERVICE)
@@ -14,10 +11,27 @@ build:
 build-all:
 	$(COMPOSE) build
 
-restart:
-	$(COMPOSE) stop $(SERVICE)
-	$(COMPOSE) rm $(SERVICE)
+clean:
+	bash /manager.sh --clean
+
+cleant-all:
+	bash /manager.sh --clean -all
+
+down:
+	$(COMPOSE) down
+
+ps:
+	$(COMPOSE) ps
+
+restart: stop raise
+
+restart-all: down all
+
+raise: 
 	$(COMPOSE) up -d $(SERVICE)
 
-restart-all:
-	$(COMPOSE) down
+stop:
+	$(COMPOSE) stop $(SERVICE)
+	$(COMPOSE) rm $(SERVICE)
+
+stop-all: down

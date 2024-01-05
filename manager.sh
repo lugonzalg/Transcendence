@@ -5,8 +5,12 @@ all_services=false
 clean=false
 build=false
 restart=false
+stop=false
+raise=false
 clean_name=""
 build_name=""
+
+services_path="./transcendence/volumes"
 
 if [ "$#" -eq 0 ]; then
     echo "Error: no parameters given"
@@ -33,31 +37,27 @@ handle_response () {
 }
 
 create_service_dependencies () {
-    mkdir -p ./volumes/$1/log
-    mkdir -p ./volumes/$1/data
+
+    service_path=$services_path/$volume/$service
+
+    echo $service_path
+    mkdir -p $service_path
+    mkdir -p $service_path/data
+    mkdir -p $service_path/log
 }
 
 delete_service () {
+
     echo "Deleteing service $1 dependencies!" 
-    rm -rf ./volumes/$1
+
+    rm -rf $services_path/$2/$1
 }
 
 clean_service () {
 
-    echo "Service: $1"
-    case $1 in
-        login)
-            delete_service backend/$1
-            create_service_dependencies backend/$1
-            ;;
-        postgres)
-            delete_service database/$1
-            create_service_dependencies database/$1
-            ;;
-        *)
-            echo "unknown service!"
-            ;;
-    esac
+    echo "Service: $service"
+    delete_service $volume $service
+    create_service_dependencies $volume $service
 }
 
 Clean () {
@@ -84,54 +84,50 @@ Clean () {
     else
 
         echo -n "What is the service name that you want to delete? [login/postgres]: "
-        read choice_name
+        read service
 
-        clean_service $choice_name
+        case $service in
+
+        login)
+            volume="backend"
+            ;;
+        postgres)
+            volume="database"
+            ;;
+        *)
+            echo "Service: $service does not exists"
+            volume=""
+            ;;
+
+        esac
+        if [ $volume ]; then
+            clean_service $volume $service
+        fi
     fi
 
 }
 
-Build () {
+Command () {
+
+    mode=$1
 
     if $all_services; then
-        echo -n "Do you want to build all services? [Yy/Nn]: "
+        echo -n "Do you want to $mode all services? [Yy/Nn]: "
         read choice
 
         handle_response $choice
         retval=$?
 
         if [ $retval  -eq 1 ]; then
-            make build-all
+            make $mode-all
         fi
 
     else
 
-        echo -n "What is the service you want to build? [login/postgres]: "
+        echo -n "What is the service you want to $mode? [login/postgres]: "
         read choice_name
 
-        make build SERVICE=$choice_name
-    fi
-}
-
-Restart () {
-
-    if $all_services; then
-        echo -n "Do you want to restart all services? [Yy/Nn]: "
-        read choice
-
-        handle_response $choice
-        retval=$?
-
-        if [ $retval  -eq 1 ]; then
-            make restart-all
-        fi
-
-    else
-
-        echo -n "What is the service you want to restart? [login/postgres]: "
-        read choice_name
-
-        make restart SERVICE=$choice_name
+        make $mode SERVICE=$choice_name
     fi
 }
 
@@ -146,9 +142,16 @@ while [ "$#" -gt 0 ]; do
     --restart)
         restart=true
         ;;
+    --stop)
+        stop=true
+        ;;
+    --raise)
+        raise=true
+        ;;
     --all)
         all_services=true
         ;;
+    #help
     *)
         echo "Unknown command: $1"
         ;;
@@ -161,9 +164,17 @@ if $clean; then
 fi
 
 if $build; then
-    Build
+    Command build
 fi
 
 if $restart; then
-    Restart
+    Command restart
+fi
+
+if $stop; then
+    Command stop
+fi
+
+if $raise; then
+    Command raise
 fi
