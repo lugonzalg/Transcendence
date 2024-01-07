@@ -26,13 +26,17 @@ services:
 
     environment:
       - ADMIN
+      - LOGIN_PORT
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
       - POSTGRES_HOST
+      - SECRET_KEY
+      - ALGORITHM
+      - ACCESS_TOKEN_EXPIRE_MINUTES
 
     ports:
-      - 8080:8000
+      - 8080:8080
 
     volumes:
       - v_login:/app

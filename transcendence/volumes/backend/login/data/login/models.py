@@ -4,6 +4,6 @@ from django.db import models
 
 class User(models.Model):
 
-    login: str = models.CharField(max_length=16)
-    email: str = models.CharField(max_length=32)
-    password: str = models.CharField(max_length=64)
+    login: str = models.CharField(max_length=16, unique=True)
+    email: str = models.CharField(max_length=32, unique=True)
+    password: str = models.CharField(max_length=64, unique=True)

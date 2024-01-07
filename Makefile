@@ -40,7 +40,7 @@ restart: stop raise
 
 restart-all: down all
 
-raise: 
+raise:
 	$(COMPOSE) up -d $(SERVICE)
 
 stop:
@@ -48,3 +48,6 @@ stop:
 	$(COMPOSE) rm $(SERVICE)
 
 stop-all: down
+
+psql:
+	$(COMPOSE) exec postgres psql -U transcendence transcendence
