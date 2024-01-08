@@ -13,8 +13,8 @@
     </video>
   </div>  
   <div class="content">
-    <h1>Trascendence</h1>
-    <p>Bienvenido a la página de inicio del proyecto Trascendence</p>
+    <h1>Transcendence</h1>
+    <p>Bienvenido a la página de inicio del proyecto Transcendence</p>
     <div class="button-container">
     <button class="btn btn-primary" @click="redirect_login">Login</button>
     <button class="btn btn-primary" @click="redirect_register">Registrarse</button>

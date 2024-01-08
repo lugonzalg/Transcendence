@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   vue:
-    build: ./Services/frontend
+    build: ./Services/Frontend
     ports:
       - "8080:8080"
     volumes:

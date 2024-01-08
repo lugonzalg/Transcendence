@@ -29,6 +29,7 @@
   <script>
 import DefaultNavbar from '@/components/DefaultNavbar.vue';
 
+import axios from 'axios';
   export default {
     name: 'RegisterView',
     components: { DefaultNavbar },
