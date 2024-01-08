@@ -2,6 +2,7 @@ version: '3.8'
 services:
   vue:
     build: ./Services/Frontend
+    image: transcendence_frontend_login
     ports:
       - "8080:8080"
     volumes:
@@ -15,7 +16,7 @@ services:
 
     depends_on:
       - postgres
-
+    image: transcendence_backend_login
     environment:
       - ADMIN
       - LOGIN_PORT
@@ -28,7 +29,7 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES
 
     ports:
-      - 8080:8080
+      - 25671:25671
 
     volumes:
       - v_login:/app
@@ -37,15 +38,15 @@ services:
   
   postgres:  
     container_name: bbdd_login 
-    image: postgres_login
+    image: transcendence_database_login
     build:
       context: ./Services/Database/login/
     restart: always  
     environment:  
-      POSTGRES_USER: trans  
-      POSTGRES_PASSWORD: trans 
-      POSTGRES_DB: login_db 
-      POSTGRES_INITDB_WALDIR: ./Volumes/Database/login/login_logs
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD 
+      - POSTGRES_DB 
+      #POSTGRES_INITDB_WALDIR: ./Volumes/Database/login/login_logs
     volumes:
       - v_postgres_data:/var/lib/postgresql/data
     #ports:  
