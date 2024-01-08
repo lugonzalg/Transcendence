@@ -1,8 +1,10 @@
 version: '3.8'
 services:
-  astro:
+  vue:
     build: ./Services/frontend
     ports:
-      - "4321:4321"
+      - "8080:8080"
     volumes:
-      - ./Volumes/Frontend:/app
+      - ./Volumes/Frontend/Vue/Trascendence:/Trascendence
+      - ./Volumes/Frontend/Logs/:/Logs
+
