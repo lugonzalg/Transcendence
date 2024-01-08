@@ -11,7 +11,7 @@ $(NAME):
 	docker compose -f $(PWD)/docker-compose.yml up -d
 
 clean:
-	docker compose -f $(PWD)/docker-compose.yml down --volumes
+	docker compose -f $(PWD)/docker-compose.yml down
 	docker system prune -f
 
 fclean: clean

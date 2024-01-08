@@ -5,3 +5,6 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR ( 50 ) NOT NULL,
   email VARCHAR ( 255 ) UNIQUE NOT NULL
 );
+
+
+--SELECT pg_checkpoint();
