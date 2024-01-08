@@ -1,0 +1,7 @@
+venv
+test
+database
+log
+.secrets
+.env
+*.pyc

@@ -1,0 +1,58 @@
+services:
+
+  postgres:
+
+    build: 
+      context: requirements/database/postgresql
+      dockerfile: Dockerfile
+
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+
+    volumes:
+      - v_postgresql:/var/lib/postgresql/data
+
+
+  login:
+
+    build: 
+      context: requirements/backend/login
+      dockerfile: Dockerfile
+
+    depends_on:
+      - postgres
+
+    environment:
+      - ADMIN
+      - LOGIN_PORT
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_HOST
+      - SECRET_KEY
+      - ALGORITHM
+      - ACCESS_TOKEN_EXPIRE_MINUTES
+
+    ports:
+      - 8080:8080
+
+    volumes:
+      - v_login:/app
+
+    entrypoint: ./docker-entrypoint.sh
+
+volumes:
+        v_login:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: /home/lukas/Trascendence/transcendence/volumes/backend/login/data
+        v_postgresql:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: /home/lukas/Trascendence/transcendence/volumes/database/postgres/data
