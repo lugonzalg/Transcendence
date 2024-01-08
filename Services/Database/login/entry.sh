@@ -15,4 +15,4 @@ pg_resetxlog /var/lib/postgresql/data
 
 
 # Ejecutar el script create_tables.sql --OJO! METER VARIABLES DE ENTORNO 
-psql -U trans -d login_db -f /docker-entrypoint-initdb.d/create_tables.sql
+psql -U Astro98 -d transcendence -f /docker-entrypoint-initdb.d/create_tables.sql

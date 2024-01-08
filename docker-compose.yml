@@ -1,10 +1,64 @@
 version: '3.8'
 services:
   vue:
-    build: ./Services/frontend
+    build: ./Services/Frontend
+    image: transcendence_frontend_login
     ports:
       - "8080:8080"
     volumes:
       - ./Volumes/Frontend/Vue/Trascendence:/Trascendence
       - ./Volumes/Frontend/Logs/:/Logs
+  login:
+
+    build: 
+      context: Services/Backend/login
+      dockerfile: Dockerfile
+
+    depends_on:
+      - postgres
+    image: transcendence_backend_login
+    environment:
+      - ADMIN
+      - LOGIN_PORT
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_HOST
+      - SECRET_KEY
+      - ALGORITHM
+      - ACCESS_TOKEN_EXPIRE_MINUTES
+
+    ports:
+      - 25671:25671
+
+    volumes:
+      - v_login:/app
+
+    entrypoint: ./docker-entrypoint.sh
+  
+  postgres:  
+    container_name: bbdd_login 
+    image: transcendence_database_login
+    build:
+      context: ./Services/Database/login/
+    restart: always  
+    environment:  
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD 
+      - POSTGRES_DB 
+      #POSTGRES_INITDB_WALDIR: ./Volumes/Database/login/login_logs
+    volumes:
+      - v_postgres_data:/var/lib/postgresql/data
+    #ports:  
+    # - "5432:5432"
+
+volumes:
+        v_login:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Volumes/Backend/login/data
+
+        v_postgres_data:
 
