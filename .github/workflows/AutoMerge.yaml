@@ -1,0 +1,19 @@
+name: Auto Merge
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: AutoMerge 'develop' into 'main'
+        run: |
+          git checkout main
+          git fetch origin develop
+          git merge develop
+          git push origin main
