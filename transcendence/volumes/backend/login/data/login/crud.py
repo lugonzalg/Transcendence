@@ -1,5 +1,6 @@
 from ninja.errors import HttpError
 from django.db.utils import IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 from . import schemas, models
 
 def create_user(user: schemas.UserCreateSchema, hashed_password: str):
@@ -18,8 +19,10 @@ def create_user(user: schemas.UserCreateSchema, hashed_password: str):
 def get_user(login: str):
 
     try:
-        db_user = models.User.objects.filter(login=login)
-    except IntegrityError as err:
+        db_user = models.User.objects.filter(login=login).get()
+    except IntegrityError:
         raise HttpError(status_code=400, message="Error: user already exists")
+    except ObjectDoesNotExist:
+        raise HttpError(status_code=403, message="Error: Unauthorized")
 
     return db_user

@@ -11,10 +11,6 @@ class UserLogin(Schema):
     login: str = Field(max_length=32, pattern=login_regex, examples=["walter"])
     password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1"])
 
-class UserCreateSchema(UserLogin):
-
-    email: str = Field(max_length=256, examples=["walter@gmail.com"])
-
     @validator('password')
     def validate_password(cls, v, values):
 
@@ -29,6 +25,10 @@ class UserCreateSchema(UserLogin):
 
         return v
 
+class UserCreateSchema(UserLogin):
+
+    email: str = Field(max_length=256, examples=["walter@gmail.com"])
+
 class UserReturnSchema(ModelSchema):
 
     class Meta:
@@ -38,4 +38,5 @@ class UserReturnSchema(ModelSchema):
 
 class TokenReturnSchema(Schema):
 
-    token: str
+    access_token: str = Field(examples=["eydlnfasdlfaks"])
+    token_type: str = Field(examples=["test"])
