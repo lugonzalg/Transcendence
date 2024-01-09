@@ -14,6 +14,7 @@ jobs:
       - name: AutoMerge 'develop' into 'main'
         run: |
           git checkout main
+          git fetch origin develop
           git merge develop
           git push origin main
           echo "AutoMerge 'develop' into 'main' was successful."
