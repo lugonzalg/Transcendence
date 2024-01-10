@@ -8,19 +8,16 @@ restart=false
 stop=false
 raise=false
 migrate=false
+follow=false
 clean_name=""
 build_name=""
 
 backend_opts=login
-database_opts=login
-general_opts="$backend_opts/$database_opts"
+database_opts=postgre
+frontend_opts=vue
+general_opts="$backend_opts/$frontend_opts/$database_opts"
 
 services_path="./transcendence/volumes"
-
-if [ "$#" -eq 0 ]; then
-    echo "Error: no parameters given"
-    exit 1
-fi
 
 handle_response () {
 
@@ -136,25 +133,45 @@ Command () {
     fi
 }
 
+if [ "$#" -eq 0 ]; then
+    echo "manager: try --help for more information"
+    exit 1
+fi
+
+help () {
+    echo "-B, --build build service image" 
+    echo "-C, --clean delete service dependencies" 
+    echo "-F, --follow follow the container image logs" 
+    echo "-H, --help information about the commands" 
+    echo "-M, --migrate migrate the django service data models" 
+    echo "-RA, --raise start the service container" 
+    echo "-RE, --restart restart the service container" 
+    echo "-S, --stop stop the service container" 
+}
+
 while [ "$#" -gt 0 ]; do
     case $1 in
+    --build|-B)
+        build=true
+        ;;
     --clean|-C)
         clean=true
         ;;
-    --build|-B)
-        build=true
+    --help|-H)
+        help
+        exit 0
+        ;;
+    --migrate|-M)
+        migrate=true
+        ;;
+    --raise|-RA)
+        raise=true
         ;;
     --restart|-RE)
         restart=true
         ;;
     --stop|-S)
         stop=true
-        ;;
-    --raise|-RA)
-        raise=true
-        ;;
-    --migrate|-M)
-        migrate=true
         ;;
     --all|-A)
         all_services=true
@@ -189,4 +206,8 @@ fi
 
 if $migrate; then
     Command migrate
+fi
+
+if $migrate; then
+    Command follow
 fi
