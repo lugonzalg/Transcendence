@@ -5,20 +5,20 @@ from ninja.errors import HttpError
 from django.core.validators import validate_email
 import re
 
-login_regex='^[A-Za-z0-9_]+$'
+username_regex='^[A-Za-z0-9_]+$'
 
 class UserLogin(Schema):
 
-    username: str = Field(max_length=32, pattern=login_regex, examples=["walter"])
+    username: str = Field(max_length=32, pattern=username_regex, examples=["walter"])
     password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1"])
 
     @validator('password')
     def validate_password(cls, v, values):
 
-        login = values.get('username')
+        username = values.get('username')
 
-        if login is None:
-            raise HttpError(status_code=400, message="Missing login")
+        if username is None:
+            raise HttpError(status_code=400, message="Missing username")
         if not re.search(r'[0-9]', v):
             raise HttpError(status_code=404, message="Password: must contain at least one number")
         if not re.search(r'[A-Z]', v):
@@ -26,7 +26,7 @@ class UserLogin(Schema):
         if not re.search(r'[!@#$%^&*(),.?":{}|<>]', v):
             raise HttpError(status_code=404, message="Password: must contain at least one symbol")
         if values['username'] in v:
-            raise HttpError(status_code=404, message="Password: cannot contain the login")
+            raise HttpError(status_code=404, message="Password: cannot contain the username")
 
         return v
 
