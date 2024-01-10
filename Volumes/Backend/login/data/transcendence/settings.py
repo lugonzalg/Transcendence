@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ["65.109.174.85","localhost"]
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'login.apps.LoginConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -129,6 +130,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = {
+CORS_ALLOWED_ORIGINS = [
+    "http://65.109.174.85:8080",
+    "http://65.109.174.85:25671",
     "http://65.109.174.85"
-}
+]
+
+CORS_ALLOW_CREDENTIALS = True
