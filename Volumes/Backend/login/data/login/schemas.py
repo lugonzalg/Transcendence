@@ -7,9 +7,11 @@ import re
 
 username_regex='^[A-Za-z0-9_]+$'
 
-class UserLogin(Schema):
-
+class Username(Schema):
     username: str = Field(max_length=32, pattern=username_regex, examples=["walter"])
+
+class UserLogin(Username):
+
     password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1"])
 
     @validator('password')
@@ -21,7 +23,7 @@ class UserLogin(Schema):
             raise HttpError(status_code=400, message="Missing username")
         if not re.search(r'[0-9]', v):
             raise HttpError(status_code=404, message="Password: must contain at least one number")
-        if not re.search(r'[A-Z]', v):
+        if not re.search(r'[A-Za-z]', v):
             raise HttpError(status_code=404, message="Password: must contain at least one uppercase letter")
         if not re.search(r'[!@#$%^&*(),.?":{}|<>]', v):
             raise HttpError(status_code=404, message="Password: must contain at least one symbol")
@@ -52,7 +54,10 @@ class UserReturnSchema(ModelSchema):
         model = models.User
         fields = ['username', 'email']
 
-class TokenReturnSchema(Schema):
-
-    access_token: str = Field(examples=["eydlnfasdlfaks"])
-    token_type: str = Field(examples=["test"])
+class LoginLogSchema(Schema):
+    browserName: str
+    browserVersion: str
+    language: str
+    platform: str
+    screenResolution: str
+    userAgent: str

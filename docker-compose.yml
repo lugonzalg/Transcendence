@@ -8,7 +8,7 @@ services:
     volumes:
       - ./Volumes/Frontend/Vue/Trascendence:/Trascendence
       - ./Volumes/Frontend/Logs/:/Logs
-    entrypoint: tail -f
+
   login:
 
     build: 
@@ -34,6 +34,7 @@ services:
 
     volumes:
       - v_login:/app
+      - v_login_log:/log
 
     entrypoint: ./docker-entrypoint.sh
   
@@ -60,6 +61,13 @@ volumes:
                         type: none
                         o: bind
                         device: ./Volumes/Backend/login/data
+
+        v_login_log:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Volumes/Backend/login/log
 
         v_postgres_data:
 
