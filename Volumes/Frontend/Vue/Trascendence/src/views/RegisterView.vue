@@ -54,7 +54,8 @@ import axios from 'axios';
         alert('Las contraseñas no coinciden o el email está vacío.');
         return;
       }
-      const response = await axios.post('http://localhost:25671/create_user', this.credentials);
+      
+      const response = await axios.post('http://65.109.174.85:25671/api/login/create_user', this.credentials);
                 console.log(response.data);
                 if (response.status === 200) {
                   console.log(response.data);

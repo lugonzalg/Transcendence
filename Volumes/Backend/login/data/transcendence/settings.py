@@ -24,14 +24,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!41*+ai(5cgxamj&(zt6n5tp10kqw-&6=$*tu%!y-+_6#c4&k('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["65.109.174.85","localhost"]
+ALLOWED_HOSTS = ["65.109.174.85"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'login.apps.LoginConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -129,6 +130,15 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = {
-    "http://65.109.174.85"
-}
+CORS_ALLOWED_ORIGINS = [
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher",
+]
