@@ -29,14 +29,19 @@ def get_user(request, username: str):
         raise HttpError(status_code=404, message="Error: user does not exists")
 
 
-@router.get('/login_user') #Creacion de endpoint
+@router.post('/login_user') #Creacion de endpoint
 def login_user(request, username: str):
+    # No recibo bien el json de frontend y no puedo generar el objeto. Desde un curl si funciona , creo , porque le mando el username a pelo
     
+    #Tambien hay que usar esquemas
+   
     #Hacer la peticion crud a la bbdd
     db_user = crud.get_user(username) 
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exist")
     
+    #Validar la password
+
     # Devolver la información del usuario en un formato JSON #no me deja importar la libreria arriba comentada. 
     #user_data = {
     #    "username": db_user.username,
