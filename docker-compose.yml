@@ -8,7 +8,6 @@ services:
     volumes:
       - ./Volumes/Frontend/Vue/Trascendence:/Trascendence
       - ./Volumes/Frontend/Logs/:/Logs
-
   login:
 
     build: 
@@ -70,4 +69,5 @@ volumes:
                         device: ./Volumes/Backend/login/log
 
         v_postgres_data:
+        
 

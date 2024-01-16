@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-!41*+ai(5cgxamj&(zt6n5tp10kqw-&6=$*tu%!y-+_6#c4&k(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["65.109.174.85"]
+ALLOWED_HOSTS = ["65.109.174.85","localhost","195.35.48.173"]
 
 
 # Application definition
@@ -131,6 +131,13 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
+<<<<<<< HEAD
+=======
+    "http://65.109.174.85:8080",
+    "http://65.109.174.85:25671",
+    "http://65.109.174.85",
+    "https://trascendence.tech"
+>>>>>>> origin/eperaita
 ]
 
 CORS_ALLOW_CREDENTIALS = True
