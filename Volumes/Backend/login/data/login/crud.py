@@ -22,9 +22,10 @@ def create_user(user: schemas.UserCreateSchema) -> models.User:
     return db_user
 
 def get_user(username: str):
-
+    
     try:
-        db_user = models.User.objects.filter(username=username).get()
+        logger.warning(username)# aqui llega username y lanza un 500. que no se recoge y los errores dicen que le falta algun parametro al modelo (last_login???)
+        db_user = models.User.objects.filter(username=username).get()  
     except IntegrityError:
         raise HttpError(status_code=409, message="Error: user already exists")
     except ObjectDoesNotExist:
