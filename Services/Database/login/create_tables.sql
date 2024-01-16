@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS login_user (
   email VARCHAR ( 255 ) UNIQUE NOT NULL
 );
 
-
---SELECT pg_checkpoint();
+-- Inserting a test user
+INSERT INTO login_user (username, password, email) VALUES ('test', 'testpass', 'test@test');
