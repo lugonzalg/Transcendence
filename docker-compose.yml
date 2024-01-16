@@ -36,7 +36,7 @@ services:
       - v_login:/app
       - v_login_log:/log
 
-    entrypoint: ./docker-entrypoint.sh
+    entrypoint: tail -f
   
   postgres:  
     container_name: bbdd_login 
