@@ -27,7 +27,7 @@ export default {
     this.sendDataToServer(data);
     },
     sendDataToServer(data) {
-    axios.post('lukas/logs', data)
+    axios.post('http://localhost:25671/api/login/login_log', data)
       .then(response => {
         console.log('Datos enviados al servidor:', response);
       })
