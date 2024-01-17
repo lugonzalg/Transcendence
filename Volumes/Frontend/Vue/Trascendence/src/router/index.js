@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import LoginView from '../views/LoginView.vue';
-import MainMenuView from '../views/MainMenuView.vue';
+import LobbyView from '../views/LobbyView.vue';
 
 const routes = [
   {
@@ -21,9 +21,9 @@ const routes = [
     component: LoginView,
   },
   {
-    path: '/MainMenu',
-    name: 'MainMenuView',
-    component: MainMenuView,
+    path: '/Lobby',
+    name: 'LobbyView',
+    component: LobbyView,
   }
 ];
 

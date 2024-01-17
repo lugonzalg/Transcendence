@@ -1,13 +1,18 @@
 <template>
-    <DefaultNavbar></DefaultNavbar>
+    <DefaultNavbar></DefaultNavbar>ç
+    <p>Welcome to Lobby!</p>
 </template>
     
 <script>
   import DefaultNavbar from '@/components/DefaultNavbar.vue';
 
     export default {
-      name: 'MainMenu'
+      name: 'LobbyView',
+      components: {
+        DefaultNavbar
     }
+    }
+
 
 </script>
     

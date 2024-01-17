@@ -45,10 +45,16 @@ export default {
     methods: {
         async login() {
             try {
-                const response = await axios.post('http://localhost:25671/api/login/login_user', this.credentials);
+                const response = await axios.post('http://localhost:25671/api/login/login_user', this.credentials,
+                 {
+                  headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                  }
+                 });
                 console.log(response.data);
                 if (response.status === 200) {
                   console.log(response.data);
+                  this.$router.push('/Lobby');
                   //this.showOTPVerification = true;
             }
               }

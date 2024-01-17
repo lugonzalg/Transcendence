@@ -12,7 +12,7 @@ class Username(Schema):
 
 class UserLogin(Username):
 
-    password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1"])
+    password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1!"])
 
     @validator('password')
     def validate_password(cls, v, values):
@@ -33,7 +33,6 @@ class UserLogin(Username):
         return v
 
 class UserCreateSchema(UserLogin):
-
     email: str = Field(max_length=256, examples=["walter@gmail.com"])
 
     @validator('email')
@@ -51,7 +50,7 @@ class UserReturnSchema(ModelSchema):
 
     class Meta:
 
-        model = models.User
+        model = models.user_login
         fields = ['username', 'email']
 
 class LoginLogSchema(Schema):

@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!41*+ai(5cgxamj&(zt6n5tp10kqw-&6=$*tu%!y-+_6#c4&k('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["65.109.174.85","localhost","195.35.48.173"]
 
@@ -136,7 +136,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://65.109.174.85",
     "https://trascendence.tech",
     "http://localhost:8080",
-    "https://localhost:8080"
+    "https://localhost:8080",
+    "http://localhost:25671",
+    "https://localhost:25671",
+    "http://localhost",
+    "https://localhost"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
