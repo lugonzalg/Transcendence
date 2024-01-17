@@ -23,24 +23,22 @@ def get_user(request, user: schemas.Username):
         raise HttpError(status_code=404, message="Error: user does not exists")
 
 
-@router.post('/login_user') #Creacion de endpoint
-def login_user(request): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el esquema que lleva user y pass
+@router.post('/login_user', response=schemas.UserReturnSchema) #Creacion de endpoint, que especifica el esquema DE RESPUESTA definido en schemas
+def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el schema DE CREACION DE USER definido en schemas
 
-    #Hacer la peticion crud a la bbdd
-    body = request.body.decode('utf-8')
-    data = eval(body)
-    username = data.get('username')
-    db_user = crud.get_user(username) #llama a la funcion get_user de crud.py y le pasa el username del obj user
+   #llama a la funcion get_user de crud.py y le devuelve el user objeto con la validacion del schema UserLogin
+    db_user = crud.get_user(user.username) 
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exist")
-    # Devolver la información del usuario en un formato JSON #no me deja importar la libreria arriba comentada. 
-    #user_data = {
-    #    "username": db_user.username,
-    #    "email": db_user.email,
-    #}
-    #return JSONResponse(content=user_data)  
-    return {"username": db_user.username,"email": db_user.email} #(no necesario)la peticion ya devuelve el codigo 200 a la response, pero asi leemos a quien encuentra
-#
+
+    #Comprobacion de contraseña (De momento compara las strings, ya vendra tema HASH)
+    if user.password != db_user.password:
+        raise HttpError(status_code=401, message="Error: incorrect password")
+
+    # Devolver la información del usuario en un diccionario
+    return {"username": db_user.username,"email": db_user.email} 
+
+
 
 @router.post('/login_log')
 def login_log(request, log: schemas.LoginLogSchema):
