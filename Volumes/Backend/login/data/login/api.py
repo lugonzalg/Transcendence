@@ -5,48 +5,44 @@ from ninja.errors import HttpError
 
 from ninja import Router
 from . import schemas, crud
-from transcendence import auth
-import logging
-
-logger = logging.getLogger(__name__)
+from transcendence import Logger
 
 router = Router()
+logger = Logger.Logger(name="login")
 
 @router.post('/create_user', response=schemas.UserReturnSchema)
 def create_user(request, user: schemas.UserCreateSchema):
-
-    logger.warning(user)
-    hashed_password = auth.get_password_hash(user.password)
-
-    return crud.create_user(user, hashed_password)
+    return crud.create_user(user)
 
 
+@router.get('/get_user')
+def get_user(request, user: schemas.Username):
 
-@router.get('/get_user', auth=auth.Authentication())
-def get_user(request, username: str):
-    db_user = crud.get_user(username)
+    db_user = crud.get_user(user.username)
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exists")
 
 
 @router.post('/login_user') #Creacion de endpoint
-def login_user(request, username: str):
-    # No recibo bien el json de frontend y no puedo generar el objeto. Desde un curl si funciona , creo , porque le mando el username a pelo
-    
-    #Tambien hay que usar esquemas
-   
+def login_user(request): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el esquema que lleva user y pass
+
     #Hacer la peticion crud a la bbdd
-    db_user = crud.get_user(username) 
+    body = request.body.decode('utf-8')
+    data = eval(body)
+    username = data.get('username')
+    db_user = crud.get_user(username) #llama a la funcion get_user de crud.py y le pasa el username del obj user
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exist")
-    
-    #Validar la password
-
     # Devolver la información del usuario en un formato JSON #no me deja importar la libreria arriba comentada. 
     #user_data = {
     #    "username": db_user.username,
     #    "email": db_user.email,
     #}
-    #return JSONResponse(content=user_data) 
-    
+    #return JSONResponse(content=user_data)  
     return {"username": db_user.username,"email": db_user.email} #(no necesario)la peticion ya devuelve el codigo 200 a la response, pero asi leemos a quien encuentra
+#
+
+@router.post('/login_log')
+def login_log(request, log: schemas.LoginLogSchema):
+    logger.info(log)
+    return {"test": "ok"}
