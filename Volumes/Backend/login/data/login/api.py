@@ -1,5 +1,6 @@
 from typing import Any, Optional
 from django.http import HttpRequest
+from django.contrib.auth.hashers import check_password
 #from ninja.responses import JSONResponse
 from ninja.errors import HttpError
 
@@ -32,7 +33,7 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
         raise HttpError(status_code=404, message="Error: user does not exist")
 
     #Comprobacion de contraseña (De momento compara las strings, ya vendra tema HASH)
-    if user.password != db_user.password:
+    if not check_password(user.password, db_user.password):
         raise HttpError(status_code=401, message="Error: incorrect password")
 
     # Devolver la información del usuario en un diccionario
