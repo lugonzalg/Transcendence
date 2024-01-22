@@ -35,6 +35,7 @@ export default {
     },
     data() {
         return {
+          showOTPVerification: false,
             credentials: {
                 username: '',
                 password: ''
@@ -44,11 +45,17 @@ export default {
     methods: {
         async login() {
             try {
-                const response = await axios.post('lukas/api/login:5000', this.credentials);
+                const response = await axios.post('http://localhost:25671/api/login/login_user', this.credentials,
+                 {
+                  headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                  }
+                 });
                 console.log(response.data);
                 if (response.status === 200) {
                   console.log(response.data);
-                  this.showOTPVerification = true;
+                  this.$router.push('/Lobby');
+                  //this.showOTPVerification = true;
             }
               }
             catch (error) {
