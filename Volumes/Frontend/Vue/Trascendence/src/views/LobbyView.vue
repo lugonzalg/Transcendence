@@ -1,21 +1,27 @@
 <template>
-    <DefaultNavbar></DefaultNavbar>ç
+
+    <DefaultNavbar></DefaultNavbar>
+
     <p>Welcome to Lobby!</p>
-</template>
+
+  </template>
     
 <script>
-  import DefaultNavbar from '@/components/DefaultNavbar.vue';
 
-    export default {
-      name: 'LobbyView',
-      components: {
-        DefaultNavbar
-    }
-    }
+import DefaultNavbar from '@/components/DefaultNavbar.vue';
 
+export default 
+{
+  name: 'LobbyView',
+  components: 
+  {
+    DefaultNavbar
+  }
+}
 
 </script>
     
 <style scoped>
+
 </style>
     

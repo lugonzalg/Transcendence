@@ -1,11 +1,13 @@
 <template>
+
   <DefaultNavbar></DefaultNavbar>
+
   <div class="login-container" v-if="!showOTPVerification">
     <div class="login-info">
     </div>
     <div class="login-form">
       <h2>Iniciar Sesión</h2>
-      <form @submit.prevent="login">
+      <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="username">Usuario:</label>
           <input type="text" id="username" v-model="credentials.username">
@@ -18,100 +20,108 @@
       </form>
     </div>
   </div>
+
+  <PopUpError v-if="popupTriggers.responseTrigger" :error-message="errorMessage" @close="popupTriggers.responseTrigger = false"></PopUpError>
+  
   <OTPVerification v-if="showOTPVerification"></OTPVerification>
+
 </template>
   
 <script>
 
-import axios from 'axios';
-import DefaultNavbar from '../components/DefaultNavbar.vue';
-import OTPVerification from '../components/OtpVerification.vue';
+import DefaultNavbar from '@/components/DefaultNavbar.vue';
+import VueCookies from 'vue-cookies';
+import OTPVerification from '@/components/OtpVerification.vue';
+import PopUpError from '@/components/PopUpError.vue';
+import { login } from '@/methods/api/login.js';
+import { ref } from 'vue';
+
+
 
 export default {
-    name: 'LoginView',
-    components: {
-        DefaultNavbar,
-        OTPVerification
-    },
-    data() {
-        return {
-          showOTPVerification: false,
-            credentials: {
-                username: '',
-                password: ''
-            }
-        };
-    },
-    methods: {
-        async login() {
-            try {
-                const response = await axios.post('http://localhost:25671/api/login/login_user', this.credentials,
-                 {
-                  headers: {
-                    'Content-Type': 'application/json; charset=utf-8',
-                  }
-                 });
-                console.log(response.data);
-                if (response.status === 200) {
-                  console.log(response.data);
-                  this.$router.push('/Lobby');
-                  //this.showOTPVerification = true;
-            }
-              }
-            catch (error) {
-                console.error('Error de inicio de sesión:', error);
-            }
-        }
+  name: 'LoginView',
+  components: { DefaultNavbar, OTPVerification, PopUpError },
+  setup() {
+    const errorMessage = ref('');
+    const popupTriggers = ref({
+      responseTrigger: false,
+      timmedTrigger: false
+    });
+    const credentials = ref({
+      username: '',
+      password: ''
+    });
+    return { credentials , popupTriggers, errorMessage};
+  },
+  methods: 
+  {
+    async handleLogin() {
+      const { success, error } = await login(this.credentials);
+      if (!success) {
+        this.errorMessage = error;
+        this.popupTriggers.responseTrigger = true;
+      } else {
+        //this.showOTPVerification = true;
+        this.$router.push('/lobby');
+        VueCookies.set('session_cookie', 'futurojwt', '3600000');
+      }
     }
-
+  }
 };
 
 </script>
   
-  <style scoped>
+<style scoped>
 
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+.login-container
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
     
-  .login-form {
-    width: 15%;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
+.login-form 
+{
+  width: 15%;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
   
-  .form-group {
+.form-group 
+{
     margin-bottom: 15px;
-  }
+}
   
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
+label 
+{
+  display: block;
+  margin-bottom: 5px;
+}
   
-  input[type="text"], input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+input[type="text"], input[type="password"] 
+{
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
   
-  button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-  }
+button 
+{
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
   
-  button:hover {
-    background-color: #45a049;
-  }
+button:hover 
+{
+  background-color: #45a049;
+}
 
-  </style>
+</style>
   
