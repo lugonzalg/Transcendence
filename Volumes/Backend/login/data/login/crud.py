@@ -17,7 +17,13 @@ def create_user(user: schemas.UserCreateSchema) -> models.user_login:
             email=user.email)
         logger.info(f"Usuario creado con éxito: {db_user.username}")
     except IntegrityError as err:
-        raise HttpError(status_code=409, message="Error: user already exists")
+        error_msg = str(err)
+        if 'username' in error_msg:
+            raise HttpError(status_code=409, message="Error: Username already exists")
+        elif 'email' in error_msg:
+            raise HttpError(status_code=409, message="Error: Email already exists")
+        else:
+            raise HttpError(status_code=409, message="Error: User already exists")
     return db_user
 
 def get_user(username: str):

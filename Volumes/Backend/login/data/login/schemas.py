@@ -8,7 +8,14 @@ import re
 username_regex='^[A-Za-z0-9_]+$'
 
 class Username(Schema):
+    
     username: str = Field(max_length=32, pattern=username_regex, examples=["walter"])
+    
+    @validator('username')
+    def validate_username_length(cls, v):
+        if len(v) > 16:
+            raise HttpError(status_code=400, message="Username is too long")
+        return v
 
 class UserLogin(Username):
 
@@ -44,8 +51,6 @@ class UserCreateSchema(UserLogin):
             raise HttpError(status_code=404, message="Email: bad format")
         return v
             
-
-
 class UserReturnSchema(ModelSchema):
 
     class Meta:

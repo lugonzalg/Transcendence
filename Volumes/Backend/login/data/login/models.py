@@ -8,6 +8,7 @@ class user_login(models.Model):
 
     username = models.CharField(max_length=16, unique=True)
     email = models.CharField(max_length=32, unique=True)
+    password = models.CharField(max_length=100)
 
     class Meta:
         db_table = 'user_login'
