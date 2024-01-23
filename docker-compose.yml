@@ -8,7 +8,10 @@ services:
     volumes:
       - ./Volumes/Frontend/Vue/Trascendence:/Trascendence
       - ./Volumes/Frontend/Logs/:/Logs
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/fix-database-migration
   login:
 
     build: 
@@ -70,4 +73,8 @@ volumes:
                         device: ./Volumes/Backend/login/log
 
         v_postgres_data:
+<<<<<<< HEAD
+=======
+        
+>>>>>>> origin/fix-database-migration
 

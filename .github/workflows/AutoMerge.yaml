@@ -17,3 +17,4 @@ jobs:
           git fetch origin develop
           git merge develop
           git push origin main
+          echo "AutoMerge 'develop' into 'main' was successful."

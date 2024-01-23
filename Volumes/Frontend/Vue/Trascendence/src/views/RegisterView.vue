@@ -1,9 +1,13 @@
 <template>
+
   <DefaultNavbar></DefaultNavbar>
+
+  <PopUpError v-if="popupTriggers.responseTrigger" :error-message="errorMessage" @close="popupTriggers.responseTrigger = false"></PopUpError>
+  
   <div class="register-container">
     <div class="register-form">
       <h2>Registro</h2>
-      <form @submit.prevent="register">
+      <form @submit.prevent="handleRegister">
         <div class="form-group">
           <label for="username">Usuario:</label>
           <input type="text" id="username" v-model="credentials.username">
@@ -24,44 +28,48 @@
       </form>
     </div>
   </div>
-  </template>
-  
-  <script>
-import DefaultNavbar from '@/components/DefaultNavbar.vue';
 
-import axios from 'axios';
+</template>
+  
+<script>
+
+import DefaultNavbar from '@/components/DefaultNavbar.vue';
+import PopUpError from '../components/PopUpError.vue';
+import { ref, computed } from 'vue';
+import { register } from '@/methods/api/login.js';
+
   export default {
-    name: 'RegisterView',
-    components: { DefaultNavbar },
-    data() {
-    return {
-      credentials: {
-        username: '',
-        email: '',
-        password: ''
-      },
-      confirmPassword: ''
-    };
-  },
-  computed: {
-    isFormValid() {
-      return this.credentials.password === this.confirmPassword && this.credentials.email;
-    }
+  name: 'RegisterView',
+  components: { DefaultNavbar, PopUpError },
+  setup() {
+    const errorMessage = ref('');
+    const popupTriggers = ref({
+      responseTrigger: false,
+      timmedTrigger: false
+    });
+    const credentials = ref({
+      username: '',
+      email: '',
+      password: ''
+    });
+    const confirmPassword = ref('');
+
+    const isFormValid = computed(() => {
+      return credentials.value.password === confirmPassword.value && credentials.value.email;
+    });
+    return { errorMessage, popupTriggers, credentials, confirmPassword, isFormValid };
   },
   methods: {
-    async register() {
-      if (!this.isFormValid) {
-        alert('Las contraseñas no coinciden o el email está vacío.');
-        return;
+      async handleRegister () {
+      const { success, error } = await register(this.credentials);
+      if (!success) {
+        this.errorMessage = error;
+        this.popupTriggers.responseTrigger = true;
+      } else {
+        this.$router.push('/login');
       }
-      
-      const response = await axios.post('http://65.109.174.85:25671/api/login/create_user', this.credentials);
-                console.log(response.data);
-                if (response.status === 200) {
-                  console.log(response.data);
     }
   }
-}
 };
   </script>
   

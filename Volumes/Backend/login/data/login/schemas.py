@@ -8,11 +8,26 @@ import re
 username_regex='^[A-Za-z0-9_]+$'
 
 class Username(Schema):
+<<<<<<< HEAD
     username: str = Field(max_length=32, pattern=username_regex, examples=["walter"])
 
 class UserLogin(Username):
 
     password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1"])
+=======
+    
+    username: str = Field(max_length=32, pattern=username_regex, examples=["walter"])
+    
+    @validator('username')
+    def validate_username_length(cls, v):
+        if len(v) > 16:
+            raise HttpError(status_code=400, message="Username is too long")
+        return v
+
+class UserLogin(Username):
+
+    password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1!"])
+>>>>>>> origin/fix-database-migration
 
     @validator('password')
     def validate_password(cls, v, values):
@@ -33,7 +48,6 @@ class UserLogin(Username):
         return v
 
 class UserCreateSchema(UserLogin):
-
     email: str = Field(max_length=256, examples=["walter@gmail.com"])
 
     @validator('email')
@@ -45,13 +59,11 @@ class UserCreateSchema(UserLogin):
             raise HttpError(status_code=404, message="Email: bad format")
         return v
             
-
-
 class UserReturnSchema(ModelSchema):
 
     class Meta:
 
-        model = models.User
+        model = models.user_login
         fields = ['username', 'email']
 
 class LoginLogSchema(Schema):
@@ -60,4 +72,8 @@ class LoginLogSchema(Schema):
     language: str
     platform: str
     screenResolution: str
+<<<<<<< HEAD
     userAgent: str
+=======
+    userAgent: str
+>>>>>>> origin/fix-database-migration
