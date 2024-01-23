@@ -3,7 +3,12 @@ from django.db import models
 
 # Create your models here.
 
-class User(AbstractBaseUser):
+#esta clase se usa para llamar a la tabla de la bbdd llamada user_login
+class user_login(models.Model):
 
-    username: str = models.CharField(max_length=16, unique=True)
-    email: str = models.CharField(max_length=32, unique=True)
+    username = models.CharField(max_length=16, unique=True)
+    email = models.CharField(max_length=32, unique=True)
+    password = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'user_login'
