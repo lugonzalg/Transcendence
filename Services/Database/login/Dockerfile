@@ -4,8 +4,4 @@ FROM postgres:12.17-alpine3.19
 #COPY postgresql.conf /usr/share/postgresql/postgresql.conf
 #COPY pg_hba.conf /usr/share/postgresql/postgresql.conf
 
-COPY create_tables.sql docker-entrypoint-initdb.d/create_tables.sql
-
-RUN chmod 755 /docker-entrypoint-initdb.d/create_tables.sql
-
 CMD ["postgres"] 
