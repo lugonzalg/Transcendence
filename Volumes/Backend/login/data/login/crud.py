@@ -8,17 +8,6 @@ from transcendence import Logger
 
 logger = Logger.Logger(name="login")
 
-<<<<<<< HEAD
-def create_user(user: schemas.UserCreateSchema) -> models.User:
-
-    try:
-
-        db_user = models.User.objects.create(
-            username=user.username,
-            password=make_password(user.password),
-            email=user.email)
-
-=======
 
 def create_user(user: schemas.UserCreateSchema) -> models.user_login:
     try:
@@ -27,7 +16,6 @@ def create_user(user: schemas.UserCreateSchema) -> models.user_login:
             password=make_password(user.password),
             email=user.email)
         logger.info(f"Usuario creado con éxito: {db_user.username}")
->>>>>>> origin/fix-database-migration
     except IntegrityError as err:
         error_msg = str(err)
         if 'username' in error_msg:

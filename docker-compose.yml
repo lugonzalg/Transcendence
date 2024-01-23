@@ -1,5 +1,7 @@
 version: '3.8'
+
 services:
+
   vue:
     build: ./Services/Frontend
     image: transcendence_frontend_login
@@ -8,12 +10,8 @@ services:
     volumes:
       - ./Volumes/Frontend/Vue/Trascendence:/Trascendence
       - ./Volumes/Frontend/Logs/:/Logs
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/fix-database-migration
   login:
-
     build: 
       context: Services/Backend/login
       dockerfile: Dockerfile
@@ -23,14 +21,12 @@ services:
     image: transcendence_backend_login
     environment:
       - ADMIN
+      - PARAMS
       - LOGIN_PORT
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
       - POSTGRES_HOST
-      - SECRET_KEY
-      - ALGORITHM
-      - ACCESS_TOKEN_EXPIRE_MINUTES
 
     ports:
       - 25671:25671
@@ -38,6 +34,7 @@ services:
     volumes:
       - v_login:/app
       - v_login_log:/log
+      - v_login_tools:/app/tools
 
     entrypoint: ./docker-entrypoint.sh
   
@@ -72,9 +69,13 @@ volumes:
                         o: bind
                         device: ./Volumes/Backend/login/log
 
+        v_login_tools:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Services/Backend/login/tools
+
         v_postgres_data:
-<<<<<<< HEAD
-=======
         
->>>>>>> origin/fix-database-migration
 

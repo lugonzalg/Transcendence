@@ -8,13 +8,6 @@ import re
 username_regex='^[A-Za-z0-9_]+$'
 
 class Username(Schema):
-<<<<<<< HEAD
-    username: str = Field(max_length=32, pattern=username_regex, examples=["walter"])
-
-class UserLogin(Username):
-
-    password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1"])
-=======
     
     username: str = Field(max_length=32, pattern=username_regex, examples=["walter"])
     
@@ -27,7 +20,6 @@ class UserLogin(Username):
 class UserLogin(Username):
 
     password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1!"])
->>>>>>> origin/fix-database-migration
 
     @validator('password')
     def validate_password(cls, v, values):
@@ -72,8 +64,4 @@ class LoginLogSchema(Schema):
     language: str
     platform: str
     screenResolution: str
-<<<<<<< HEAD
     userAgent: str
-=======
-    userAgent: str
->>>>>>> origin/fix-database-migration

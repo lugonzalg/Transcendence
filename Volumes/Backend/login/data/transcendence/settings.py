@@ -11,11 +11,22 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-import os
+import os, json, sys
+from transcendence import Logger
+
+logger = Logger.Logger(name="login")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+try:
+    with open(os.environ["PARAMS"]) as fd:
+        params = json.load(fd)
+except FileNotFoundError:
+    logger.error(f"Error: Params File Not Found")
+    sys.exit(1)
+
+GOOGLE_OUATH = params["GOOGLE_OAUTH"]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -26,11 +37,7 @@ SECRET_KEY = 'django-insecure-!41*+ai(5cgxamj&(zt6n5tp10kqw-&6=$*tu%!y-+_6#c4&k(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-<<<<<<< HEAD
-ALLOWED_HOSTS = ["65.109.174.85"]
-=======
 ALLOWED_HOSTS = ["65.109.174.85","localhost","195.35.48.173","trascendence.tech"]
->>>>>>> origin/fix-database-migration
 
 
 # Application definition
@@ -135,8 +142,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-<<<<<<< HEAD
-=======
     "http://65.109.174.85:8080",
     "http://65.109.174.85:25671",
     "http://65.109.174.85",
@@ -147,7 +152,6 @@ CORS_ALLOWED_ORIGINS = [
     "https://localhost:25671",
     "http://localhost",
     "https://localhost"
->>>>>>> origin/fix-database-migration
 ]
 
 CORS_ALLOW_CREDENTIALS = True
