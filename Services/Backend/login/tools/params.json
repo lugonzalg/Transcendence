@@ -6,11 +6,32 @@
         "APP_ID": "trancendence-411414",
         "API_URI": "api:google-oauth2:login-raw:callback-raw",
         "AUTH_URL": "https://accounts.google.com/o/oauth2/auth",
-        "ACCESS_TOKEN_OBTAIN_URL": "https://oauth2.googleapis.com/token",
+        "ACCESS_TOKEN_URL": "https://oauth2.googleapis.com/token",
         "USER_INFO_URL": "https://www.googleapis.com/oauth2/v3/userinfo",
         "SCOPES_MAIL": "https://www.googleapis.com/auth/userinfo.email",
         "SCOPES_PROFILE": "https://www.googleapis.com/auth/userinfo.profile",
         "SCOPES_OPENID": "openid",
-        "REDIRECT_URI": "http://localhost:25671/api/docs/google/callback"
+        "REDIRECT_URI": "http://trascendence.tech:25671/api/login/google/callback",
+        "SCOPES": [
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "openid"
+        ],
+        "OAUTH_PARAMS_LOGIN" : {
+            "scope": "",
+            "access_type": "offline",
+            "include_granted_scopes": "true",
+            "response_type": "code",
+            "state": "",
+            "redirect_uri": "",
+            "client_id": ""
+        },
+        "OAUTH_PARAMS_TOKEN" : {
+            "code": "",
+            "client_id": "",
+            "client_secret": "",
+            "redirect_uri": "",
+            "grant_type": "authorization_code"
+        }
     }
 }

@@ -5,6 +5,9 @@ from ninja import Router
 from . import schemas, crud
 from transcendence.settings import logger, GOOGLE_OUATH
 
+import requests
+import jwt
+
 router = Router()
 
 @router.post('/create_user', response=schemas.UserReturnSchema)
@@ -43,31 +46,53 @@ def login_log(request, log: schemas.LoginLogSchema):
 
 import hashlib, os, aiohttp
 from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
+from urllib.parse import urlencode
 
-@router.post('/google')
-async def google_login(request):
+@router.get('/google')
+def google_login(request):
 
     state = hashlib.sha256(os.urandom(1024)).hexdigest()
-    
-    auth_params = {
-    'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly',
-    'access_type': 'offline',
-    'include_granted_scopes': 'true',
-    'response_type': 'code',
-    'state': state,
-    'redirect_uri': GOOGLE_OUATH['REDIRECT_URI2'],
-    'client_id': GOOGLE_OUATH['CLIENT_ID']
-    }
+    oauth_params = GOOGLE_OUATH['OAUTH_PARAMS_LOGIN']
+    oauth_params['scope'] = ' '.join(GOOGLE_OUATH["SCOPES"])
+    oauth_params['state'] = state
+    oauth_params['redirect_uri'] = GOOGLE_OUATH['REDIRECT_URI']
+    oauth_params['client_id'] = GOOGLE_OUATH['CLIENT_ID']
 
-    async with aiohttp.ClientSession() as client:
-        async with client.get(GOOGLE_OUATH["AUTH_URL"], params=auth_params) as res:
+    request.session["google_oauth2_state"] = state
 
-            logger.info(f"URL: {res.url}")
-            logger.info(f"PATH: {res.url.raw_path}")
-            logger.info(type(res.url))
+    logger.info(oauth_params)
+    auth_url = f"{GOOGLE_OUATH['AUTH_URL']}?{urlencode(oauth_params)}"
+    logger.info(auth_url)
+    return HttpResponseRedirect(auth_url)
 
-            return {"url":str(res.url)}
+def request_token(code: str):
 
-@router.post('/google/callback')
-def test(request):
+    oauth_params = GOOGLE_OUATH['OAUTH_PARAMS_TOKEN']
+    oauth_params['code'] = code
+    oauth_params['client_id'] = GOOGLE_OUATH['CLIENT_ID']
+    oauth_params['client_secret'] = GOOGLE_OUATH['CLIENT_SECRET']
+    oauth_params['redirect_uri'] = GOOGLE_OUATH['REDIRECT_URI']
+
+    res = requests.post(GOOGLE_OUATH['ACCESS_TOKEN_URL'], data=oauth_params)
+    if not res.ok:
+        raise HttpError(status_code=400, message="Error: Authentication Failed")
+
+    google_tokens = res.json()
+    user_info = jwt.decode(google_tokens['id_token'],options={"verify_signature": False})
+    logger.info(user_info)
+
     return {"test": "tset"}
+
+@router.get('/google/callback')
+def test(request, code: str, state: str, error: str | None = None):
+
+    if error:
+        raise HttpError(status_code=401, message=f"Error found: {error}")
+
+    user_state = request.session.get('google_oauth2_state')
+    if not user_state or state != user_state:
+        raise HttpError(status_code=401, message="Error: Unautorithed")
+    del request.session['google_oauth2_state']
+
+    return request_token(code)
