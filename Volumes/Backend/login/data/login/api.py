@@ -44,38 +44,30 @@ def login_log(request, log: schemas.LoginLogSchema):
 import hashlib, os, aiohttp
 from django.shortcuts import redirect
 
-@router.post('/login/google')
+@router.post('/google')
 async def google_login(request):
 
     state = hashlib.sha256(os.urandom(1024)).hexdigest()
+    
     auth_params = {
-        'response_type': 'code',
-        'client_id': GOOGLE_OUATH["CLIENT_ID"],
-        'scope': 'openid email',
-        'redirect_uri': GOOGLE_OUATH["REDIRECT_URI"],
-        'state': state,
-        'login_hint': 'transcendence4242@google.com',
-        'nonce': '0394852-3190485-2490358'
-    }
-
-    auth_params2 = {
     'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly',
     'access_type': 'offline',
     'include_granted_scopes': 'true',
     'response_type': 'code',
     'state': state,
-    'redirect_uri': GOOGLE_OUATH['REDIRECT_URI'],
+    'redirect_uri': GOOGLE_OUATH['REDIRECT_URI2'],
     'client_id': GOOGLE_OUATH['CLIENT_ID']
     }
 
-
-    logger.info(auth_params)
     async with aiohttp.ClientSession() as client:
-        async with client.get(GOOGLE_OUATH["AUTH_URL"], params=auth_params2) as res:
-            logger.info(res.text)
+        async with client.get(GOOGLE_OUATH["AUTH_URL"], params=auth_params) as res:
 
-    return {'test':'google'}
+            logger.info(f"URL: {res.url}")
+            logger.info(f"PATH: {res.url.raw_path}")
+            logger.info(type(res.url))
 
-@router.post('/login/google/callback')
+            return {"url":str(res.url)}
+
+@router.post('/google/callback')
 def test(request):
     return {"test": "tset"}

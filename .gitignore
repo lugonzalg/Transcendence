@@ -6,3 +6,4 @@ log
 .secrets
 .env
 *.pyc
+params.json
