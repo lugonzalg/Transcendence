@@ -11,10 +11,25 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-import os, json, sys
-from transcendence import Logger
+import os, json, sys, pathlib
+import logging.config
+import logging.handlers
 
-logger = Logger.Logger(name="login")
+logger = logging.getLogger("login")  # __name__ is a common choice
+
+def setup_logging():
+
+    config_file = pathlib.Path(os.environ["LOGGER_PARAMS"])
+    logging.info(config_file)
+    with open(config_file) as f_in:
+        config = json.load(f_in)
+
+    config["handlers"]["file"]["filename"] = "/log/app.log"
+    logging.config.dictConfig(config)
+
+
+setup_logging()
+logging.basicConfig(level="INFO")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

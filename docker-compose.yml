@@ -20,7 +20,7 @@ services:
       - postgres
     image: transcendence_backend_login
     environment:
-      - ADMIN
+      - LOGGER_PARAMS
       - PARAMS
       - LOGIN_PORT
       - POSTGRES_USER

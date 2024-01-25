@@ -66,26 +66,8 @@ def google_login(request):
     logger.info(auth_url)
     return HttpResponseRedirect(auth_url)
 
-def request_token(code: str):
-
-    oauth_params = GOOGLE_OUATH['OAUTH_PARAMS_TOKEN']
-    oauth_params['code'] = code
-    oauth_params['client_id'] = GOOGLE_OUATH['CLIENT_ID']
-    oauth_params['client_secret'] = GOOGLE_OUATH['CLIENT_SECRET']
-    oauth_params['redirect_uri'] = GOOGLE_OUATH['REDIRECT_URI']
-
-    res = requests.post(GOOGLE_OUATH['ACCESS_TOKEN_URL'], data=oauth_params)
-    if not res.ok:
-        raise HttpError(status_code=400, message="Error: Authentication Failed")
-
-    google_tokens = res.json()
-    user_info = jwt.decode(google_tokens['id_token'],options={"verify_signature": False})
-    logger.info(user_info)
-
-    return {"test": "tset"}
-
 @router.get('/google/callback')
-def test(request, code: str, state: str, error: str | None = None):
+def google_callback(request, code: str, state: str, error: str | None = None):
 
     if error:
         raise HttpError(status_code=401, message=f"Error found: {error}")
@@ -95,4 +77,18 @@ def test(request, code: str, state: str, error: str | None = None):
         raise HttpError(status_code=401, message="Error: Unautorithed")
     del request.session['google_oauth2_state']
 
-    return request_token(code)
+    oauth_params = GOOGLE_OUATH['OAUTH_PARAMS_TOKEN']
+    oauth_params['code'] = code
+    oauth_params['client_id'] = GOOGLE_OUATH['CLIENT_ID']
+    oauth_params['client_secret'] = GOOGLE_OUATH['CLIENT_SECRET']
+    oauth_params['redirect_uri'] = GOOGLE_OUATH['REDIRECT_URI']
+
+    res = requests.post(GOOGLE_OUATH['ACCESS_TOKEN_URL'], data=oauth_params)
+    if not res.ok:
+        raise HttpError(status_code=res.status_code, message="Error: Authentication Failed")
+
+    google_tokens = res.json()
+    user_info = jwt.decode(google_tokens['id_token'],options={"verify_signature": False})
+    logger.info(user_info)
+
+    return {"test": "tset"}
