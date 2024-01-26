@@ -35,10 +35,10 @@ services:
       - v_login:/app
       - v_login_log:/log
 
-    entrypoint: tail -f
+    entrypoint: ./docker-entrypoint.sh
   
   postgres:  
-    container_name: bbdd_login 
+    container_name: transcendence_bbdd_login 
     image: transcendence_database_login
     build:
       context: ./Services/Database/login/
@@ -52,6 +52,18 @@ services:
       - v_postgres_data:/var/lib/postgresql/data
     #ports:  
     # - "5432:5432"
+
+  mail:  
+    container_name: transcendence_mail 
+    image: transcendence_mail
+    build:
+      context: ./Services/Mail/
+    restart: always
+    environment:
+      - SMTP_USER
+      - SMTP_PASS
+    ports:
+      - 25:25 
 
 volumes:
         v_login:
@@ -67,7 +79,6 @@ volumes:
                         type: none
                         o: bind
                         device: ./Volumes/Backend/login/log
-
         v_postgres_data:
         
 
