@@ -36,9 +36,27 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
     if not check_password(user.password, db_user.password):
         raise HttpError(status_code=401, message="Error: incorrect password")
 
-    # Devolver la información del usuario en un diccionario
-    return {"username": db_user.username,"email": db_user.email} 
+     # Devolver la información del usuario (el schema de UserReturnSchema ya filtra lo que devolver, el usuario y el mail en un diccionario
+    return {db_user} 
 
+
+@router.get('/redirect_intra')
+def redirect_intra(request): #Construye la URI que se usa para hacer la peticion a la intra 
+
+    #esta metida como un churro, como metemos las variables client_id, redirect_uri, ...?  
+    #Si la url es siempre igual loguee quien se loguee, igual no es necesario este endpoint?
+    peticion = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-6b7efca18b23485e50a6d9bc6df43ecc1024f25f5cf92dc6fd473fcc8647e21c&redirect_uri=https%3A%2F%2Ftrascendence.tech%2F&response_type=code"
+
+    return ({"url":peticion})
+
+
+@router.post('/login_intra')
+def login_intra(request): #Aun no se que recoge del Front. user???
+     #busca o crea el usuario. osea llama al crud get user y si no esta lo creara 
+    #db_user = crud.get_user(user.username) 
+    #if db_user is None:
+    #    //puedo llamar directamente al endpoint /create_user con los datos del paquete? 
+    return
 
 
 @router.post('/login_log')
