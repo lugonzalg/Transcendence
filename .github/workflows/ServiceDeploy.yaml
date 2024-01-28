@@ -1,0 +1,37 @@
+name: Despliegue en VPS
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        type: choice
+        description: "Servicio a desplegar"
+        options:
+          - trascendencetech-login-1 #Backend login micro
+          - trascendencetech-vue-1 #Frontend login 
+          - bbdd_login #Login database
+          - trascendencetech-mail-1 #Smpt service
+        required: true
+      branch:
+        type: string
+        description: "Nombre de la rama o hash del commit para desplegar"
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Despliegue en VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd path/to/your/project
+            git pull
+            docker-compose up -d ${{ github.event.inputs.service }}
