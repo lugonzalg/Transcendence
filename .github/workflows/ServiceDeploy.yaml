@@ -7,10 +7,10 @@ on:
         type: choice
         description: "Servicio a desplegar"
         options:
-          - trascendencetech-login-1 #Backend login micro
-          - trascendencetech-vue-1 #Frontend login 
-          - bbdd_login #Login database
-          - trascendencetech-mail-1 #Smpt service
+          - transcendence_frontend #Backend login micro
+          - transcendence_mail #Smpt service
+          - transcendence_backend_login #Frontend login 
+          - transcendence_bbdd_login #Login database
         required: true
       branch:
         type: string
