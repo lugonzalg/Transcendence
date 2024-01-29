@@ -17,13 +17,14 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             rm -rf var/www/trascendence.tech
-            ls -la var/www/trascendence.tech
-            git clone https://github.com/Julen-Smith/Transcendence.git var/www/trascendence.tech
-            ls -la var/www/trascendence.tech
+            ls -la var/www/trascendence.tech 2>&1
+            git clone https://github.com/Julen-Smith/Transcendence.git var/www/trascendence.tech 2>&1 #mandar del err al out 
+            ls -la var/www/trascendence.tech 2>&1 
             cd var/www/trascendence.tech
             mkdir Volumes/Backend/login/data
             mkdir Volumes/Backend/login/log
             touch .env
             echo "${{ secrets.ENVIRON }}" > .env
+            npm install /var/www/trascendence.tech/Volumes/Frontend/Vue/Trascendence
             docker compose down
             docker compose up -d
