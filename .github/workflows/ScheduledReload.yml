@@ -16,9 +16,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-             if [ -d "var/www/trascendence.tech" ]; then
-                echo "El directorio existe. Eliminando..."
-             fi
+             rm -rf var/www/trascendence.tech
 
       - name: Clonar repositorio
         uses: appleboy/ssh-action@master
@@ -41,7 +39,9 @@ jobs:
             mkdir -p Volumes/Backend/login/data
             mkdir -p Volumes/Backend/login/log
             echo ${{ secrets.ENVIRON }} > .env
-
+            echo "Contenido de .env:"
+            cat .env
+            
       - name: Instalar dependencias y ejecutar Docker
         uses: appleboy/ssh-action@master
         with:
