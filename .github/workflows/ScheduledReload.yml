@@ -23,8 +23,8 @@ jobs:
             cd var/www/trascendence.tech
             mkdir Volumes/Backend/login/data
             mkdir Volumes/Backend/login/log
-            touch .env
             echo "${{ secrets.ENVIRON }}" > .env
-            npm install /var/www/trascendence.tech/Volumes/Frontend/Vue/Trascendence
+            cd /var/www/trascendence.tech/Volumes/Frontend/Vue/Trascendence
+            npm install
             docker compose down
             docker compose up -d
