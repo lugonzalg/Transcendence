@@ -9,10 +9,6 @@ jobs:
   reload:
     runs-on: ubuntu-latest
     steps:
-      - name: Crear archivo .env
-        run: |
-          touch .env
-          echo "${{ secrets.ENVIRON }}" > .env
       - name: Conectar al servidor y ejecutar script
         uses: appleboy/ssh-action@master
         with:
@@ -21,9 +17,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             rm -rf var/www/trascendence.tech
+            ls -la var/www/trascendence.tech
             git clone https://github.com/Julen-Smith/Transcendence.git var/www/trascendence.tech
+            ls -la var/www/trascendence.tech
             cd var/www/trascendence.tech
-            mkdir /var/www/trascendence.tech/Volumes/Backend/login/data
-            mkdir /var/www/trascendence.tech/Volumes/Backend/login/log
+            mkdir Volumes/Backend/login/data
+            mkdir Volumes/Backend/login/log
+            touch .env
+            echo "${{ secrets.ENVIRON }}" > .env
             docker compose down
             docker compose up -d
