@@ -16,8 +16,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            rm -rf var/www/trascendence.tech
-            ls -la var/www/trascendence.tech 2>&1
+             if [ -d "var/www/trascendence.tech" ]; then
+                echo "El directorio existe. Eliminando..."
+             fi
 
       - name: Clonar repositorio
         uses: appleboy/ssh-action@master
