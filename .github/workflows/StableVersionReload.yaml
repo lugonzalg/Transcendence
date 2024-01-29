@@ -1,4 +1,4 @@
-name: Stable Version Reaload
+name: Stable Version Reload
 
 on:
   schedule:
