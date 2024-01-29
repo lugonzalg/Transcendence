@@ -38,7 +38,7 @@ jobs:
             cd var/www/trascendence.tech
             mkdir -p Volumes/Backend/login/data
             mkdir -p Volumes/Backend/login/log
-            echo ${{ secrets.ENVIRON }} > .env
+            echo "${{ secrets.ENVIRON }}" > .env
             ls -l .env
             echo "Contenido de .env:"
             cat .env
