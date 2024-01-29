@@ -39,9 +39,10 @@ jobs:
             mkdir -p Volumes/Backend/login/data
             mkdir -p Volumes/Backend/login/log
             echo ${{ secrets.ENVIRON }} > .env
+            ls -l .env
             echo "Contenido de .env:"
             cat .env
-            
+
       - name: Instalar dependencias y ejecutar Docker
         uses: appleboy/ssh-action@master
         with:
