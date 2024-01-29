@@ -1,20 +1,22 @@
-name: Auto Merge
+name: Stable Version Reaload
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *' # Se ejecuta a las 12 de la noche UTC
+
 jobs:
-  merge:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: AutoMerge 'develop' into 'main'
-        run: |
-          git checkout main
-          git fetch origin develop
-          git merge develop
-          git push origin main
-          echo "AutoMerge 'develop' into 'main' was successful."
+      - name: Conectar al servidor y ejecutar script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            rm -rf var/www/trascendence.tech
+            git clone https://github.com/Julen-Smith/Transcendence.git var/www/trascendence.tech
+            cd var/www/trascendence.tech
+            docker-compose down
+            docker-compose up -d
