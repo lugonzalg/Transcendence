@@ -134,7 +134,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://65.109.174.85:8080",
     "http://65.109.174.85:25671",
     "http://65.109.174.85",
-    "https://trascendence.tech"
+    "https://trascendence.tech",
+    "http://localhost:8080",
+    "https://localhost:8080",
+    "http://localhost:25671",
+    "https://localhost:25671",
+    "http://localhost",
+    "https://localhost"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
