@@ -1,4 +1,4 @@
-name: Despliegue en VPS
+name: Specific service deploy.
 
 on:
   workflow_dispatch:
@@ -7,10 +7,10 @@ on:
         type: choice
         description: "Servicio a desplegar"
         options:
-          - transcendence_frontend #Backend login micro
-          - transcendence_mail #Smpt service
-          - transcendence_backend_login #Frontend login 
-          - transcendence_bbdd_login #Login database
+          - transcendence_frontend
+          - transcendence_mail
+          - transcendence_backend_login
+          - transcendence_bbdd_login
         required: true
       branch:
         type: string
@@ -20,18 +20,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      transcendence_frontend_service: 'Services/Frontend/'
+      transcendence_frontend_volume: 'Volumes/Frontend/'
+      transcendence_mail_service: 'Services/Mail/'
+      transcendence_mail_volume: 'Volumes/Mail/'
+      transcendence_backend_login_service: 'Services/Backend/login'
+      transcendence_backend_login_volume: 'Volumes/Backend/login'
+      transcendence_bbdd_login_service: 'Services/Database/Login'
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout del Repositorio
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.event.inputs.branch }}
-
-      - name: Despliegue en VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd path/to/your/project
-            git pull
-            docker-compose up -d ${{ github.event.inputs.service }}
+      - name: Listar Contenido Clonado
+        run: ls -la
