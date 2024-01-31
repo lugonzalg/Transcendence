@@ -39,7 +39,7 @@ jobs:
       - name: Subir Archivos al Servidor
         run : |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" >> ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
           rsync -avz /home/runner/work/Transcendence/Transcendence/transcendence_frontend/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/transcendence_frontend/
 
       - name: Despliegue en VPS
