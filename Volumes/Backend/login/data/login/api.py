@@ -40,23 +40,61 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
     return {db_user} 
 
 
-@router.get('/redirect_intra')
+@router.get('/intra')
 def redirect_intra(request): #Construye la URI que se usa para hacer la peticion a la intra 
 
     #esta metida como un churro, como metemos las variables client_id, redirect_uri, ...?  
     #Si la url es siempre igual loguee quien se loguee, igual no es necesario este endpoint?
-    peticion = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-6b7efca18b23485e50a6d9bc6df43ecc1024f25f5cf92dc6fd473fcc8647e21c&redirect_uri=https%3A%2F%2Ftrascendence.tech%2F&response_type=code"
+    peticion = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-6b7efca18b23485e50a6d9bc6df43ecc1024f25f5cf92dc6fd473fcc8647e21c&redirect_uri=http%3A%2F%2Flocalhost%3A25671%2Fapi%2Flogin%2Fintra%2Fcallback&response_type=code"
 
-    return ({"url":peticion})
+    uid = os.environ['INTRA_UID']
+    auth_url = os.environ['INTRA_AUTH_URL']
+    redirect_uri = ['INTRA_REDIRECT_URI']
+
+    # Construir la URI (la f indica que esta utilizando una cadena de formato f-string en Python.Las expresiones dentro de las llaves se evalúan y se insertan en la cadena resultante.)
+    uri = f"{auth_url}?client_id={uid}&redirect_uri={redirect_uri}&response_type=code"
+
+    return ({"url":uri})
 
 
-@router.post('/login_intra')
-def login_intra(request): #Aun no se que recoge del Front. user???
-     #busca o crea el usuario. osea llama al crud get user y si no esta lo creara 
+@router.get('/intra/callback')
+def login_intra(request): 
+    
+    # Recibe el código del parámetro GET
+    code = request.GET.get('code')
+     #<QueryDict: {'code': ['5b6f5c362b11172402fd81c8bf4e2f40772bcc6305e0294a4fd763d49643544b']}>
+
+    # Credenciales de la aplicación desde las variables de entorno para construir la peticion de intercambio por token y validar. 
+    uid = os.environ.get('INTRA_UID')
+    secret = os.environ.get('INTRA_SECRET')
+    authorization_url = os.environ.get('INTRA_VERIFY_URL')
+
+    #Construye
+    data = {
+        'grant_type': 'authorization_code',
+        'client_id': uid,
+        'client_secret': secret,
+        'code': code,
+        'redirect_uri': 'tu_uri_de_redireccion',
+    }
+    #Hace un POST????? ME PIERDOOOOOOOOO
+
+    # Si en la respuesta esta el token de acceso o no
+    if response.status_code == 200:
+        token = response.json()['access_token']
+        # Guardamos el token?
+        return response # Devuelve OK al Front
+    else:
+        #Lanzar ERROR en debug?
+        return response  # Devuelve ERROR al Front
+
+
+
+     #ESTO EN OTRO ENDPOINT?????
+    # busca o crea el usuario. osea llama al crud get user y si no esta lo creara 
     #db_user = crud.get_user(user.username) 
     #if db_user is None:
     #    //puedo llamar directamente al endpoint /create_user con los datos del paquete? 
-    return
 
 
 @router.post('/login_log')

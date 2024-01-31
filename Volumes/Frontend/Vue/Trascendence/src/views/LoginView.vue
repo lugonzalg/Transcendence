@@ -73,7 +73,7 @@ export default {
     },
     redirectToIntra() {
     //De momento redirigimos al churro de url (contruida a pelo con los valores client_id, redirect_uri... de la pagina de app de la intra). Al ser siempre la misma, igual no estrictamente necesario crear un endpoint para construirla. 
-    const externalURL ='https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-6b7efca18b23485e50a6d9bc6df43ecc1024f25f5cf92dc6fd473fcc8647e21c&redirect_uri=https%3A%2F%2Ftrascendence.tech%2Flogin&response_type=code';
+    const externalURL ='https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-6b7efca18b23485e50a6d9bc6df43ecc1024f25f5cf92dc6fd473fcc8647e21c&redirect_uri=http%3A%2F%2Flocalhost%3A25671%2Fapi%2Flogin%2Fintra%2Fcallback&response_type=code';
     const windowFeatures = 'width=400,height=400,resizable=yes,scrollbars=yes';
     window.open(externalURL, windowFeatures); //Abre pesatña y no ventana
   }
