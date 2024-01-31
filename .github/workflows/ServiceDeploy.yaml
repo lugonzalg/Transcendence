@@ -38,7 +38,9 @@ jobs:
       
       - name: Subir Archivos al Servidor
         run : |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" /home/runner/work/Transcendence/Transcendence/transcendence_frontend/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/transcendence_frontend/
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" >> ~/.ssh/known_hosts
+          rsync -avz /home/runner/work/Transcendence/Transcendence/transcendence_frontend/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/transcendence_frontend/
 
       - name: Despliegue en VPS
         uses: appleboy/ssh-action@master
