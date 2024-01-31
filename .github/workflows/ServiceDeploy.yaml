@@ -35,6 +35,9 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
       - name: Listar Contenido Clonado
         run: ls -la
+      
+      - name: Subir Archivos al Servidor
+        run: rsync -avz --exclude='...' ${{ github.event.inputs.service }}/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/
 
       - name: Despliegue en VPS
         uses: appleboy/ssh-action@master
