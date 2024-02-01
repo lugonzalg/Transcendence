@@ -50,4 +50,4 @@ stop:
 stop-all: down
 
 psql:
-	$(COMPOSE) exec postgres psql -U transcendence transcendence
+	$(COMPOSE) exec postgres psql -U Astro98 transcendence

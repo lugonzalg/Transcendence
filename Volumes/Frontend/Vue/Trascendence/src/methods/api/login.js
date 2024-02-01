@@ -45,6 +45,4 @@ async function login(credentials) {
     }
 }
 
-
-
 export {collectBrowserData , sendDataToServer, register, login};

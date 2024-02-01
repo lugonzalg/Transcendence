@@ -17,6 +17,7 @@
           <input type="password" id="password" v-model="credentials.password">
         </div>
         <button type="submit">Iniciar Sesión</button>
+        <GoogleLogin></GoogleLogin>
       </form>
     </div>
   </div>
@@ -29,6 +30,7 @@
   
 <script>
 
+import GoogleLogin from '@/components/GoogleLogin.vue';
 import DefaultNavbar from '@/components/DefaultNavbar.vue';
 import VueCookies from 'vue-cookies';
 import OTPVerification from '@/components/OtpVerification.vue';
@@ -40,7 +42,7 @@ import { ref } from 'vue';
 
 export default {
   name: 'LoginView',
-  components: { DefaultNavbar, OTPVerification, PopUpError },
+  components: { GoogleLogin, DefaultNavbar, OTPVerification, PopUpError },
   setup() {
     const errorMessage = ref('');
     const popupTriggers = ref({
@@ -123,5 +125,5 @@ button:hover
   background-color: #45a049;
 }
 
+
 </style>
-  

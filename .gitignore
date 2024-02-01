@@ -6,4 +6,4 @@ log
 .secrets
 .env
 *.pyc
-params.json
+Services/Backend/login/tools/*.json

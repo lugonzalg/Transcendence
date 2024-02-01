@@ -65,3 +65,17 @@ class LoginLogSchema(Schema):
     platform: str
     screenResolution: str
     userAgent: str
+
+###############
+# JWT Achemas #
+###############
+
+class JWTInput(Schema):
+
+    payload: dict
+    expire_time: int
+
+class JWTOutput(Schema):
+
+    token: str
+    refresh_token: str

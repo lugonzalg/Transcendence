@@ -42,6 +42,7 @@ except FileNotFoundError:
     sys.exit(1)
 
 GOOGLE_OUATH = params["GOOGLE_OAUTH"]
+TRANSCENDENCE = params["TRANSCENDENCE"]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/

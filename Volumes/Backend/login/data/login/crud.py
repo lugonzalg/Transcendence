@@ -43,3 +43,12 @@ def get_user(username: str):
         raise HttpError(status_code=500, message=f"Internal Server Error: {e}")
 
     return db_user
+
+def get_user_by_email(email: str) -> models.user_login | None:
+
+    try:
+        db_user = models.user_login.objects.filter(email=email).get()
+        return db_user
+
+    except Exception as err:
+        logger.error(err)

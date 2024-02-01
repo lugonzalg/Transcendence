@@ -3,7 +3,7 @@ from ninja.errors import HttpError
 
 from ninja import Router
 from . import schemas, crud
-from transcendence.settings import logger, GOOGLE_OUATH
+from transcendence.settings import logger, GOOGLE_OUATH, TRANSCENDENCE
 
 import requests
 import jwt
@@ -66,6 +66,8 @@ def google_login(request):
     logger.info(auth_url)
     return HttpResponseRedirect(auth_url)
 
+from django.shortcuts import render
+
 @router.get('/google/callback')
 def google_callback(request, code: str, state: str, error: str | None = None):
 
@@ -89,6 +91,42 @@ def google_callback(request, code: str, state: str, error: str | None = None):
 
     google_tokens = res.json()
     user_info = jwt.decode(google_tokens['id_token'],options={"verify_signature": False})
-    logger.info(user_info)
+    #logger.warning(user_info)
 
-    return {"test": "tset"}
+    email = user_info.get('email')
+    db_user = crud.get_user_by_email(email)
+    if db_user is None:
+        logger.warning("User does not exist!")
+        #create_user()
+
+    payload = {
+        'email': email
+    }
+
+    expire_time = 30
+    jwt_token = create_jwt(schemas.JWTInput(payload=payload,expire_time=expire_time))
+    logger.warning(f"JWT TOKEN: {jwt_token}")
+    
+    response = HttpResponseRedirect(TRANSCENDENCE['URL']['lobby'])
+    response.set_cookie('token', jwt_token.token)
+    response.set_cookie('refresh', jwt_token.refresh_token)
+
+    return response
+
+################################
+# MICRO SERVICIO AUTENTICACION #
+################################
+
+SECRET = TRANSCENDENCE['JWT']['secret']
+ALGORITHM = TRANSCENDENCE['JWT']['algorithm']
+REFRESH = TRANSCENDENCE['JWT']['refresh']
+
+def create_jwt(jwt_input: schemas.JWTInput):
+
+    jwt_input.payload.update({"exp": jwt_input.expire_time})
+    token = jwt.encode(jwt_input.payload, SECRET, ALGORITHM)
+    jwt_input.payload.update({"exp": REFRESH})
+    refresh_token = jwt.encode(jwt_input.payload, SECRET, ALGORITHM)
+    jwt_output = schemas.JWTOutput(token=token, refresh_token=refresh_token)
+
+    return jwt_output
