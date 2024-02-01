@@ -5,8 +5,6 @@ from . import schemas, models
 from .models import user_login
 from transcendence.settings import logger
 
-
-
 def create_user(user: schemas.UserCreateSchema) -> models.user_login:
     try:
         db_user = models.user_login.objects.create(
