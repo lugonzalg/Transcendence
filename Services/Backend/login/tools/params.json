@@ -11,7 +11,7 @@
         "SCOPES_MAIL": "https://www.googleapis.com/auth/userinfo.email",
         "SCOPES_PROFILE": "https://www.googleapis.com/auth/userinfo.profile",
         "SCOPES_OPENID": "openid",
-        "REDIRECT_URI": "http://trascendence.tech:25671/api/login/google/callback",
+        "REDIRECT_URI": "http://localhost:25671/api/login/google/callback",
         "SCOPES": [
             "https://www.googleapis.com/auth/userinfo.email",
             "https://www.googleapis.com/auth/userinfo.profile",
@@ -32,6 +32,23 @@
             "client_secret": "",
             "redirect_uri": "",
             "grant_type": "authorization_code"
+        }
+    },
+    "TRANSCENDENCE": {
+        "URL": {
+            "lobby": "http://localhost:8080/lobby",
+            "otp": "http://localhost:8080/otp"
+        },
+        "JWT": {
+            "secret": "624f21243fe81295b67131fd772e207552a22742fe9e7637e3dfdaf14ad9810d",
+            "refresh": 180,
+            "algorithm": "HS256"
+        },
+        "SMTP": {
+            "sender":"noreply@trascendence.tech",
+            "address":"mail",
+            "port":25,
+            "otp": 1234
         }
     }
 }

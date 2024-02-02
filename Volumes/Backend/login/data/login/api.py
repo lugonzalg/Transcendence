@@ -1,6 +1,6 @@
 from django.contrib.auth.hashers import check_password
 from typing import Any, Optional
-from django.http import HttpRequest
+from django.http import HttpResponse
 #from ninja.responses import JSONResponse
 from ninja.errors import HttpError
 
@@ -25,33 +25,65 @@ def get_user(request, user: schemas.Username):
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exists")
 
+import datetime, smtplib
+from django.utils import timezone
 
-@router.post('/login_user') #Creacion de endpoint
-def login_user(request): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el esquema que lleva user y pass
+def send_email(sender: str, receiver: str, otp_code: int):
+
+    try:
+        mail = schemas.Mail(
+            sender=sender,
+            receiver=receiver,
+        )
+    except ValueError as err:
+        logger.warning(f"Error: Missing Value(s) {err}")
+        return False
+
+    mail.build(otp_code)
+
+    try:
+        with smtplib.SMTP(TRANSCENDENCE['SMTP']['address'], TRANSCENDENCE['SMTP']['port']) as server:
+            server.sendmail(sender, receiver, mail.message)
+        return True
+
+    except Exception as err:
+        logger.error(f"Error: Unhandled {err}")
+    return False
+
+from django.core.cache import cache
+
+@router.post('/login_user', response={200: schemas.UserReturnSchema, 428: schemas.UserReturnSchema}) #Creacion de endpoint
+def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el esquema que lleva user y pass
 
     #Hacer la peticion crud a la bbdd
-    body = request.body.decode('utf-8')
-    data = eval(body)
-    username = data.get('username')
-    db_user = crud.get_user(username) #llama a la funcion get_user de crud.py y le pasa el username del obj user
+    db_user = crud.get_user(user.username) #llama a la funcion get_user de crud.py y le pasa el username del obj user
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exist")
-    # Devolver la información del usuario en un formato JSON #no me deja importar la libreria arriba comentada. 
-    #user_data = {
-    #    "username": db_user.username,
-    #    "email": db_user.email,
-    #}
-    #return JSONResponse(content=user_data)  
-    return {"username": db_user.username,"email": db_user.email} #(no necesario)la peticion ya devuelve el codigo 200 a la response, pero asi leemos a quien encuentra
-#
+
+    last_log = db_user.last_log - datetime.timedelta(minutes=30)
+    now = timezone.now()
+
+    place_holder_mail = "qtmisotxeqojvfdbht@ckptr.com"
+    db_user.save()
+    cache.add("test", TRANSCENDENCE['SMTP']['otp'], 30)
+    if (now > last_log):
+        send_email(
+            sender=TRANSCENDENCE['SMTP']['sender'],
+            receiver=place_holder_mail,
+            otp_code=TRANSCENDENCE['SMTP']['otp']
+        )
+        return 428, db_user
+    else:
+        logger.warning("Log is okay")
+
+    return db_user
 
 @router.post('/login_log')
 def login_log(request, log: schemas.LoginLogSchema):
     logger.info(log)
     return {"test": "ok"}
 
-import hashlib, os, aiohttp
-from django.shortcuts import redirect
+import hashlib, os
 from django.http import HttpResponseRedirect
 from urllib.parse import urlencode
 
@@ -71,8 +103,6 @@ def google_login(request):
     auth_url = f"{GOOGLE_OUATH['AUTH_URL']}?{urlencode(oauth_params)}"
     logger.info(auth_url)
     return HttpResponseRedirect(auth_url)
-
-from django.shortcuts import render
 
 @router.get('/google/callback')
 def google_callback(request, code: str, state: str, error: str | None = None):
@@ -105,9 +135,7 @@ def google_callback(request, code: str, state: str, error: str | None = None):
         logger.warning("User does not exist!")
         #create_user()
 
-    payload = {
-        'email': email
-    }
+    payload = {'email': email}
 
     expire_time = 30
     jwt_token = create_jwt(schemas.JWTInput(payload=payload,expire_time=expire_time))

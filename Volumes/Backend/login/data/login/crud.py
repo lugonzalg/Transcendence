@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password
 from . import schemas, models
 from .models import user_login
 from transcendence.settings import logger
+from django.core.exceptions import ObjectDoesNotExist
 
 def create_user(user: schemas.UserCreateSchema) -> models.user_login:
     try:
@@ -45,8 +46,15 @@ def get_user(username: str):
 def get_user_by_email(email: str) -> models.user_login | None:
 
     try:
+        print(f"email: {email}")
+        db_user = models.user_login.objects.all()
+        print(len(db_user))
+
         db_user = models.user_login.objects.filter(email=email).get()
         return db_user
 
+    except ObjectDoesNotExist as err:
+        logger.error(f"Error: Not Found {err}")
+
     except Exception as err:
-        logger.error(err)
+        logger.error(f"Error: Unhandled {err}")
