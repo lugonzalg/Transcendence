@@ -78,24 +78,17 @@ def login_intra(request):
         'redirect_uri': 'tu_uri_de_redireccion',
     }
     #Hace un POST????? ME PIERDOOOOOOOOO
-
+    #request.post()
     # Si en la respuesta esta el token de acceso o no
-    if response.status_code == 200:
-        token = response.json()['access_token']
-        # Guardamos el token?
+    if response.status_code != 200:
+        #raiseERror
         return response # Devuelve OK al Front
-    else:
-        #Lanzar ERROR en debug?
-        return response  # Devuelve ERROR al Front
+
+    token = response.json()['access_token']
+    db_user = crud.create_user(token.username) #userschema   
 
 
-
-     #ESTO EN OTRO ENDPOINT?????
-    # busca o crea el usuario. osea llama al crud get user y si no esta lo creara 
-    #db_user = crud.get_user(user.username) 
-    #if db_user is None:
-    #    //puedo llamar directamente al endpoint /create_user con los datos del paquete? 
-
+    
 
 @router.post('/login_log')
 def login_log(request, log: schemas.LoginLogSchema):
