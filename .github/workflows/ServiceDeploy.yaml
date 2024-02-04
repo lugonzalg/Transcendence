@@ -38,13 +38,11 @@ jobs:
       
       - name: Establecer Variables de Entorno Específicas del Servicio
         run: |
-          #echo "SERVICE_PATH=${{ github.event.inputs.service }}" >> $GITHUB_ENV
-
           if [ "${{ github.event.inputs.service }}" == "transcendence_frontend" ]; then
-            echo "SERVICE_PATH=$transcendence_frontend_service >> $GITHUB_ENV
-            echo "SERVICE_VOLUME=$transcendence_frontend_volume >> $GITHUB_ENV
+            echo "SERVICE_PATH=${{ env.transcendence_frontend_service }}" >> $GITHUB_ENV
+            echo "SERVICE_VOLUME=${{ env.transcendence_frontend_volume }}" >> $GITHUB_ENV
           fi
-          echo $GITHUB_ENV
+          cat $GITHUB_ENV
 
 
       - name: Subir Archivos al Servidor
