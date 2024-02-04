@@ -36,6 +36,17 @@ jobs:
       - name: Listar Contenido Clonado
         run: ls -la
       
+      - name: Establecer Variables de Entorno Específicas del Servicio
+        run: |
+          #echo "SERVICE_PATH=${{ github.event.inputs.service }}" >> $GITHUB_ENV
+
+          if [ "${{ github.event.inputs.service }}" == "transcendence_frontend" ]; then
+            echo "SERVICE_PATH=$transcendence_frontend_service >> $GITHUB_ENV
+            echo "SERVICE_VOLUME=$transcendence_frontend_volume >> $GITHUB_ENV
+          fi
+          echo $GITHUB_ENV
+
+
       - name: Subir Archivos al Servidor
         run : |
           mkdir -p ~/.ssh
@@ -43,7 +54,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}"  > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           pwd
-          rsync -avz ${{ github.workspace }}/${{ github.event.inputs.service }}/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/${{ github.event.inputs.service }}/
+          rsync -avz ${{ github.workspace }}/${SERVICE_PATH}}/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/${{ SERVICE_PATH }}/
 
       - name: Despliegue en VPS
         uses: appleboy/ssh-action@master
