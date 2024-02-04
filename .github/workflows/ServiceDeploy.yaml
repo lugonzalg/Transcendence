@@ -51,7 +51,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}"  > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           pwd
-          rsync -avz ${{ github.workspace }}/${env.SERVICE_PATH}}/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/${{ env.SERVICE_PATH }}/
+          rsync -avz /home/runner/work/Transcendence/Transcendence/${SERVICE_PATH}/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/Services/Frontend/
 
       - name: Despliegue en VPS
         uses: appleboy/ssh-action@master
