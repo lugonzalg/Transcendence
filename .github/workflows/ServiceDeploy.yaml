@@ -44,6 +44,14 @@ jobs:
           if [ "${{ github.event.inputs.service }}" == "transcendence_frontend" ]; then
             echo "SERVICE_PATH=${{ env.transcendence_frontend_service }}" >> $GITHUB_ENV
             echo "SERVICE_VOLUME=${{ env.transcendence_frontend_volume }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.service }}" == "transcendence_mail" ]; then
+            echo "SERVICE_PATH=${{ env.transcendence_mail_service }}" >> $GITHUB_ENV
+            echo "SERVICE_VOLUME=${{ env.transcendence_mail_volume }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.service }}" == "transcendence_backend_login" ]; then
+            echo "SERVICE_PATH=${{ env.transcendence_backend_login_service }}" >> $GITHUB_ENV
+            echo "SERVICE_VOLUME=${{ env.transcendence_backend_login_volume }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.service }}" == "transcendence_bbdd_login" ]; then
+           echo "SERVICE_VOLUME=${{ env.transcendence_bbdd_login_service }}" >> $GITHUB_ENV
           fi
 
       - name: Subir Archivos al Servidor
