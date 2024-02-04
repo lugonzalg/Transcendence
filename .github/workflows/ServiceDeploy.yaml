@@ -71,6 +71,6 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/trascendence.tech/${{ github.event.inputs.service }}
-            docker compose down ${{ github.event.inputs.service }}
-            docker compose up -d ${{ github.event.inputs.service }}
+            cd /var/www/trascendence.tech/
+            docker compose down 
+            docker compose up -d 
