@@ -51,7 +51,8 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}"  > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           pwd
-          rsync -avz /home/runner/work/Transcendence/Transcendence/${SERVICE_PATH}/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/Services/Frontend/
+          rsync -avz /home/runner/work/Transcendence/Transcendence/${SERVICE_PATH}/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/${SERVICE_PATH}/
+          rsync -avz /home/runner/work/Transcendence/Transcendence/docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/
 
       - name: Despliegue en VPS
         uses: appleboy/ssh-action@master
@@ -61,5 +62,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/trascendence.tech/${{ github.event.inputs.service }}
-            docker-compose down ${{ github.event.inputs.service }}
-            docker-compose up -d ${{ github.event.inputs.service }}
+            docker compose down ${{ github.event.inputs.service }}
+            docker compose up -d ${{ github.event.inputs.service }}
