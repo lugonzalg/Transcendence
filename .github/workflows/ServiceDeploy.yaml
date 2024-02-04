@@ -66,7 +66,7 @@ jobs:
             rsync -avz /home/runner/work/Transcendence/Transcendence/${SERVICE_PATH}/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/${SERVICE_PATH}/
             rsync -avz /home/runner/work/Transcendence/Transcendence/${SERVICE_VOLUME}/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/${SERVICE_VOLUME}/
             rsync -avz /home/runner/work/Transcendence/Transcendence/docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/
-          elif
+          else
             rsync -avz /home/runner/work/Transcendence/Transcendence/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/trascendence.tech/
           fi
       - name: Despliegue en VPS
