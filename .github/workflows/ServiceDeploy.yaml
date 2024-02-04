@@ -34,7 +34,9 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
       - name: Listar Contenido Clonado
-        run: ls -la
+        run: |
+          ls -lR
+          git branch
       
       - name: Establecer Variables de Entorno Específicas del Servicio
         run: |
