@@ -1,11 +1,8 @@
 from django.contrib.auth.hashers import check_password
 from typing import Any, Optional
-<<<<<<< HEAD
 from django.http import HttpResponse
-=======
 from django.http import HttpRequest
 from django.contrib.auth.hashers import check_password
->>>>>>> origin/eperaita
 #from ninja.responses import JSONResponse
 from ninja.errors import HttpError
 
@@ -33,7 +30,6 @@ def get_user(request, user: schemas.Username):
 import datetime, smtplib
 from django.utils import timezone
 
-<<<<<<< HEAD
 def send_email(sender: str, receiver: str, otp_code: int):
 
     try:
@@ -59,32 +55,6 @@ def send_email(sender: str, receiver: str, otp_code: int):
 from django.core.cache import cache
 
 @router.post('/login_user', response={200: schemas.UserReturnSchema, 428: schemas.UserReturnSchema}) #Creacion de endpoint
-def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el esquema que lleva user y pass
-
-    #Hacer la peticion crud a la bbdd
-    db_user = crud.get_user(user.username) #llama a la funcion get_user de crud.py y le pasa el username del obj user
-    if db_user is None:
-        raise HttpError(status_code=404, message="Error: user does not exist")
-
-    last_log = db_user.last_log - datetime.timedelta(minutes=30)
-    now = timezone.now()
-
-    place_holder_mail = "qtmisotxeqojvfdbht@ckptr.com"
-    db_user.save()
-    cache.add("test", TRANSCENDENCE['SMTP']['otp'], 30)
-    if (now > last_log):
-        send_email(
-            sender=TRANSCENDENCE['SMTP']['sender'],
-            receiver=place_holder_mail,
-            otp_code=TRANSCENDENCE['SMTP']['otp']
-        )
-        return 428, db_user
-    else:
-        logger.warning("Log is okay")
-
-    return db_user
-=======
-@router.post('/login_user', response=schemas.UserReturnSchema) #Creacion de endpoint, que especifica el esquema DE RESPUESTA definido en schemas
 def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el schema DE CREACION DE USER definido en schemas
 
    #llama a la funcion get_user de crud.py y le devuelve el user objeto con la validacion del schema UserLogin
@@ -96,9 +66,24 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
     if not check_password(user.password, db_user.password):
         raise HttpError(status_code=401, message="Error: incorrect password")
 
-     # Devolver la información del usuario (el schema de UserReturnSchema ya filtra lo que devolver, el usuario y el mail en un diccionario
-    return {db_user} 
+    last_log = db_user.last_log - datetime.timedelta(minutes=30)
+    now = timezone.now()
+    db_user.save()
 
+    place_holder_mail = "qtmisotxeqojvfdbht@ckptr.com"
+    cache.add("test", TRANSCENDENCE['SMTP']['otp'], 30)
+    if (now > last_log):
+        send_email(
+            sender=TRANSCENDENCE['SMTP']['sender'],
+            receiver=place_holder_mail,
+            otp_code=TRANSCENDENCE['SMTP']['otp']
+        )
+        return 428, db_user
+    else:
+        logger.warning("Log is okay")
+
+     # Devolver la información del usuario (el schema de UserReturnSchema ya filtra lo que devolver, el usuario y el mail en un diccionario
+    return 200, db_user
 
 @router.get('/intra')
 def redirect_intra(request): #Construye la URI que se usa para hacer la peticion a la intra 
@@ -115,7 +100,6 @@ def redirect_intra(request): #Construye la URI que se usa para hacer la peticion
     uri = f"{auth_url}?client_id={uid}&redirect_uri={redirect_uri}&response_type=code"
 
     return ({"url":uri})
-
 
 @router.get('/intra/callback')
 def login_intra(request): 
@@ -140,16 +124,13 @@ def login_intra(request):
     #Hace un POST????? ME PIERDOOOOOOOOO
     #request.post()
     # Si en la respuesta esta el token de acceso o no
-    if response.status_code != 200:
+    #if response.status_code != 200:
         #raiseERror
-        return response # Devuelve OK al Front
+    #    return response # Devuelve OK al Front
 
-    token = response.json()['access_token']
-    db_user = crud.create_user(token.username) #userschema   
-
-
+    #token = response.json()['access_token']
+    #db_user = crud.create_user(token.username) #userschema   
     
->>>>>>> origin/eperaita
 
 @router.post('/login_log')
 def login_log(request, log: schemas.LoginLogSchema):
