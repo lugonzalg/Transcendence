@@ -17,12 +17,12 @@
           <input type="password" id="password" v-model="credentials.password">
         </div>
         <button type="submit">Iniciar Sesión</button>
-        <GoogleLogin></GoogleLogin>
         <!-- Boton Login Intra 42 -->
         <div>
          <button class="button_intra" @click=redirectToIntra >Registrarse con Intra 42</button>
         </div>
       </form>
+      <GoogleLogin></GoogleLogin>
     </div>
     
   </div>

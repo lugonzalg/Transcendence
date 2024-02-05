@@ -188,7 +188,9 @@ def handle_jwt(email: str):
     )
 
     jwt_token = create_jwt(jwt_info)
+
     logger.warning(f"JWT TOKEN: {jwt_token}")
+    return jwt_token
 
 @router.get('/google/callback')
 def google_callback(request, code: str, state: str, error: str | None = None):
@@ -222,7 +224,7 @@ def google_callback(request, code: str, state: str, error: str | None = None):
         new_user = schemas.UserCreateSchema(
             username="place_holder",
             email=email,
-            password=None
+            password="Asdfasdfasdf$1"
         )
         crud.create_user(new_user, TRANSCENDENCE['LOGIN']['GOOGLE'])
     elif check_user(db_user):

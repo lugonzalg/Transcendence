@@ -10,7 +10,7 @@ class user_login(models.Model):
     email = models.EmailField(max_length=32, unique=True)
     password = models.CharField(max_length=100)
     last_log = models.DateTimeField(auto_now=True)
-    mode = models.SmallIntegerField()
+    mode = models.SmallIntegerField(default=0)
 
     class Meta:
         db_table = 'user_login'
