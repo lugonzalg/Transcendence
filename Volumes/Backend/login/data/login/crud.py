@@ -6,12 +6,13 @@ from .models import user_login
 from transcendence.settings import logger
 from django.core.exceptions import ObjectDoesNotExist
 
-def create_user(user: schemas.UserCreateSchema) -> models.user_login:
+def create_user(user: schemas.UserCreateSchema, mode: int) -> models.user_login:
     try:
         db_user = models.user_login.objects.create(
             username=user.username,
             password=make_password(user.password),
-            email=user.email)
+            email=user.email,
+            mode=mode)
         logger.info(f"Usuario creado con éxito: {db_user.username}")
     except IntegrityError as err:
         error_msg = str(err)

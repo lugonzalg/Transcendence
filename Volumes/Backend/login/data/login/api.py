@@ -1,3 +1,7 @@
+import hashlib, os
+from django.http import HttpResponseRedirect
+from urllib.parse import urlencode
+
 from django.contrib.auth.hashers import check_password
 from typing import Any, Optional
 from django.http import HttpResponse
@@ -5,9 +9,12 @@ from django.http import HttpRequest
 from django.contrib.auth.hashers import check_password
 #from ninja.responses import JSONResponse
 from ninja.errors import HttpError
+from django.core.cache import cache
+import random
+
 
 from ninja import Router
-from . import schemas, crud
+from . import schemas, crud, models
 from transcendence.settings import logger, GOOGLE_OUATH, TRANSCENDENCE
 
 import requests
@@ -17,7 +24,7 @@ router = Router()
 
 @router.post('/create_user', response=schemas.UserReturnSchema)
 def create_user(request, user: schemas.UserCreateSchema):
-    return crud.create_user(user)
+    return crud.create_user(user, TRANSCENDENCE['LOGIN']['LOCAL'])
 
 
 @router.get('/get_user')
@@ -52,7 +59,28 @@ def send_email(sender: str, receiver: str, otp_code: int):
         logger.error(f"Error: Unhandled {err}")
     return False
 
-from django.core.cache import cache
+def check_user(db_user: models.user_login) -> bool:
+
+    last_log = db_user.last_log - datetime.timedelta(minutes=30)
+    now = timezone.now()
+    db_user.save()
+
+    return now > last_log
+
+################
+# CUSTOM LOGIN #
+################
+
+def handle_otp(db_user: models.user_login):
+
+    place_holder_mail = "qtmisotxeqojvfdbht@ckptr.com"
+    otp_code=random.randint(0000, 9999)
+    cache.add(db_user.username, otp_code, 30)
+    send_email(
+        sender=TRANSCENDENCE['SMTP']['sender'],
+        receiver=place_holder_mail,
+        otp_code=otp_code
+    )
 
 @router.post('/login_user', response={200: schemas.UserReturnSchema, 428: schemas.UserReturnSchema}) #Creacion de endpoint
 def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el schema DE CREACION DE USER definido en schemas
@@ -62,28 +90,23 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exist")
 
+    if db_user.mode != TRANSCENDENCE['LOGIN']['LOCAL']:
+        raise HttpError(status_code=404, message="Error: User already used other authentication method")
+
     #Comprobacion de contraseña (De momento compara las strings, ya vendra tema HASH)
     if not check_password(user.password, db_user.password):
         raise HttpError(status_code=401, message="Error: incorrect password")
 
-    last_log = db_user.last_log - datetime.timedelta(minutes=30)
-    now = timezone.now()
-    db_user.save()
-
-    place_holder_mail = "qtmisotxeqojvfdbht@ckptr.com"
-    cache.add("test", TRANSCENDENCE['SMTP']['otp'], 30)
-    if (now > last_log):
-        send_email(
-            sender=TRANSCENDENCE['SMTP']['sender'],
-            receiver=place_holder_mail,
-            otp_code=TRANSCENDENCE['SMTP']['otp']
-        )
+    if check_user():
+        handle_otp()
         return 428, db_user
-    else:
-        logger.warning("Log is okay")
 
      # Devolver la información del usuario (el schema de UserReturnSchema ya filtra lo que devolver, el usuario y el mail en un diccionario
     return 200, db_user
+
+############
+# 42 LOGIN #
+############
 
 @router.get('/intra')
 def redirect_intra(request): #Construye la URI que se usa para hacer la peticion a la intra 
@@ -137,9 +160,9 @@ def login_log(request, log: schemas.LoginLogSchema):
     logger.info(log)
     return {"test": "ok"}
 
-import hashlib, os
-from django.http import HttpResponseRedirect
-from urllib.parse import urlencode
+################
+# GOOGLE LOGIN #
+################
 
 @router.get('/google')
 def google_login(request):
@@ -153,10 +176,19 @@ def google_login(request):
 
     request.session["google_oauth2_state"] = state
 
-    logger.info(oauth_params)
     auth_url = f"{GOOGLE_OUATH['AUTH_URL']}?{urlencode(oauth_params)}"
-    logger.info(auth_url)
     return HttpResponseRedirect(auth_url)
+
+def handle_jwt(email: str):
+
+    payload = {'email': email}
+    jwt_info = schemas.JWTInput(
+        payload=payload,
+        expire_time=30
+    )
+
+    jwt_token = create_jwt(jwt_info)
+    logger.warning(f"JWT TOKEN: {jwt_token}")
 
 @router.get('/google/callback')
 def google_callback(request, code: str, state: str, error: str | None = None):
@@ -187,14 +219,17 @@ def google_callback(request, code: str, state: str, error: str | None = None):
     db_user = crud.get_user_by_email(email)
     if db_user is None:
         logger.warning("User does not exist!")
-        #create_user()
+        new_user = schemas.UserCreateSchema(
+            username="place_holder",
+            email=email,
+            password=None
+        )
+        crud.create_user(new_user, TRANSCENDENCE['LOGIN']['GOOGLE'])
+    elif check_user(db_user):
+        handle_otp(db_user)
 
-    payload = {'email': email}
+    jwt_token = handle_jwt(email)
 
-    expire_time = 30
-    jwt_token = create_jwt(schemas.JWTInput(payload=payload,expire_time=expire_time))
-    logger.warning(f"JWT TOKEN: {jwt_token}")
-    
     response = HttpResponseRedirect(TRANSCENDENCE['URL']['lobby'])
     response.set_cookie('token', jwt_token.token)
     response.set_cookie('refresh', jwt_token.refresh_token)
@@ -212,9 +247,11 @@ REFRESH = TRANSCENDENCE['JWT']['refresh']
 def create_jwt(jwt_input: schemas.JWTInput):
 
     jwt_input.payload.update({"exp": jwt_input.expire_time})
-    token = jwt.encode(jwt_input.payload, SECRET, ALGORITHM)
+    token = f"Bearer {jwt.encode(jwt_input.payload, SECRET, ALGORITHM)}"
+
     jwt_input.payload.update({"exp": REFRESH})
     refresh_token = jwt.encode(jwt_input.payload, SECRET, ALGORITHM)
+
     jwt_output = schemas.JWTOutput(token=token, refresh_token=refresh_token)
 
     return jwt_output

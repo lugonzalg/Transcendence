@@ -49,6 +49,11 @@
             "address":"mail",
             "port":25,
             "otp": 1234
+        },
+        "LOGIN": {
+            "LOCAL": 0,
+            "INTRA": 1,
+            "GOOGLE": 2
         }
     }
 }
