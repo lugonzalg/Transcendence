@@ -4,6 +4,8 @@ services:
 
   vue:
     build: ./Services/Frontend
+    env_file:
+      - .envs/.env.vue
     image: transcendence_frontend_login
     ports:
       - "8080:8080"

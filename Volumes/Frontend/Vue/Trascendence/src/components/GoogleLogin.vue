@@ -1,5 +1,5 @@
 <template>
-    <button class="gsi-material-button" @click="openNewWindow">
+    <button class="gsi-material-button" @click="loadGoogleOauth">
         <div class="gsi-material-button-state"></div>
         <div class="gsi-material-button-content-wrapper">
             <div class="gsi-material-button-icon">
@@ -19,43 +19,13 @@
 
 <script>
 
-import VueCookies from 'vue-cookies';
-import { login } from '@/methods/api/login.js';
-import { ref } from 'vue';
-
 export default {
-  name: 'LoginView',
-  setup() {
-    const errorMessage = ref('');
-    const popupTriggers = ref({
-      responseTrigger: false,
-      timmedTrigger: false
-    });
-    const credentials = ref({
-      username: '',
-      password: ''
-    });
-    return { credentials , popupTriggers, errorMessage};
-  },
   methods: 
   {
-    async handleLogin() {
-      const { success, error } = await login(this.credentials);
-      if (!success) {
-        this.errorMessage = error;
-        this.popupTriggers.responseTrigger = true;
-      } else {
-        //this.showOTPVerification = true;
-        this.$router.push('/lobby');
-        VueCookies.set('session_cookie', 'futurojwt', '3600000');
-      }
-    },
-    async openNewWindow() {
-
-        const url = 'http://localhost:25671/api/login/google';
+    async loadGoogleOauth() {
+        const url = process.env.VUE_APP_GOOGLE_OAUTH_URL;
         window.location.href = url;
-
-    },
+    }
   }
 };
 </script>
