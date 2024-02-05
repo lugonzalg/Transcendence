@@ -227,6 +227,7 @@ def google_callback(request, code: str, state: str, error: str | None = None):
             password="Asdfasdfasdf$1"
         )
         crud.create_user(new_user, TRANSCENDENCE['LOGIN']['GOOGLE'])
+
     elif check_user(db_user):
         handle_otp(db_user)
 
