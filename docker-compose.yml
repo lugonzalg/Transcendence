@@ -28,6 +28,11 @@ services:
       - SECRET_KEY
       - ALGORITHM
       - ACCESS_TOKEN_EXPIRE_MINUTES
+      - INTRA_UID
+      - INTRA_SECRET
+      - INTRA_REDIRECT_URI
+      - INTRA_AUTH_URL
+      - INTRA_VERIFY_URL
 
     ports:
       - 25671:25671

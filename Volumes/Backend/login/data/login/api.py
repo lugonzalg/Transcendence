@@ -3,6 +3,8 @@ from django.http import HttpRequest
 from django.contrib.auth.hashers import check_password
 #from ninja.responses import JSONResponse
 from ninja.errors import HttpError
+import os
+import requests
 
 from ninja import Router
 from . import schemas, crud
@@ -60,34 +62,65 @@ def redirect_intra(request): #Construye la URI que se usa para hacer la peticion
 @router.get('/intra/callback')
 def login_intra(request): 
     
+    # PASO 1 - GET CODE 
     # Recibe el código del parámetro GET
     code = request.GET.get('code')
      #<QueryDict: {'code': ['5b6f5c362b11172402fd81c8bf4e2f40772bcc6305e0294a4fd763d49643544b']}>
-
-    # Credenciales de la aplicación desde las variables de entorno para construir la peticion de intercambio por token y validar. 
+    logger.info('PASO 1 CODE')
+    logger.info(code)
+    
+    # PASO 2 - INTERCAMBIO DE CODE POR TOKEN 
+    # Construye peticion (Credenciales de enviroment, las de la app intra) 
     uid = os.environ.get('INTRA_UID')
     secret = os.environ.get('INTRA_SECRET')
     authorization_url = os.environ.get('INTRA_VERIFY_URL')
-
-    #Construye
+    redirect_uri = os.environ.get('INTRA_REDIRECT_URI')
     data = {
         'grant_type': 'authorization_code',
         'client_id': uid,
         'client_secret': secret,
         'code': code,
-        'redirect_uri': 'tu_uri_de_redireccion',
+        'redirect_uri': redirect_uri,
     }
-    #Hace un POST????? ME PIERDOOOOOOOOO
-    #request.post()
-    # Si en la respuesta esta el token de acceso o no
+    #Hace un POST para intercambio por TOKEN 
+    response=requests.post(os.environ.get('INTRA_VERIFY_URL'), params= data)
+    
     if response.status_code != 200:
+        logger.error('PASO 2 ERROR - code no valido')
+        return
+    logger.info('PASO 2 TOKEN')
+    logger.info(response.json().get('access_token'))
+
+    #PASO 3 - TOKEN POR INFO (ME)
+    #Construye peticion
+    access_token = response.json().get('access_token')
+    headers = {
+    'Authorization': f'Bearer {access_token}'   
+    }
+    #Hace GET para acceder a la API , endpoint "me"
+    user_info= requests.get('https://api.intra.42.fr/v2/me', headers)
+    
+
+    if user_info.status_code != 200:
+        logger.error('PASO 3 ERROR - token no valido')
+        return
         #raiseERror
-        return response # Devuelve OK al Front
+    logger.info('PASO 3 INFO USER')
+    logger.info(user_info.json())
+  
+    #PASO 4 - Username from 
+    username=response.get('login')
+    logger.info('PASO 4 USERNAME')
+    logger.info(user_info.json())
+   # logger.info(username)
 
-    token = response.json()['access_token']
-    db_user = crud.create_user(token.username) #userschema   
+    #PASO 5 - Create user 
+    #token = response.json()['access_token']
+    #db_user = crud.create_user(token.username) #userschema   
 
-
+    logger.info('POST OK')
+    return #response # Devuelve OK al Front, pero no la response, otro tipo 
+        
     
 
 @router.post('/login_log')
