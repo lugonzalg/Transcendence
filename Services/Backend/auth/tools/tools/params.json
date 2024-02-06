@@ -1,0 +1,9 @@
+{
+    "TRANSCENDENCE": {
+        "JWT": {
+            "secret": "624f21243fe81295b67131fd772e207552a22742fe9e7637e3dfdaf14ad9810d",
+            "refresh": 180,
+            "algorithm": "HS256"
+        }
+    }
+}
