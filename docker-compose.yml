@@ -39,6 +39,27 @@ services:
       - v_login_tools:/app/tools
 
     entrypoint: ./docker-entrypoint.sh
+
+  auth:
+    build: 
+      context: Services/Backend/auth
+      dockerfile: Dockerfile
+
+    image: transcendence_backend_auth
+    environment:
+      - LOGGER_PARAMS
+      - PARAMS
+      - AUTH_PORT
+
+    ports:
+      - ${AUTH_PORT}:${AUTH_PORT}
+
+    volumes:
+      - v_auth:/app
+      - v_auth_log:/log
+      - v_auth_tools:/app/tools
+
+    entrypoint: ./docker-entrypoint.sh
   
   postgres:  
     container_name: transcendence_bbdd_login 
@@ -120,6 +141,26 @@ services:
 
 
 volumes:
+        v_auth:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Volumes/Backend/auth/data
+
+        v_auth_log:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Volumes/Backend/auth/log
+
+        v_auth_tools:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Services/Backend/auth/tools
         v_login:
                 driver: local
                 driver_opts:

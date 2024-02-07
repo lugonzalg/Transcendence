@@ -1,5 +1,5 @@
-from ninja import Schema, ModelSchema
-from pydantic import validator, Field
+from ninja import Schema, ModelSchema, Field
+from pydantic import validator
 from . import models
 from ninja.errors import HttpError
 from django.core.validators import validate_email
@@ -66,20 +66,6 @@ class LoginLogSchema(Schema):
     platform: str
     screenResolution: str
     userAgent: str
-
-###############
-# JWT Achemas #
-###############
-
-class JWTInput(Schema):
-
-    payload: dict
-    expire_time: int
-
-class JWTOutput(Schema):
-
-    token: str
-    refresh_token: str
 
 ########
 # MAIL #

@@ -11,11 +11,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-import os, json, sys, pathlib
-import logging.config
-import logging.handlers
 
-logger = logging.getLogger("login")  # __name__ is a common choice
+import pathlib, os, sys, json
+import logging.config
+
+logger = logging.getLogger("auth")  # __name__ is a common choice
 
 def setup_logging():
 
@@ -38,29 +38,27 @@ except FileNotFoundError:
     logger.error(f"Error: Params File Not Found")
     sys.exit(1)
 
-GOOGLE_OUATH = params["GOOGLE_OAUTH"]
 TRANSCENDENCE = params["TRANSCENDENCE"]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!41*+ai(5cgxamj&(zt6n5tp10kqw-&6=$*tu%!y-+_6#c4&k('
+SECRET_KEY = 'django-insecure-%fmk_ra(3@i6m+cto&6b$&5m!x)%1eyp#qrku=_6&*@w9a)@j='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["65.109.174.85","localhost","195.35.48.173","trascendence.tech"]
+ALLOWED_HOSTS = ['65.109.174.85', 'auth']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',
-    'login.apps.LoginConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -70,8 +68,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -102,20 +98,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'transcendence.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ['POSTGRES_DB'],
-        'HOST': os.environ['POSTGRES_HOST'],
-        'USER': os.environ['POSTGRES_USER'],
-        'PASSWORD': os.environ['POSTGRES_PASSWORD']
-    }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -134,6 +116,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase'
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -156,33 +144,3 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-CORS_ALLOWED_ORIGINS = [
-    "http://65.109.174.85:8080",
-    "http://65.109.174.85:25671",
-    "http://65.109.174.85",
-    "https://trascendence.tech",
-    "http://localhost:8080",
-    "https://localhost:8080",
-    "http://localhost:25671",
-    "https://localhost:25671",
-    "http://localhost",
-    "https://localhost"
-]
-
-CORS_ALLOW_CREDENTIALS = True
-
-PASSWORD_HASHERS = [
-    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
-    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
-    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
-    "django.contrib.auth.hashers.Argon2PasswordHasher",
-    "django.contrib.auth.hashers.ScryptPasswordHasher",
-]
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "kv",
-    }
-}

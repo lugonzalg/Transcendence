@@ -3,22 +3,18 @@ from django.http import HttpResponseRedirect
 from urllib.parse import urlencode
 
 from django.contrib.auth.hashers import check_password
-from typing import Any, Optional
-from django.http import HttpResponse
-from django.http import HttpRequest
-from django.contrib.auth.hashers import check_password
 #from ninja.responses import JSONResponse
 from ninja.errors import HttpError
 from django.core.cache import cache
 import random
 
-
-from ninja import Router
 from . import schemas, crud, models
 from transcendence.settings import logger, GOOGLE_OUATH, TRANSCENDENCE
 
 import requests
-import jwt
+
+#CORE
+from ninja import Router
 
 router = Router()
 
@@ -160,6 +156,12 @@ def login_log(request, log: schemas.LoginLogSchema):
     logger.info(log)
     return {"test": "ok"}
 
+@router.post('/test_headers')
+def test_headers(request):
+    logger.warning("HEADERS")
+    logger.warning(request.headers)
+    return {"test": "ok"}
+
 ################
 # GOOGLE LOGIN #
 ################
@@ -179,15 +181,20 @@ def google_login(request):
     auth_url = f"{GOOGLE_OUATH['AUTH_URL']}?{urlencode(oauth_params)}"
     return HttpResponseRedirect(auth_url)
 
+@router.get("/test_token")
+def test_token(request):
+    return handle_jwt("test@test.es")
+
 def handle_jwt(email: str):
 
-    payload = {'email': email}
-    jwt_info = schemas.JWTInput(
-        payload=payload,
-        expire_time=30
-    )
+    payload = {
+        "email":email,
+        "expire_time":30
+    }
+    url = "http://auth:45143/api/auth/create"
 
-    jwt_token = create_jwt(jwt_info)
+    response = requests.post(url, json=payload)
+    jwt_token = response.json()
 
     logger.warning(f"JWT TOKEN: {jwt_token}")
     return jwt_token
@@ -238,23 +245,3 @@ def google_callback(request, code: str, state: str, error: str | None = None):
     response.set_cookie('refresh', jwt_token.refresh_token)
 
     return response
-
-################################
-# MICRO SERVICIO AUTENTICACION #
-################################
-
-SECRET = TRANSCENDENCE['JWT']['secret']
-ALGORITHM = TRANSCENDENCE['JWT']['algorithm']
-REFRESH = TRANSCENDENCE['JWT']['refresh']
-
-def create_jwt(jwt_input: schemas.JWTInput):
-
-    jwt_input.payload.update({"exp": jwt_input.expire_time})
-    token = f"Bearer {jwt.encode(jwt_input.payload, SECRET, ALGORITHM)}"
-
-    jwt_input.payload.update({"exp": REFRESH})
-    refresh_token = jwt.encode(jwt_input.payload, SECRET, ALGORITHM)
-
-    jwt_output = schemas.JWTOutput(token=token, refresh_token=refresh_token)
-
-    return jwt_output
