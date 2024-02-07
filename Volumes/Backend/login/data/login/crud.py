@@ -24,6 +24,7 @@ def create_user(user: schemas.UserCreateSchema) -> models.user_login:
             raise HttpError(status_code=409, message="Error: Email already exists")
         else:
             raise HttpError(status_code=409, message="Error: User already exists")
+        #si se ha autentificado con otro metodo error tambien 
     return db_user
 
 def get_user(username: str):
