@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import check_password
 from ninja.errors import HttpError
 import os
 import requests
+from django.http import HttpResponseRedirect
 
 from ninja import Router
 from . import schemas, crud
@@ -25,6 +26,9 @@ def get_user(request, user: schemas.Username):
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exists")
 
+################
+# CUSTOM LOGIN #
+################
 
 @router.post('/login_user', response=schemas.UserReturnSchema) #Creacion de endpoint, que especifica el esquema DE RESPUESTA definido en schemas
 def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el schema DE CREACION DE USER definido en schemas
@@ -41,6 +45,9 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
      # Devolver la información del usuario (el schema de UserReturnSchema ya filtra lo que devolver, el usuario y el mail en un diccionario
     return {db_user} 
 
+################
+# 42 LOGIN #
+################
 
 @router.get('/intra')
 def redirect_intra(request): #Construye la URI que se usa para hacer la peticion a la intra 
@@ -65,9 +72,6 @@ def login_intra(request):
     # PASO 1 - GET CODE 
     # Recibe el código del parámetro GET
     code = request.GET.get('code')
-     #<QueryDict: {'code': ['5b6f5c362b11172402fd81c8bf4e2f40772bcc6305e0294a4fd763d49643544b']}>
-    logger.info('PASO 1 CODE')
-    logger.info(code)
     
     # PASO 2 - INTERCAMBIO DE CODE POR TOKEN 
     # Construye peticion (Credenciales de enviroment, las de la app intra) 
@@ -88,8 +92,6 @@ def login_intra(request):
     if response.status_code != 200:
         logger.error('PASO 2 ERROR - code no valido')
         return
-    logger.info('PASO 2 TOKEN')
-    logger.info(response.json().get('access_token'))
 
     #PASO 3 - TOKEN POR INFO (ME)
     #Construye peticion
@@ -98,30 +100,34 @@ def login_intra(request):
     'Authorization': f'Bearer {access_token}'   
     }
     #Hace GET para acceder a la API , endpoint "me"
-    user_info= requests.get('https://api.intra.42.fr/v2/me', headers)
-    
+    user_info = requests.get('https://api.intra.42.fr/v2/me', headers=headers)
 
     if user_info.status_code != 200:
         logger.error('PASO 3 ERROR - token no valido')
+        logger.error(user_info.json())
         return
         #raiseERror
-    logger.info('PASO 3 INFO USER')
-    logger.info(user_info.json())
   
-    #PASO 4 - Username from 
-    username=response.get('login')
-    logger.info('PASO 4 USERNAME')
-    logger.info(user_info.json())
-   # logger.info(username)
+    #PASO 4 - Filter username info
+    username=user_info.json().get('login')
+    email=user_info.json().get('email')
 
-    #PASO 5 - Create user 
-    #token = response.json()['access_token']
-    #db_user = crud.create_user(token.username) #userschema   
+    #PASO 5 - Create user in Database
+    user_create_data = {
+    "username": username,
+    "email": email,
+    "password": "IntraIntra42!", #LA ÑAPA DEL SIGLO! Que pasa con la contraseña para los usuarios que acceden por intra?  
+    }
+    new_user = schemas.UserCreateSchema(**user_create_data)
+    db_user = crud.create_user(user=new_user) #No se si es necesario guardarlo
 
-    logger.info('POST OK')
-    return #response # Devuelve OK al Front, pero no la response, otro tipo 
+    logger.info('LOGIN OK')
+
+    #response = HttpResponseRedirect('localhost:8080/lobby')
+    #COOKIES??
+    return 200
+
         
-    
 
 @router.post('/login_log')
 def login_log(request, log: schemas.LoginLogSchema):
