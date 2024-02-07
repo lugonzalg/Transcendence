@@ -55,21 +55,21 @@ services:
     # - "5432:5432"
    
   grafana:
-    image: grafana/grafana:8.0.6
+    image: grafana/grafana:10.3.1-ubuntu
     container_name: grafana
     restart: unless-stopped
     volumes:
-    - grafana-data:/var/lib/grafana
+    - ./Volumes/Devops/Grafana/Grafana-data:/var/lib/grafana
     ports:
     - 3000:3000
 
   prometheus:
-    image: prom/prometheus:v2.28.1
+    image: bitnami/prometheus:2.49.1-debian-11-r6
     container_name: prometheus
     restart: unless-stopped
     volumes:
-    - ./Services/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    - prometheus-data:/prometheus
+    - ./Volumes/Devops/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    - ./Volumes/Devops/Prometheus/Prometheus-data:/prometheus
     ports:
     - 9090:9090
     command:
@@ -79,7 +79,7 @@ services:
     - '--web.enable-lifecycle'
 
   node_exporter:
-    image: quay.io/prometheus/node-exporter:latest
+    image: quboleinc/node_exporter:release-branch-60.0
     container_name: node_exporter
     restart: unless-stopped
     ports:
@@ -92,11 +92,11 @@ services:
   
         
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: google/cadvisor:v0.33.0
     container_name: cadvisor
     restart: unless-stopped
     expose:
-    - 8080
+    - 7070
     platform: linux/amd64
     volumes:
     - /:/rootfs:ro
