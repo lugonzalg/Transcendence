@@ -26,6 +26,10 @@
         </div>
         <button type="submit" :disabled="!isFormValid">Registrarse</button>
       </form>
+       <!-- Boton Register Intra 42 -->
+        <div>
+      <button class="button_intra" @click="handleIntraLogin">Registrarse con Intra 42</button>
+        </div>
     </div>
   </div>
 
@@ -123,5 +127,21 @@ import { register } from '@/methods/api/login.js';
     background-color: #cccccc;
     cursor: default;
   }
+
+  .button_intra{
+  background-color: black;
+  color: white;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  hover: 
+}
+.button_intra:hover {
+  background-color: black; 
+}
+
   </style>
   

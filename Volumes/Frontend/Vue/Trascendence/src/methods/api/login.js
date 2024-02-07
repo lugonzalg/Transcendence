@@ -45,6 +45,18 @@ async function login(credentials) {
     }
 }
 
+async function handleIntraLogin() {
+    try {
+      // Redirigir al usuario a la intra
+      //window.location.href = buildIntraURL(); // si buildeo la url desde el front necesito importar todas las variables de entorno del .env. Igual mejor una peticion al back?
+      window.location.href = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-6b7efca18b23485e50a6d9bc6df43ecc1024f25f5cf92dc6fd473fcc8647e21c&redirect_uri=http%3A%2F%2Flocalhost%3A25671%2Fapi%2Flogin%2Fintra%2Fcallback&response_type=code";
+    } catch (error) {
+      console.error('Error al manejar el inicio de sesión con Intra 42:', error);
+    }
+}
 
+
+  
+export { handleIntraLogin };
 
 export {collectBrowserData , sendDataToServer, register, login};

@@ -46,3 +46,23 @@ def get_user(username: str):
         raise HttpError(status_code=500, message=f"Internal Server Error: {e}")
 
     return db_user
+
+def get_user_by_email(email: str):
+    try:
+        logger.warning(f"Searching for user with email: {email}")
+        db_user = user_login.objects.filter(email=email).get()
+        logger.warning(f"User found: {db_user.username}")
+    except user_login.DoesNotExist:
+        logger.error(f"User not found with email: {email}")
+        raise HttpError(status_code=404, message="Error: User not found")
+    except MultipleObjectsReturned:
+        logger.error(f"Multiple users found with email: {email}")
+        raise HttpError(status_code=409, message="Error: Multiple users found")
+    except IntegrityError:
+        logger.error(f"Integrity error while searching for user with email: {email}")
+        raise HttpError(status_code=500, message="Integrity error")
+    except Exception as e:
+        logger.error(f"Unexpected error while searching for user with email {email}: {e}")
+        raise HttpError(status_code=500, message=f"Internal Server Error: {e}")
+
+    return db_user

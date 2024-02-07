@@ -1,5 +1,5 @@
 <template>
-
+ 
   <DefaultNavbar></DefaultNavbar>
 
   <div class="login-container" v-if="!showOTPVerification">
@@ -19,7 +19,7 @@
         <button type="submit">Iniciar Sesión</button>
         <!-- Boton Login Intra 42 -->
         <div>
-         <button class="button_intra" @click=redirectToIntra >Registrarse con Intra 42</button>
+          <button class="button_intra" @click="handleIntraLogin">Entrar con Intra 42</button>
         </div>
       </form>
     </div>

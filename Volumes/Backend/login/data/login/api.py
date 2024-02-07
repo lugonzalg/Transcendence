@@ -6,6 +6,8 @@ from ninja.errors import HttpError
 import os
 import requests
 from django.http import HttpResponseRedirect
+from django.http import HttpResponse
+
 
 from ninja import Router
 from . import schemas, crud
@@ -25,6 +27,7 @@ def get_user(request, user: schemas.Username):
     db_user = crud.get_user(user.username)
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exists")
+    return db_user
 
 ################
 # CUSTOM LOGIN #
@@ -49,12 +52,9 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
 # 42 LOGIN #
 ################
 
+#Construye la URI que se usa para hacer la peticion a la intra.
 @router.get('/intra')
-def redirect_intra(request): #Construye la URI que se usa para hacer la peticion a la intra 
-
-    #esta metida como un churro, como metemos las variables client_id, redirect_uri, ...?  
-    #Si la url es siempre igual loguee quien se loguee, igual no es necesario este endpoint?
-    peticion = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-6b7efca18b23485e50a6d9bc6df43ecc1024f25f5cf92dc6fd473fcc8647e21c&redirect_uri=http%3A%2F%2Flocalhost%3A25671%2Fapi%2Flogin%2Fintra%2Fcallback&response_type=code"
+def redirect_intra(request): 
 
     uid = os.environ['INTRA_UID']
     auth_url = os.environ['INTRA_AUTH_URL']
@@ -112,7 +112,16 @@ def login_intra(request):
     username=user_info.json().get('login')
     email=user_info.json().get('email')
 
-    #PASO 5 - Create user in Database
+    #PASO 5 - Find if user is in Database
+
+    db_user = crud.get_user_by_email(email) #igual es mejor buscarlo por email!!!
+
+    if db_user is not None:# El usuario ya existe en la base de datos
+        logger.info('EXISTING USER LOGIN OK')
+        return HttpResponse(status=200) #OK, El usuario ya existia 
+
+    #PASO 6 - Usuario no existe, Create user in Database
+    logger.info('Username does not exist, starting creation...')
     user_create_data = {
     "username": username,
     "email": email,
@@ -121,11 +130,10 @@ def login_intra(request):
     new_user = schemas.UserCreateSchema(**user_create_data)
     db_user = crud.create_user(user=new_user) #No se si es necesario guardarlo
 
-    logger.info('LOGIN OK')
+    logger.info('NEW USER LOGIN OK')
 
-    #response = HttpResponseRedirect('localhost:8080/lobby')
     #COOKIES??
-    return 200
+    return HttpResponse(status=200)
 
         
 
