@@ -39,6 +39,7 @@ jobs:
           script: |
             cd var/www/trascendence.tech
             mkdir -p Volumes/Backend/login/data
+            chmod 777 Volumes/Backend/login/data
             mkdir -p Volumes/Backend/login/log
             chmod 777 Volumes/Backend/login/log
             echo "${{ secrets.ENVIRON }}" > .env
@@ -68,4 +69,5 @@ jobs:
             if [ ! -z "$volumes" ]; then
               docker volume rm $volumes
             fi
-            docker compose build && docker compose up -d
+            docker compose build
+            docker compose up -d
