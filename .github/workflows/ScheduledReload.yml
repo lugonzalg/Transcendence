@@ -55,4 +55,4 @@ jobs:
             cd /var/www/trascendence.tech/Volumes/Frontend/Vue/Trascendence
             npm install
             docker compose down --remove-orphans
-            docker build && docker compose up -d
+            docker compose build && docker compose up -d
