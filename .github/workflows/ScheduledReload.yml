@@ -18,6 +18,7 @@ jobs:
           script: |
             cd var/www/trascendence.tech
             rm -rf var/www/trascendence.tech
+            ls -la var/www/trascendence.tech 2>&1
 
 
       - name: Clonar repositorio
