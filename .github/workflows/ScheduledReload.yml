@@ -69,5 +69,7 @@ jobs:
             if [ ! -z "$volumes" ]; then
               docker volume rm $volumes
             fi
+            mkdir -p Volumes/Backend/login/log
+            chmod 777 Volumes/Backend/login/log
             docker compose build
             docker compose up -d
