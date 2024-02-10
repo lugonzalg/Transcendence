@@ -17,9 +17,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd var/www/trascendence.tech
+            rm -rf var/www/trascendence.tech
             docker rm -f $$(docker ps -aq)
 	          docker rmi -f $$(docker images -aq)
-            rm -rf var/www/trascendence.tech
 
       - name: Clonar repositorio
         uses: appleboy/ssh-action@master
