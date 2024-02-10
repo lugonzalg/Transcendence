@@ -16,10 +16,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-                cd var/www/trascendence.tech
-                docker rm -f $$(docker ps -aq)
-	              docker rmi -f $$(docker images -aq)
-                rm -rf var/www/trascendence.tech
+            cd var/www/trascendence.tech
+            docker rm -f $$(docker ps -aq)
+	          docker rmi -f $$(docker images -aq)
+            rm -rf var/www/trascendence.tech
 
 
       - name: Clonar repositorio
