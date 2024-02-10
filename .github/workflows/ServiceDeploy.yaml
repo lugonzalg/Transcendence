@@ -85,4 +85,4 @@ jobs:
           script: |
             cd /var/www/trascendence.tech/
             docker compose down 
-            docker compose up -d ${{ github.event.inputs.service }} 
+            docker compose up -d
