@@ -17,9 +17,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd var/www/trascendence.tech
-            docker rm -f $(docker ps -aq)
-	          docker rmi -f $(docker images -aq)
-            cd -
             rm -rf var/www/trascendence.tech
 
 
@@ -58,5 +55,5 @@ jobs:
           script: |
             cd /var/www/trascendence.tech/Volumes/Frontend/Vue/Trascendence
             npm install
-            docker compose down
+            docker compose down --remove-orphans
             docker compose up -d
