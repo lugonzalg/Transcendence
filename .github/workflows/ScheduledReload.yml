@@ -38,10 +38,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd var/www/trascendence.tech
-            mkdir -p Volumes/Backend/login/data
-            chmod 777 Volumes/Backend/login/data
-            mkdir -p Volumes/Backend/login/log
-            chmod 777 Volumes/Backend/login/log
             echo "${{ secrets.ENVIRON }}" > .env
             ls -la
             echo "Contenido de .env:"
@@ -70,6 +66,5 @@ jobs:
               docker volume rm $volumes
             fi
             mkdir -p Volumes/Backend/login/log
-            chmod 777 Volumes/Backend/login/log
             docker compose build
             docker compose up -d
