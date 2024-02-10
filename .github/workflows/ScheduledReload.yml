@@ -28,6 +28,7 @@ jobs:
           script: |
             git clone https://github.com/Julen-Smith/Transcendence.git var/www/trascendence.tech 2>&1
             ls -la var/www/trascendence.tech 2>&1
+            cat var/www/trascendence.tech/docker-compose.yml
 
       - name: Preparar directorios y configuración
         uses: appleboy/ssh-action@master
