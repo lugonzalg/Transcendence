@@ -21,7 +21,6 @@ jobs:
 	          docker rmi -f $$(docker images -aq)
             rm -rf var/www/trascendence.tech
 
-
       - name: Clonar repositorio
         uses: appleboy/ssh-action@master
         with:
