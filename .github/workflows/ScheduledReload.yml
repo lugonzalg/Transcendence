@@ -16,7 +16,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+             cd var/www/trascendence.tech
+             docker prune -a
              rm -rf var/www/trascendence.tech
+
 
       - name: Clonar repositorio
         uses: appleboy/ssh-action@master
