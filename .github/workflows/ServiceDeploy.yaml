@@ -59,7 +59,7 @@ jobs:
           elif [ "${{ github.event.inputs.service }}" == "database_postgres" ]; then
             echo "SERVICE_VOLUME=${{ env.transcendence_bbdd_login_service }}" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.service }}" == "devops_grafana"  || "${{ github.event.inputs.service }}" == "devops_node_exporter" || "${{ github.event.inputs.service }}" == "devops_cadvisor" || "${{ github.event.inputs.service }}" == "devops_prometheus" ]; then
-            echo "SERVICE_VOLUME=${{ env.transcendence_devops_service }}" >> $GITHUB_ENV
+            echo "SERVICE_PATH=${{ env.transcendence_devops_service }}" >> $GITHUB_ENV
           fi
 
       - name: Subir Archivos al Servidor
