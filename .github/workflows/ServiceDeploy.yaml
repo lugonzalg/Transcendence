@@ -7,10 +7,14 @@ on:
         type: choice
         description: "Servicio a desplegar"
         options:
-          - transcendence_frontend
-          - transcendence_mail
-          - transcendence_backend_login
-          - transcendence_bbdd_login
+          - frontend_vue
+          - backend_login
+          - database_postgres
+          - devops_grafana
+          - devops_prometheus
+          - devops_node_exporter
+          - devops_cadvisor
+          - bonus_mail
           - ALL
         required: true
       branch:
@@ -29,6 +33,7 @@ jobs:
       transcendence_backend_login_service: 'Services/Backend/login'
       transcendence_backend_login_volume: 'Volumes/Backend/login'
       transcendence_bbdd_login_service: 'Services/Database/Login'
+      transcendence_devops_service: 'Services/Devops/'
     steps:
       - name: Checkout del Repositorio
         uses: actions/checkout@v2
@@ -42,17 +47,19 @@ jobs:
       - name: Establecer Variables de Entorno Específicas del Servicio
         run: |
           echo "SERVICE_PATH=${{ github.event.inputs.service }}" >> $GITHUB_ENV
-          if [ "${{ github.event.inputs.service }}" == "transcendence_frontend" ]; then
+          if [ "${{ github.event.inputs.service }}" == "frontend_vue" ]; then
             echo "SERVICE_PATH=${{ env.transcendence_frontend_service }}" >> $GITHUB_ENV
             echo "SERVICE_VOLUME=${{ env.transcendence_frontend_volume }}" >> $GITHUB_ENV
-          elif [ "${{ github.event.inputs.service }}" == "transcendence_mail" ]; then
+          elif [ "${{ github.event.inputs.service }}" == "bonus_mail" ]; then
             echo "SERVICE_PATH=${{ env.transcendence_mail_service }}" >> $GITHUB_ENV
             echo "SERVICE_VOLUME=${{ env.transcendence_mail_volume }}" >> $GITHUB_ENV
-          elif [ "${{ github.event.inputs.service }}" == "transcendence_backend_login" ]; then
+          elif [ "${{ github.event.inputs.service }}" == "backend_login" ]; then
             echo "SERVICE_PATH=${{ env.transcendence_backend_login_service }}" >> $GITHUB_ENV
             echo "SERVICE_VOLUME=${{ env.transcendence_backend_login_volume }}" >> $GITHUB_ENV
-          elif [ "${{ github.event.inputs.service }}" == "transcendence_bbdd_login" ]; then
-           echo "SERVICE_VOLUME=${{ env.transcendence_bbdd_login_service }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.service }}" == "database_postgres" ]; then
+            echo "SERVICE_VOLUME=${{ env.transcendence_bbdd_login_service }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.service }}" == "devops_grafana"  || "${{ github.event.inputs.service }}" == "devops_node_exporter" || "${{ github.event.inputs.service }}" == "devops_cadvisor" || "${{ github.event.inputs.service }}" == "devops_prometheus" ]; then
+            echo "SERVICE_VOLUME=${{ env.transcendence_devops_service }}" >> $GITHUB_ENV
           fi
 
       - name: Subir Archivos al Servidor
@@ -78,4 +85,4 @@ jobs:
           script: |
             cd /var/www/trascendence.tech/
             docker compose down 
-            docker compose up -d 
+            docker compose up -d ${{ github.event.inputs.service }} 
