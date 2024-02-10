@@ -179,25 +179,7 @@ def google_login(request):
     request.session["google_oauth2_state"] = state
 
     auth_url = f"{GOOGLE_OUATH['AUTH_URL']}?{urlencode(oauth_params)}"
-    return HttpResponseRedirect(auth_url)
-
-@router.get("/test_token")
-def test_token(request):
-    return handle_jwt("test@test.es")
-
-def handle_jwt(email: str):
-
-    payload = {
-        "email":email,
-        "expire_time":30
-    }
-    url = "http://auth:45143/api/auth/create"
-
-    response = requests.post(url, json=payload)
-    jwt_token = response.json()
-
-    logger.warning(f"JWT TOKEN: {jwt_token}")
-    return jwt_token
+    return {"url": auth_url}
 
 @router.get('/google/callback')
 def google_callback(request, code: str, state: str, error: str | None = None):
@@ -238,10 +220,13 @@ def google_callback(request, code: str, state: str, error: str | None = None):
     elif check_user(db_user):
         handle_otp(db_user)
 
-    jwt_token = handle_jwt(email)
+    payload = {
+        'url': TRANSCENDENCE['URL']['Lobby'],
+        'email': email
+    }
 
-    response = HttpResponseRedirect(TRANSCENDENCE['URL']['lobby'])
-    response.set_cookie('token', jwt_token.token)
-    response.set_cookie('refresh', jwt_token.refresh_token)
+    return payload
 
-    return response
+@router.get("/test")
+def test_login(request):
+    return {"login":"ok"}

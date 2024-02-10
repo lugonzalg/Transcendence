@@ -1,8 +1,9 @@
 #CORE
 
 from transcendence.settings import TRANSCENDENCE, logger
+from django.http import HttpResponseRedirect
 
-import jwt, datetime, time
+import jwt, datetime, aiohttp
 from . import schemas
 
 from ninja import Router
@@ -52,8 +53,7 @@ def decode_token(token: str) -> dict:
         raise HttpError(status_code=403, message="Error: No Time Expedition")
     return decoded
 
-@router.post('/create', response={200: schemas.JWTToken})
-def create_jwt(request, jwt_input: schemas.JWTInput):
+def create_jwt(jwt_input: schemas.JWTInput):
 
     #TOKEN
     token = encode_token(jwt_input)
@@ -63,7 +63,6 @@ def create_jwt(request, jwt_input: schemas.JWTInput):
 
     return schemas.JWTToken(token=token, refresh=refresh_token)
 
-@router.get("/check_token")
 def check_jwt(request, jwt_token: schemas.JWTToken) -> bool | HttpError:
 
     if not jwt_token.token.startswith("Bearer "):
@@ -71,7 +70,6 @@ def check_jwt(request, jwt_token: schemas.JWTToken) -> bool | HttpError:
 
     return decode_token(jwt_token.token[BEARER_OFFSET:])
 
-@router.post("/refresh")
 def refresh_jwt(jwt_token: schemas.JWTToken):
 
     decoded = decode_token(jwt_token.refresh)
@@ -87,3 +85,46 @@ def refresh_jwt(jwt_token: schemas.JWTToken):
 
     jwt_token.token = encode_token(jwt_input)
     return jwt_token
+
+@router.get('/test/login', tags=['test connection'])
+async def test_login_connectio(request):
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get('http://login:25671/api/login/test') as res:
+            return await res.json()
+
+@router.get('/login/google', tags=['login'])
+async def login_google(request):
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get('http://login:25671/api/login/google') as res:
+            payload = await res.json()
+            url = payload.get('url')
+            if url is None:
+                raise HttpError(status_code=400, message="Error: Unknown")
+
+            return HttpResponseRedirect(url)
+
+@router.get('/login/google/callback', tags=['login'])
+async def login_google_callback(request):
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get('http://login:25671/api/login/google/callback') as res:
+
+            if res.status != 302:
+                raise HttpError(status_code=res.status, message="Error: Unknown")
+
+            res = await res.json()
+    
+    url = res.get('url')
+    email = res.get('email')
+    jwt_input = schemas.JWTInput(
+        email=email,
+        expire_time=30
+    )
+    jwt_token = create_jwt(jwt_input)
+
+    response = HttpResponseRedirect(url)
+    response.set_cookie('token', jwt_token.token)
+    response.set_cookie('refresh', jwt_token.refresh)
+    return response

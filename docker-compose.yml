@@ -25,41 +25,36 @@ services:
       - LOGGER_PARAMS
       - PARAMS
       - LOGIN_PORT
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
-      - POSTGRES_HOST
 
-    ports:
-      - 25671:25671
+    env_file:
+      - .envs/.env.db
 
     volumes:
       - v_login:/app
       - v_login_log:/log
       - v_login_tools:/app/tools
 
-    entrypoint: ./docker-entrypoint.sh
-
-  auth:
+  gateway:
     build: 
-      context: Services/Backend/auth
+      context: Services/Backend/gateway
       dockerfile: Dockerfile
 
-    image: transcendence_backend_auth
+    image: transcendence_backend_gateway
     environment:
       - LOGGER_PARAMS
       - PARAMS
-      - AUTH_PORT
+      - GATEWAY_PORT
+
+    env_file:
+      - .envs/.env.db
 
     ports:
-      - ${AUTH_PORT}:${AUTH_PORT}
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
 
     volumes:
-      - v_auth:/app
-      - v_auth_log:/log
-      - v_auth_tools:/app/tools
-
-    entrypoint: ./docker-entrypoint.sh
+      - v_gateway:/app
+      - v_gateway_log:/log
+      - v_gateway_tools:/app/tools
   
   postgres:  
     container_name: transcendence_bbdd_login 
@@ -125,7 +120,6 @@ services:
     volumes:
       - '/:/host:ro,rslave'
   
-        
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
@@ -141,26 +135,26 @@ services:
 
 
 volumes:
-        v_auth:
+        v_gateway:
                 driver: local
                 driver_opts:
                         type: none
                         o: bind
-                        device: ./Volumes/Backend/auth/data
+                        device: ./Volumes/Backend/gateway/data
 
-        v_auth_log:
+        v_gateway_log:
                 driver: local
                 driver_opts:
                         type: none
                         o: bind
-                        device: ./Volumes/Backend/auth/log
+                        device: ./Volumes/Backend/gateway/log
 
-        v_auth_tools:
+        v_gateway_tools:
                 driver: local
                 driver_opts:
                         type: none
                         o: bind
-                        device: ./Services/Backend/auth/tools
+                        device: ./Services/Backend/gateway/tools
         v_login:
                 driver: local
                 driver_opts:

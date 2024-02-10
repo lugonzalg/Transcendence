@@ -16,3 +16,5 @@ RUN adduser -D -s /bin/bash $ADMIN \
 USER $ADMIN
 
 COPY ./tools/docker-entrypoint.sh docker-entrypoint.sh
+
+ENTRYPOINT [ "./docker-entrypoint.sh" ]
