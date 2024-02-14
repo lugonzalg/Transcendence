@@ -91,7 +91,6 @@ def login_intra(request):
     
     if response.status_code != 200:
         raise HttpError(status_code=response.status_code, message="Error: Authentication code Failed")
-        return
 
     #PASO 3 - TOKEN POR INFO (ME)
     #Construye peticion
@@ -104,7 +103,6 @@ def login_intra(request):
 
     if user_info.status_code != 200:
         raise HttpError(status_code=user_info.status_code, message="Error: Authentication token Failed")
-        return
 
   
     #PASO 4 - Filter username info 
@@ -117,9 +115,12 @@ def login_intra(request):
     db_user = crud.get_user_by_email(email) #igual es mejor buscarlo por email!!!
 
     if db_user:# El usuario ya existe en la base de datos
+
+        if db_user.mode != 2: #se puede implementar como variable LOGIN MODE INTRA = 2 
+            raise HttpError(status_code=404, message="Error: User already used other authentication method")
         logger.info('EXISTING USER LOGIN OK')
         lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
-        return HttpResponseRedirect('http://localhost:8080/Lobby') #OK, El usuario ya existe 
+        return HttpResponseRedirect(lobby_url) #OK, El usuario ya existe 
 
     #PASO 6 - Usuario no existe, Create user in Database
     logger.info('Username does not exist, starting creation...')
@@ -127,6 +128,7 @@ def login_intra(request):
     "username": username,
     "email": email,
     "password": "IntraIntra42!", #LA ÑAPA DEL SIGLO! Que pasa con la contraseña para los usuarios que acceden por intra?  
+    "mode": 2,
     }
     new_user = schemas.UserCreateSchema(**user_create_data)
     db_user = crud.create_user(user=new_user) 
@@ -135,7 +137,7 @@ def login_intra(request):
 
     logger.info('NEW USER LOGIN OK')
     lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
-    return HttpResponseRedirect('http://localhost:8080/Lobby')
+    return HttpResponseRedirect(lobby_url)
 
         
 
