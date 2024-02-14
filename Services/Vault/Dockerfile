@@ -1,8 +1,9 @@
 FROM hashicorp/vault:1.15
 
-RUN mkdir -p /cert
+RUN mkdir -p /cert /conf /docker-entrypoint
 
-COPY tools /tmp
+COPY conf /conf
 COPY cert /cert
+COPY scripts /docker-entrypoint
 
-ENTRYPOINT [ "/tmp/docker-entrypoint.sh" ]
+ENTRYPOINT [ "/docker-entrypoint/docker-entrypoint.sh" ]

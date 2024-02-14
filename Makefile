@@ -5,6 +5,11 @@ COMPOSE=docker compose -f docker-compose.yml
 all:
 	$(COMPOSE) up -d
 
+vault:
+	$(COMPOSE) up -d vault
+	@sleep 1
+	$(COMPOSE) exec vault /docker-entrypoint/init.sh sh
+
 build:
 	$(COMPOSE) build $(SERVICE)
 

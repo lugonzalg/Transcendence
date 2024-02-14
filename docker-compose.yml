@@ -147,7 +147,7 @@ services:
     image: transcendence_vault
     ports:
       - "8200:8200"
-    restart: on-failure:10
+    restart: always
 
   postgres-vault:  
     container_name: transcendence_db_vault
