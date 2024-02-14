@@ -6,7 +6,7 @@ from ninja.errors import HttpError
 import os
 import requests
 from django.http import HttpResponseRedirect
-from django.http import HttpResponse
+from django.conf import settings
 
 
 from ninja import Router
@@ -58,7 +58,7 @@ def redirect_intra(request):
 
     uid = os.environ['INTRA_UID']
     auth_url = os.environ['INTRA_AUTH_URL']
-    redirect_uri = ['INTRA_REDIRECT_URI']
+    redirect_uri = os.environ['INTRA_REDIRECT_URI']
 
     # Construir la URI (la f indica que esta utilizando una cadena de formato f-string en Python.Las expresiones dentro de las llaves se evalúan y se insertan en la cadena resultante.)
     uri = f"{auth_url}?client_id={uid}&redirect_uri={redirect_uri}&response_type=code"
@@ -90,7 +90,7 @@ def login_intra(request):
     response=requests.post(os.environ.get('INTRA_VERIFY_URL'), params= data)
     
     if response.status_code != 200:
-        logger.error('PASO 2 ERROR - code no valido')
+        raise HttpError(status_code=response.status_code, message="Error: Authentication code Failed")
         return
 
     #PASO 3 - TOKEN POR INFO (ME)
@@ -103,22 +103,23 @@ def login_intra(request):
     user_info = requests.get('https://api.intra.42.fr/v2/me', headers=headers)
 
     if user_info.status_code != 200:
-        logger.error('PASO 3 ERROR - token no valido')
-        logger.error(user_info.json())
+        raise HttpError(status_code=user_info.status_code, message="Error: Authentication token Failed")
         return
-        #raiseERror
+
   
-    #PASO 4 - Filter username info
+    #PASO 4 - Filter username info 
     username=user_info.json().get('login')
     email=user_info.json().get('email')
+
 
     #PASO 5 - Find if user is in Database
 
     db_user = crud.get_user_by_email(email) #igual es mejor buscarlo por email!!!
 
-    if db_user is not None:# El usuario ya existe en la base de datos
+    if db_user:# El usuario ya existe en la base de datos
         logger.info('EXISTING USER LOGIN OK')
-        return HttpResponse(status=200) #OK, El usuario ya existia 
+        lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
+        return HttpResponseRedirect('http://localhost:8080/Lobby') #OK, El usuario ya existe 
 
     #PASO 6 - Usuario no existe, Create user in Database
     logger.info('Username does not exist, starting creation...')
@@ -128,12 +129,13 @@ def login_intra(request):
     "password": "IntraIntra42!", #LA ÑAPA DEL SIGLO! Que pasa con la contraseña para los usuarios que acceden por intra?  
     }
     new_user = schemas.UserCreateSchema(**user_create_data)
-    db_user = crud.create_user(user=new_user) #No se si es necesario guardarlo
-
-    logger.info('NEW USER LOGIN OK')
+    db_user = crud.create_user(user=new_user) 
 
     #COOKIES??
-    return HttpResponse(status=200)
+
+    logger.info('NEW USER LOGIN OK')
+    lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
+    return HttpResponseRedirect('http://localhost:8080/Lobby')
 
         
 

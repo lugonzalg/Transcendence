@@ -27,9 +27,9 @@
         <button type="submit" :disabled="!isFormValid">Registrarse</button>
       </form>
        <!-- Boton Register Intra 42 -->
-        <div>
-      <button class="button_intra" @click="handleIntraLogin">Registrarse con Intra 42</button>
-        </div>
+      <div>
+      <button class="button_intra" @click="redirectToIntra">Registrarse con Intra 42</button>
+      </div>
     </div>
   </div>
 
@@ -41,6 +41,7 @@ import DefaultNavbar from '@/components/DefaultNavbar.vue';
 import PopUpError from '../components/PopUpError.vue';
 import { ref, computed } from 'vue';
 import { register } from '@/methods/api/login.js';
+import { handleIntraRedirect } from '@/methods/api/login.js';
 
   export default {
   name: 'RegisterView',
@@ -72,6 +73,10 @@ import { register } from '@/methods/api/login.js';
       } else {
         this.$router.push('/login');
       }
+    },
+    async redirectToIntra () {
+      handleIntraRedirect();
+
     }
   }
 };
@@ -83,10 +88,11 @@ import { register } from '@/methods/api/login.js';
     justify-content: center;
     align-items: center;
     height: 100vh; 
+    margin-top: 40px;
   }
   
   .register-form {
-    width: 15%; 
+    width: 30%; 
     padding: 20px;
     background: white; 
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
