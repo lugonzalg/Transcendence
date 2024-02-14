@@ -18,7 +18,8 @@ class JWTInput(Schema):
         except Exception as err:
             raise HttpError(status_code=404, message="Email: bad format")
         return v
-    expire_time: int = Field(ge=30, default=30)
+    expire_time: int = Field(ge=5, default=30)
+    permission: int = Field(default=1)
 
 class JWTToken(Schema):
 

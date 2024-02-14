@@ -11,7 +11,7 @@ import random
 from . import schemas, crud, models
 from transcendence.settings import logger, GOOGLE_OUATH, TRANSCENDENCE
 
-import requests
+import requests, jwt
 
 #CORE
 from ninja import Router
@@ -33,6 +33,11 @@ def get_user(request, user: schemas.Username):
 import datetime, smtplib
 from django.utils import timezone
 
+
+################
+# CUSTOM LOGIN #
+################
+
 def send_email(sender: str, receiver: str, otp_code: int):
 
     try:
@@ -53,28 +58,16 @@ def send_email(sender: str, receiver: str, otp_code: int):
 
     except Exception as err:
         logger.error(f"Error: Unhandled {err}")
+
     return False
 
-def check_user(db_user: models.user_login) -> bool:
+def handle_otp(db_user: models.user_login) -> bool:
 
-    last_log = db_user.last_log - datetime.timedelta(minutes=30)
-    now = timezone.now()
-    db_user.save()
-
-    return now > last_log
-
-################
-# CUSTOM LOGIN #
-################
-
-def handle_otp(db_user: models.user_login):
-
-    place_holder_mail = "qtmisotxeqojvfdbht@ckptr.com"
     otp_code=random.randint(0000, 9999)
     cache.add(db_user.username, otp_code, 30)
-    send_email(
+    return send_email(
         sender=TRANSCENDENCE['SMTP']['sender'],
-        receiver=place_holder_mail,
+        receiver=db_user.email,
         otp_code=otp_code
     )
 
@@ -151,7 +144,7 @@ def login_intra(request):
     #db_user = crud.create_user(token.username) #userschema   
     
 
-@router.post('/login_log')
+@router.post('/log')
 def login_log(request, log: schemas.LoginLogSchema):
     logger.info(log)
     return {"test": "ok"}
@@ -167,32 +160,29 @@ def test_headers(request):
 ################
 
 @router.get('/google')
-def google_login(request):
+def google_login(request, state: str):
 
-    state = hashlib.sha256(os.urandom(1024)).hexdigest()
     oauth_params = GOOGLE_OUATH['OAUTH_PARAMS_LOGIN']
     oauth_params['scope'] = ' '.join(GOOGLE_OUATH["SCOPES"])
     oauth_params['state'] = state
     oauth_params['redirect_uri'] = GOOGLE_OUATH['REDIRECT_URI']
     oauth_params['client_id'] = GOOGLE_OUATH['CLIENT_ID']
 
-    request.session["google_oauth2_state"] = state
-
     auth_url = f"{GOOGLE_OUATH['AUTH_URL']}?{urlencode(oauth_params)}"
     return {"url": auth_url}
 
-@router.get('/google/callback')
-def google_callback(request, code: str, state: str, error: str | None = None):
+def check_user(db_user: models.user_login) -> bool:
 
-    if error:
-        raise HttpError(status_code=401, message=f"Error found: {error}")
+    last_log = db_user.last_log + datetime.timedelta(minutes=30)
+    now = timezone.now()
+    db_user.save()
 
-    user_state = request.session.get('google_oauth2_state')
-    if not user_state or state != user_state:
-        raise HttpError(status_code=401, message="Error: Unautorithed")
-    del request.session['google_oauth2_state']
+    return now > last_log
 
-    oauth_params = GOOGLE_OUATH['OAUTH_PARAMS_TOKEN']
+@router.get('/google/callback', response={200: dict, 428: dict})
+def google_callback(request, code: str, state: str):
+
+    oauth_params = dict(GOOGLE_OUATH['OAUTH_PARAMS_TOKEN'])
     oauth_params['code'] = code
     oauth_params['client_id'] = GOOGLE_OUATH['CLIENT_ID']
     oauth_params['client_secret'] = GOOGLE_OUATH['CLIENT_SECRET']
@@ -202,12 +192,21 @@ def google_callback(request, code: str, state: str, error: str | None = None):
     if not res.ok:
         raise HttpError(status_code=res.status_code, message="Error: Authentication Failed")
 
-    google_tokens = res.json()
+    try:
+        google_tokens = res.json()
+    except Exception as err:
+        raise HttpError(status_code=res.status_code, message="Error: Bad response")
+
     user_info = jwt.decode(google_tokens['id_token'],options={"verify_signature": False})
-    #logger.warning(user_info)
 
     email = user_info.get('email')
     db_user = crud.get_user_by_email(email)
+
+    payload = {
+        'url': TRANSCENDENCE['URL']['lobby'],
+        'email': email
+    }
+
     if db_user is None:
         logger.warning("User does not exist!")
         new_user = schemas.UserCreateSchema(
@@ -219,13 +218,10 @@ def google_callback(request, code: str, state: str, error: str | None = None):
 
     elif check_user(db_user):
         handle_otp(db_user)
+        payload['url'] = TRANSCENDENCE['URL']['otp'],
+        return 428, payload
 
-    payload = {
-        'url': TRANSCENDENCE['URL']['Lobby'],
-        'email': email
-    }
-
-    return payload
+    return 200, payload
 
 @router.get("/test")
 def test_login(request):

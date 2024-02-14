@@ -3,7 +3,7 @@
 from transcendence.settings import TRANSCENDENCE, logger
 from django.http import HttpResponseRedirect
 
-import jwt, datetime, aiohttp
+import hashlib, os, requests, jwt, datetime, aiohttp
 from . import schemas
 
 from ninja import Router
@@ -93,38 +93,93 @@ async def test_login_connectio(request):
         async with session.get('http://login:25671/api/login/test') as res:
             return await res.json()
 
+import os
+
+GOOGLE_LOGIN_URL = os.environ['GOOGLE_LOGIN_URL']
+GOOGLE_CALLBACK_URL = os.environ['GOOGLE_CALLBACK_URL']
+
 @router.get('/login/google', tags=['login'])
-async def login_google(request):
+def login_google(request):
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get('http://login:25671/api/login/google') as res:
-            payload = await res.json()
-            url = payload.get('url')
-            if url is None:
-                raise HttpError(status_code=400, message="Error: Unknown")
+    state = hashlib.sha256(os.urandom(1024)).hexdigest()
+    request.session["google_oauth2_state"] = state
 
-            return HttpResponseRedirect(url)
+    payload = {"state": state}
+
+    logger.warning(GOOGLE_LOGIN_URL)
+    res = requests.get(GOOGLE_LOGIN_URL, params=payload)
+
+    try:
+        info = res.json()
+    except Exception as err:
+        raise HttpError(status_code=500, message="Error: Login Service Failed")
+
+
+    if not res.ok:
+        detail = info.get('detail')
+        if detail is None:
+            raise HttpError(status_code=400, message="Error: Unknown error")
+        raise HttpError(status_code=res.status_code, message=detail)
+
+    url = info.get('url')
+    if url is None:
+        raise HttpError(status_code=400, message="Error: url not found")
+
+    return HttpResponseRedirect(url)
 
 @router.get('/login/google/callback', tags=['login'])
-async def login_google_callback(request):
+def login_google_callback(request, code: str, state: str, error: str | None = None):
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get('http://login:25671/api/login/google/callback') as res:
+    if error:
+        raise HttpError(status_code=401, message=f"Error found: {error}")
 
-            if res.status != 302:
-                raise HttpError(status_code=res.status, message="Error: Unknown")
+    user_state = request.session.get('google_oauth2_state')
+    if not user_state or state != user_state:
+        raise HttpError(status_code=401, message="Error: Unautorithed")
+    del request.session['google_oauth2_state']
 
-            res = await res.json()
-    
-    url = res.get('url')
-    email = res.get('email')
-    jwt_input = schemas.JWTInput(
-        email=email,
-        expire_time=30
-    )
+    params = {
+        "code": code,
+        "state": state,
+    }
+
+    res = requests.get(GOOGLE_CALLBACK_URL, params=params)
+
+    try:
+        info = res.json()
+    except Exception as err:
+        raise HttpError(status_code=500, message="Error: Login Service Failed")
+
+    url = info.get('url')
+    email = info.get('email')
+
+    #HANDLE OTP
+    jwt_input = schemas.JWTInput(email=email)
+
+    if not res.ok:
+        jwt_input.permission = 0
+        jwt_input.expire_time = 5
+
     jwt_token = create_jwt(jwt_input)
-
     response = HttpResponseRedirect(url)
     response.set_cookie('token', jwt_token.token)
     response.set_cookie('refresh', jwt_token.refresh)
     return response
+
+@router.get('/opt')
+async def check_otp(request):
+
+    """
+    jwt_input = schemas.JWTInput(email=email)
+
+    if not res.ok:
+        jwt_input.permission = 0
+        jwt_input.expire_time = 5
+
+    jwt_token = create_jwt(jwt_input)
+
+    response.set_cookie('token', jwt_token.token)
+    response.set_cookie('refresh', jwt_token.refresh)
+    """
+
+    return 

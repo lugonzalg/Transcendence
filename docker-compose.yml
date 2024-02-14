@@ -5,7 +5,7 @@ services:
   vue:
     build: ./Services/Frontend
     env_file:
-      - .envs/.env.urls
+      - .envs/.env.vue
     image: transcendence_frontend_login
     ports:
       - "8080:8080"
@@ -27,7 +27,7 @@ services:
       - LOGIN_PORT
 
     env_file:
-      - .envs/.env.db
+      - .envs/.env.login
 
     volumes:
       - v_login:/app
@@ -46,7 +46,7 @@ services:
       - GATEWAY_PORT
 
     env_file:
-      - .envs/.env.db
+      - .envs/.env.gateway
 
     ports:
       - ${GATEWAY_PORT}:${GATEWAY_PORT}
@@ -133,6 +133,33 @@ services:
     - /sys:/sys:ro
     - /var/lib/docker/:/var/lib/docker:ro
 
+  vault:
+    build:
+      context: ./Services/Vault
+      dockerfile: Dockerfile
+    cap_add:
+      - IPC_LOCK
+    container_name: vault
+    depends_on:
+      - postgres-vault
+    env_file:
+      - .envs/.env.vault
+    image: transcendence_vault
+    ports:
+      - "8200:8200"
+    restart: on-failure:10
+
+  postgres-vault:  
+    container_name: transcendence_db_vault
+    image: transcendence_db_vault
+    build:
+      context: ./Services/Database/Vault
+    restart: always  
+    env_file:
+      - .envs/.env.vault
+
+    volumes:
+      - v_pg_vault_data:/var/lib/postgresql/data
 
 volumes:
         v_gateway:
@@ -177,6 +204,7 @@ volumes:
                         device: ./Services/Backend/login/tools
 
         v_postgres_data:
+        v_pg_vault_data:
 
         grafana-data:
         prometheus-data:
