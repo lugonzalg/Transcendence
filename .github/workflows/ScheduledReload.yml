@@ -38,6 +38,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd var/www/trascendence.tech
+            touch .env
             echo "${{ secrets.ENVIRON }}" > .env
             ls -la
             echo "Contenido de .env:"
