@@ -45,18 +45,23 @@ def get_user(username: str):
 
     return db_user
 
-def get_user_by_email(email: str) -> models.user_login | None:
-
+def get_user_by_email(email: str):
     try:
-        print(f"email: {email}")
-        db_user = models.user_login.objects.all()
-        print(len(db_user))
+        logger.warning(f"Searching for user with email: {email}")
+        db_user = user_login.objects.filter(email=email).get()
+        logger.warning(f"User found: {db_user.username}")
+    except user_login.DoesNotExist:
+        logger.error(f"User not found with email: {email}")
+        raise HttpError(status_code=404, message="Error: User not found")
+    except MultipleObjectsReturned:
+        logger.error(f"Multiple users found with email: {email}")
+        raise HttpError(status_code=409, message="Error: Multiple users found")
+    except IntegrityError:
+        logger.error(f"Integrity error while searching for user with email: {email}")
+        raise HttpError(status_code=500, message="Integrity error")
+    except Exception as e:
+        logger.error(f"Unexpected error while searching for user with email {email}: {e}")
+        raise HttpError(status_code=500, message=f"Internal Server Error: {e}")
 
-        db_user = models.user_login.objects.filter(email=email).get()
-        return db_user
+    return db_user
 
-    except ObjectDoesNotExist as err:
-        logger.error(f"Error: Not Found {err}")
-
-    except Exception as err:
-        logger.error(f"Error: Unhandled {err}")

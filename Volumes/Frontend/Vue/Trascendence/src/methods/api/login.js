@@ -50,4 +50,17 @@ async function login(credentials) {
     }
 }
 
-export {collectBrowserData , sendDataToServer, register, login};
+async function handleIntraRedirect() {
+    try {
+      // Peticion de build url al back
+      const response = await axiosInstance.get('/intra');
+      // Redireccion a la url
+      window.location.href = response.data.url;
+    
+    } catch (error) {
+      console.error('Error al manejar el inicio de sesión con Intra 42:', error);
+    }
+}
+
+
+export { handleIntraRedirect ,collectBrowserData , sendDataToServer, register, login};

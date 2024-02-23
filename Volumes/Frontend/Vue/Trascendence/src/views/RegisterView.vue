@@ -26,6 +26,10 @@
         </div>
         <button type="submit" :disabled="!isFormValid">Registrarse</button>
       </form>
+       <!-- Boton Register Intra 42 -->
+      <div>
+      <button class="button_intra" @click="redirectToIntra">Registrarse con Intra 42</button>
+      </div>
     </div>
   </div>
 
@@ -37,6 +41,7 @@ import DefaultNavbar from '@/components/DefaultNavbar.vue';
 import PopUpError from '../components/PopUpError.vue';
 import { ref, computed } from 'vue';
 import { register } from '@/methods/api/login.js';
+import { handleIntraRedirect } from '@/methods/api/login.js';
 
   export default {
   name: 'RegisterView',
@@ -68,6 +73,10 @@ import { register } from '@/methods/api/login.js';
       } else {
         this.$router.push('/login');
       }
+    },
+    async redirectToIntra () {
+      handleIntraRedirect();
+
     }
   }
 };
@@ -79,10 +88,11 @@ import { register } from '@/methods/api/login.js';
     justify-content: center;
     align-items: center;
     height: 100vh; 
+    margin-top: 40px;
   }
   
   .register-form {
-    width: 15%; 
+    width: 30%; 
     padding: 20px;
     background: white; 
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
@@ -123,5 +133,21 @@ import { register } from '@/methods/api/login.js';
     background-color: #cccccc;
     cursor: default;
   }
+
+  .button_intra{
+  background-color: black;
+  color: white;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  hover: 
+}
+.button_intra:hover {
+  background-color: black; 
+}
+
   </style>
   
