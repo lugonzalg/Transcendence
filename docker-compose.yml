@@ -1,16 +1,19 @@
 version: '3.8'
 
 services:
+
   vue:
     build: ./Services/Frontend
+    env_file:
+      - .envs/.env.vue
     image: transcendence_frontend_login
     ports:
       - "8080:8080"
     volumes:
       - ./Volumes/Frontend/Vue/Trascendence:/Trascendence
       - ./Volumes/Frontend/Logs/:/Logs
-  login:
 
+  login:
     build: 
       context: Services/Backend/login
       dockerfile: Dockerfile
@@ -19,7 +22,8 @@ services:
       - postgres
     image: transcendence_backend_login
     environment:
-      - ADMIN
+      - LOGGER_PARAMS
+      - PARAMS
       - LOGIN_PORT
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -28,15 +32,42 @@ services:
       - SECRET_KEY
       - ALGORITHM
       - ACCESS_TOKEN_EXPIRE_MINUTES
+      - INTRA_UID
+      - INTRA_SECRET
+      - INTRA_REDIRECT_URI
+      - INTRA_AUTH_URL
+      - INTRA_VERIFY_URL
 
-    ports:
-      - 25671:25671
+
+    env_file:
+      - .envs/.env.login
 
     volumes:
       - v_login:/app
       - v_login_log:/log
+      - v_login_tools:/app/tools
 
-    entrypoint: ./docker-entrypoint.sh
+  gateway:
+    build: 
+      context: Services/Backend/gateway
+      dockerfile: Dockerfile
+
+    image: transcendence_backend_gateway
+    environment:
+      - LOGGER_PARAMS
+      - PARAMS
+      - GATEWAY_PORT
+
+    env_file:
+      - .envs/.env.gateway
+
+    ports:
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
+
+    volumes:
+      - v_gateway:/app
+      - v_gateway_log:/log
+      - v_gateway_tools:/app/tools
   
   postgres:  
     container_name: transcendence_bbdd_login 
@@ -48,62 +79,9 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD 
       - POSTGRES_DB 
-      #POSTGRES_INITDB_WALDIR: ./Volumes/Database/login/login_logs
+
     volumes:
       - v_postgres_data:/var/lib/postgresql/data
-    #ports:  
-    # - "5432:5432"
-   
-  grafana:
-    image: grafana/grafana:10.3.1-ubuntu
-    container_name: grafana
-    restart: unless-stopped
-    volumes:
-    - ./Volumes/Devops/Grafana/Grafana-data:/var/lib/grafana
-    ports:
-    - 3000:3000
-
-  prometheus:
-    image: bitnami/prometheus:2.49.1-debian-11-r6
-    container_name: prometheus
-    restart: unless-stopped
-    volumes:
-    - ./Volumes/Devops/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    - ./Volumes/Devops/Prometheus/Prometheus-data:/prometheus
-    ports:
-    - 9090:9090
-    command:
-    - '--config.file=/etc/prometheus/prometheus.yml'
-    - '--storage.tsdb.path=/prometheus'
-    - '--storage.tsdb.retention.time=1y'
-    - '--web.enable-lifecycle'
-
-  node_exporter:
-    image: quboleinc/node_exporter:release-branch-60.0
-    container_name: node_exporter
-    restart: unless-stopped
-    ports:
-    - 9100:9100
-    command:
-     - '--path.rootfs=/host'
-    pid: host
-    volumes:
-      - '/:/host:ro,rslave'
-  
-        
-  cadvisor:
-    image: google/cadvisor:v0.33.0
-    container_name: cadvisor
-    restart: unless-stopped
-    expose:
-    - 7070
-    platform: linux/amd64
-    volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
-
 
   mail:  
     container_name: transcendence_mail 
@@ -116,8 +94,58 @@ services:
       - SMTP_PASS
     ports:
       - 25:25 
+    #ports:  
+    # - "5432:5432"
+
+  vault:
+    build:
+      context: ./Services/Vault
+      dockerfile: Dockerfile
+    cap_add:
+      - IPC_LOCK
+    container_name: vault
+    depends_on:
+      - postgres-vault
+    env_file:
+      - .envs/.env.vault
+    image: transcendence_vault
+    ports:
+      - "8200:8200"
+    restart: always
+
+  postgres-vault:  
+    container_name: transcendence_db_vault
+    image: transcendence_db_vault
+    build:
+      context: ./Services/Database/Vault
+    restart: always  
+    env_file:
+      - .envs/.env.vault
+
+    volumes:
+      - v_pg_vault_data:/var/lib/postgresql/data
 
 volumes:
+        v_gateway:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Volumes/Backend/gateway/data
+
+        v_gateway_log:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Volumes/Backend/gateway/log
+
+        v_gateway_tools:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Services/Backend/gateway/tools
         v_login:
                 driver: local
                 driver_opts:
@@ -131,9 +159,16 @@ volumes:
                         type: none
                         o: bind
                         device: ./Volumes/Backend/login/log
-        v_postgres_data:
 
-        grafana-data:
-        prometheus-data:
-        
+        v_login_tools:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Services/Backend/login/tools
+
+        v_postgres_data:
+        v_pg_vault_data:
+
+
 

@@ -11,11 +11,41 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-import os
+import os, json, sys, pathlib
+import logging.config
+import logging.handlers
+
+logger = logging.getLogger("login")  # __name__ is a common choice
+
+def setup_logging():
+
+    config_file = pathlib.Path(os.environ["LOGGER_PARAMS"])
+    logging.info(config_file)
+    with open(config_file) as f_in:
+        config = json.load(f_in)
+
+    config["handlers"]["file"]["filename"] = "/log/app.log"
+    logging.config.dictConfig(config)
+
+
+setup_logging()
+logging.basicConfig(level="INFO")
+
+try:
+    with open(os.environ["PARAMS"]) as fd:
+        params = json.load(fd)
+except FileNotFoundError:
+    logger.error(f"Error: Params File Not Found")
+    sys.exit(1)
+
+GOOGLE_OUATH = params["GOOGLE_OAUTH"]
+TRANSCENDENCE = params["TRANSCENDENCE"]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+FRONTEND_BASE_URL = 'http://localhost:8080'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -26,7 +56,7 @@ SECRET_KEY = 'django-insecure-!41*+ai(5cgxamj&(zt6n5tp10kqw-&6=$*tu%!y-+_6#c4&k(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["65.109.174.85","localhost","195.35.48.173"]
+ALLOWED_HOSTS = ["65.109.174.85","localhost","195.35.48.173","trascendence.tech","login"]
 
 
 # Application definition
@@ -152,3 +182,10 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.Argon2PasswordHasher",
     "django.contrib.auth.hashers.ScryptPasswordHasher",
 ]
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "kv",
+    }
+}

@@ -1,3 +1,4 @@
+import router from '@/router';
 import axiosInstance from '../axiosService';
 
 // Se encarga de recoger los datos del navegador y enviarlos al servidor
@@ -41,10 +42,25 @@ async function login(credentials) {
         const response = await axiosInstance.post('/login_user', credentials);
         return { success: true, data: response.data, error: null };
     } catch (error) {
+        console.log(error.response.status);
+        if (error.response.status == 428)
+            router.push('/otp');
+
         return { success: false, data: null, error: error.response.data.detail || 'Error desconocido.' };
     }
 }
 
+async function handleIntraRedirect() {
+    try {
+      // Peticion de build url al back
+      const response = await axiosInstance.get('/intra');
+      // Redireccion a la url
+      window.location.href = response.data.url;
+    
+    } catch (error) {
+      console.error('Error al manejar el inicio de sesión con Intra 42:', error);
+    }
+}
 
 
-export {collectBrowserData , sendDataToServer, register, login};
+export { handleIntraRedirect ,collectBrowserData , sendDataToServer, register, login};
