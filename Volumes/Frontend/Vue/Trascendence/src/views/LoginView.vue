@@ -18,11 +18,9 @@
         </div>
         <button type="submit">Iniciar Sesión</button>
       </form>
-      <!-- Boton Login Intra 42 -->
         <div>
           <button class="button_intra" @click="redirectToIntra">Entrar con Intra 42</button>
         </div>
-      </form>
       <GoogleLogin></GoogleLogin>
     </div>
   </div>

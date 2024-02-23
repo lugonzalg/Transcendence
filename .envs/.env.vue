@@ -1,1 +1,1 @@
-VUE_APP_GOOGLE_OAUTH_URL="http://localhost:45143/api/login/google"
+VUE_APP_GOOGLE_OAUTH_URL="http://localhost:4242/api/login/google"

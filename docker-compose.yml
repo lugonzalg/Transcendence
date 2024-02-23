@@ -17,31 +17,11 @@ services:
     build: 
       context: Services/Backend/login
       dockerfile: Dockerfile
-
     depends_on:
       - postgres
     image: transcendence_backend_login
-    environment:
-      - LOGGER_PARAMS
-      - PARAMS
-      - LOGIN_PORT
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
-      - POSTGRES_HOST
-      - SECRET_KEY
-      - ALGORITHM
-      - ACCESS_TOKEN_EXPIRE_MINUTES
-      - INTRA_UID
-      - INTRA_SECRET
-      - INTRA_REDIRECT_URI
-      - INTRA_AUTH_URL
-      - INTRA_VERIFY_URL
-
-
     env_file:
       - .envs/.env.login
-
     volumes:
       - v_login:/app
       - v_login_log:/log
@@ -53,16 +33,11 @@ services:
       dockerfile: Dockerfile
 
     image: transcendence_backend_gateway
-    environment:
-      - LOGGER_PARAMS
-      - PARAMS
-      - GATEWAY_PORT
-
     env_file:
-      - .envs/.env.gateway
+      - .envs/.env.login
 
     ports:
-      - ${GATEWAY_PORT}:${GATEWAY_PORT}
+      - 4242:4242
 
     volumes:
       - v_gateway:/app
@@ -75,11 +50,8 @@ services:
     build:
       context: ./Services/Database/login/
     restart: always  
-    environment:  
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD 
-      - POSTGRES_DB 
-
+    env_file:
+      - .envs/.env.gateway
     volumes:
       - v_postgres_data:/var/lib/postgresql/data
 

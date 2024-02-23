@@ -1,0 +1,25 @@
+name: Deploy to Hostinger
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup SSH and Deploy
+      if: github.event.pull_request.merged == true
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+        mkdir -p ~/.ssh
+        ssh-keyscan -H 195.35.48.173 >> ~/.ssh/known_hosts
+        sshpass -p ${{ secrets.HOSTINGER_PASSWORD }} rsync -av --delete --exclude='.git*' ./ root@195.35.48.173:/var/www/trascendence.tech/
+      shell: bash
+

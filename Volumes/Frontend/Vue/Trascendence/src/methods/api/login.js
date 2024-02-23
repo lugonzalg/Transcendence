@@ -17,7 +17,7 @@ function collectBrowserData() {
 
 //HomeView @POST /login_log
 async function sendDataToServer(data) {
-    axiosInstance.post('/login_log', data)
+    axiosInstance.post('/login', data)
     .then((response) => {
       console.log('Datos enviados al servidor:', response);
     })

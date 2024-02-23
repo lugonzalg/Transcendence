@@ -154,6 +154,8 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
     email = info.get('email')
 
     #HANDLE OTP
+    logger.warning(email)
+    logger.warning(info)
     jwt_input = schemas.JWTInput(email=email)
 
     if not res.ok:

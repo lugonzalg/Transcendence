@@ -236,7 +236,12 @@ def google_callback(request, code: str, state: str):
     user_info = jwt.decode(google_tokens['id_token'],options={"verify_signature": False})
 
     email = user_info.get('email')
-    db_user = crud.get_user_by_email(email)
+    logger.warning(user_info)
+    try:
+        db_user = crud.get_user_by_email(email)
+    except Exception as err:
+        db_user = None
+        logger.error(err)
 
     payload = {
         'url': TRANSCENDENCE['URL']['lobby'],
