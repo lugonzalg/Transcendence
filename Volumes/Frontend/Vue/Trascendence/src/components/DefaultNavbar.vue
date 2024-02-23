@@ -46,11 +46,12 @@ export default {
 
 <style scoped>
 .navbar {
-    position: absolute;
+    position: sticky;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 2;
+    background-color: #000000;
   }
   
   .navbar li{
