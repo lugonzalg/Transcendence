@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import LoginView from '../views/LoginView.vue';
 import LobbyView from '../views/LobbyView.vue';
+import OTPView from '@/views/OTPView.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/Lobby',
     name: 'LobbyView',
     component: LobbyView,
+  },
+  {
+    path: '/otp',
+    name: 'OTPView',
+    component: OTPView,
   }
 ];
 

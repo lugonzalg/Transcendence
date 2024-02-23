@@ -1,0 +1,60 @@
+#!/usr/bin/expect
+
+set timeout 15
+
+spawn nc localhost 25
+expect {
+    "220" {}
+    timeout { puts "Error: No se recibió respuesta 220"; exit 1 }
+}
+
+send "EHLO transcendence.tech\r"
+expect {
+    "250" {}
+    default { puts "Error: Fallo en respuesta a EHLO"; exit 1 }
+}
+send "MAIL FROM:<noreply@transcendence.tech>\r"
+expect {
+    "250" {}
+    default { puts "Error: Fallo en respuesta a la cabecera"; exit 1 }
+}
+send "RCPT TO:<dlwlqawhjjycquxfzo@cazlv.com>\r"
+expect {
+    "250" {}
+    default { puts "Error: Fallo en respuesta a remitente"; exit 1 }
+}
+send "RCPT TO:<edur.durx@gmail.com>\r"
+expect {
+    "250" {}
+    default { puts "Error: Fallo en respuesta a remitente"; exit 1 }
+}
+send "RCPT TO:<glukas94@gmail.com>\r"
+expect {
+    "250" {}
+    default { puts "Error: Fallo en respuesta a remitente"; exit 1 }
+}
+send "RCPT TO:<smithjulen.dario@gmail.com>\r"
+expect {
+    "250" {}
+    default { puts "Error: Fallo en respuesta a remitente"; exit 1 }
+}
+send "DATA\r"
+expect {
+    "354" {}
+    default { puts "Error: Fallo en respuesta en el inicio del body"; exit 1 }
+}
+send "Subject: LOG Transcendence.tech SMPT service is starting.\r\n"
+send "El servicio smpt ha arrancado y es funcional.\r\n"
+send "Salu2\r\n"
+send ".\r\n"
+expect {
+    "250" {}
+    default { puts "Error: Fallo en respuesta en el body"; exit 1 }
+}
+
+send "QUIT\r"
+expect {
+    "221" {}
+    default { puts "Error: Fallo en respuesta la salida"; exit 1 }
+}
+expect eof

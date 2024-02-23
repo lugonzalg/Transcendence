@@ -1,20 +1,18 @@
 from ninja.errors import HttpError
 from django.db.utils import IntegrityError
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.hashers import make_password
 from . import schemas, models
 from .models import user_login
-from transcendence import Logger
+from transcendence.settings import logger
+from django.core.exceptions import ObjectDoesNotExist
 
-logger = Logger.Logger(name="login")
-
-
-def create_user(user: schemas.UserCreateSchema) -> models.user_login:
+def create_user(user: schemas.UserCreateSchema, mode: int) -> models.user_login:
     try:
         db_user = models.user_login.objects.create(
             username=user.username,
             password=make_password(user.password),
-            email=user.email)
+            email=user.email,
+            mode=mode)
         logger.info(f"Usuario creado con éxito: {db_user.username}")
     except IntegrityError as err:
         error_msg = str(err)
@@ -24,6 +22,7 @@ def create_user(user: schemas.UserCreateSchema) -> models.user_login:
             raise HttpError(status_code=409, message="Error: Email already exists")
         else:
             raise HttpError(status_code=409, message="Error: User already exists")
+        #si se ha autentificado con otro metodo error tambien 
     return db_user
 
 def get_user(username: str):
@@ -45,3 +44,19 @@ def get_user(username: str):
         raise HttpError(status_code=500, message=f"Internal Server Error: {e}")
 
     return db_user
+
+def get_user_by_email(email: str) -> models.user_login | None:
+
+    try:
+        print(f"email: {email}")
+        db_user = models.user_login.objects.all()
+        print(len(db_user))
+
+        db_user = models.user_login.objects.filter(email=email).get()
+        return db_user
+
+    except ObjectDoesNotExist as err:
+        logger.error(f"Error: Not Found {err}")
+
+    except Exception as err:
+        logger.error(f"Error: Unhandled {err}")
