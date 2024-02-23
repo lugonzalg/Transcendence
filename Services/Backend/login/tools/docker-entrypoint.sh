@@ -12,7 +12,7 @@ if [ ! -d "/app/login" ]; then
     touch /app/$project/api.py
     touch /app/$service/api.py
     touch /app/$service/models.py
-    touch /app/$service/scheamas.py
+    touch /app/$service/schemas.py
     touch /app/$service/crud.py
 
 else

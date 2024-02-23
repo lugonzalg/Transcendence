@@ -1,20 +1,18 @@
 from ninja.errors import HttpError
 from django.db.utils import IntegrityError
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.hashers import make_password
 from . import schemas, models
 from .models import user_login
-from transcendence import Logger
+from transcendence.settings import logger
+from django.core.exceptions import ObjectDoesNotExist
 
-logger = Logger.Logger(name="login")
-
-
-def create_user(user: schemas.UserCreateSchema) -> models.user_login:
+def create_user(user: schemas.UserCreateSchema, mode: int) -> models.user_login:
     try:
         db_user = models.user_login.objects.create(
             username=user.username,
             password=make_password(user.password),
-            email=user.email)
+            email=user.email,
+            mode=mode)
         logger.info(f"Usuario creado con éxito: {db_user.username}")
     except IntegrityError as err:
         error_msg = str(err)
@@ -66,3 +64,4 @@ def get_user_by_email(email: str):
         raise HttpError(status_code=500, message=f"Internal Server Error: {e}")
 
     return db_user
+

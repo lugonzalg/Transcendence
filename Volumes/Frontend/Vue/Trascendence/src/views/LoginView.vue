@@ -22,6 +22,8 @@
         <div>
           <button class="button_intra" @click="redirectToIntra">Entrar con Intra 42</button>
         </div>
+      </form>
+      <GoogleLogin></GoogleLogin>
     </div>
   </div>
 
@@ -33,6 +35,7 @@
   
 <script>
 
+import GoogleLogin from '@/components/GoogleLogin.vue';
 import DefaultNavbar from '@/components/DefaultNavbar.vue';
 import VueCookies from 'vue-cookies';
 import OTPVerification from '@/components/OtpVerification.vue';
@@ -43,7 +46,7 @@ import { ref } from 'vue';
 
 export default {
   name: 'LoginView',
-  components: { DefaultNavbar, OTPVerification, PopUpError },
+  components: { GoogleLogin, DefaultNavbar, OTPVerification, PopUpError },
   setup() {
     const errorMessage = ref('');
     const popupTriggers = ref({
@@ -148,6 +151,7 @@ button:hover
 .button_intra:hover {
   background-color: black; 
 }
+
 
 
 
