@@ -1,15 +1,19 @@
 version: '3.8'
+
 services:
+
   vue:
     build: ./Services/Frontend
+    env_file:
+      - .envs/.env.vue
     image: transcendence_frontend_login
     ports:
       - "8080:8080"
     volumes:
       - ./Volumes/Frontend/Vue/Trascendence:/Trascendence
       - ./Volumes/Frontend/Logs/:/Logs
-  login:
 
+  login:
     build: 
       context: Services/Backend/login
       dockerfile: Dockerfile
@@ -18,7 +22,8 @@ services:
       - postgres
     image: transcendence_backend_login
     environment:
-      - ADMIN
+      - LOGGER_PARAMS
+      - PARAMS
       - LOGIN_PORT
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -27,18 +32,45 @@ services:
       - SECRET_KEY
       - ALGORITHM
       - ACCESS_TOKEN_EXPIRE_MINUTES
+      - INTRA_UID
+      - INTRA_SECRET
+      - INTRA_REDIRECT_URI
+      - INTRA_AUTH_URL
+      - INTRA_VERIFY_URL
 
-    ports:
-      - 25671:25671
+
+    env_file:
+      - .envs/.env.login
 
     volumes:
       - v_login:/app
       - v_login_log:/log
+      - v_login_tools:/app/tools
 
-    entrypoint: ./docker-entrypoint.sh
+  gateway:
+    build: 
+      context: Services/Backend/gateway
+      dockerfile: Dockerfile
+
+    image: transcendence_backend_gateway
+    environment:
+      - LOGGER_PARAMS
+      - PARAMS
+      - GATEWAY_PORT
+
+    env_file:
+      - .envs/.env.gateway
+
+    ports:
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
+
+    volumes:
+      - v_gateway:/app
+      - v_gateway_log:/log
+      - v_gateway_tools:/app/tools
   
   postgres:  
-    container_name: bbdd_login 
+    container_name: transcendence_bbdd_login 
     image: transcendence_database_login
     build:
       context: ./Services/Database/login/
@@ -47,13 +79,73 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD 
       - POSTGRES_DB 
-      #POSTGRES_INITDB_WALDIR: ./Volumes/Database/login/login_logs
+
     volumes:
       - v_postgres_data:/var/lib/postgresql/data
+
+  mail:  
+    container_name: transcendence_mail 
+    image: transcendence_mail
+    build:
+      context: ./Services/Mail/
+    restart: always
+    environment:
+      - SMTP_USER
+      - SMTP_PASS
+    ports:
+      - 25:25 
     #ports:  
     # - "5432:5432"
 
+  vault:
+    build:
+      context: ./Services/Vault
+      dockerfile: Dockerfile
+    cap_add:
+      - IPC_LOCK
+    container_name: vault
+    depends_on:
+      - postgres-vault
+    env_file:
+      - .envs/.env.vault
+    image: transcendence_vault
+    ports:
+      - "8200:8200"
+    restart: always
+
+  postgres-vault:  
+    container_name: transcendence_db_vault
+    image: transcendence_db_vault
+    build:
+      context: ./Services/Database/Vault
+    restart: always  
+    env_file:
+      - .envs/.env.vault
+
+    volumes:
+      - v_pg_vault_data:/var/lib/postgresql/data
+
 volumes:
+        v_gateway:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Volumes/Backend/gateway/data
+
+        v_gateway_log:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Volumes/Backend/gateway/log
+
+        v_gateway_tools:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Services/Backend/gateway/tools
         v_login:
                 driver: local
                 driver_opts:
@@ -68,6 +160,15 @@ volumes:
                         o: bind
                         device: ./Volumes/Backend/login/log
 
+        v_login_tools:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: ./Services/Backend/login/tools
+
         v_postgres_data:
-        
+        v_pg_vault_data:
+
+
 

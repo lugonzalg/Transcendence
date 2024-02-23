@@ -1,5 +1,5 @@
 <template>
-
+ 
   <DefaultNavbar></DefaultNavbar>
 
   <div class="login-container" v-if="!showOTPVerification">
@@ -18,6 +18,12 @@
         </div>
         <button type="submit">Iniciar Sesión</button>
       </form>
+      <!-- Boton Login Intra 42 -->
+        <div>
+          <button class="button_intra" @click="redirectToIntra">Entrar con Intra 42</button>
+        </div>
+      </form>
+      <GoogleLogin></GoogleLogin>
     </div>
   </div>
 
@@ -29,18 +35,18 @@
   
 <script>
 
+import GoogleLogin from '@/components/GoogleLogin.vue';
 import DefaultNavbar from '@/components/DefaultNavbar.vue';
 import VueCookies from 'vue-cookies';
 import OTPVerification from '@/components/OtpVerification.vue';
 import PopUpError from '@/components/PopUpError.vue';
 import { login } from '@/methods/api/login.js';
+import { handleIntraRedirect } from '@/methods/api/login.js';
 import { ref } from 'vue';
-
-
 
 export default {
   name: 'LoginView',
-  components: { DefaultNavbar, OTPVerification, PopUpError },
+  components: { GoogleLogin, DefaultNavbar, OTPVerification, PopUpError },
   setup() {
     const errorMessage = ref('');
     const popupTriggers = ref({
@@ -65,9 +71,15 @@ export default {
         this.$router.push('/lobby');
         VueCookies.set('session_cookie', 'futurojwt', '3600000');
       }
+    },
+    async redirectToIntra () {
+      handleIntraRedirect();
     }
   }
 };
+
+//definir funcion y redirigir a handleintralogin() de login.js
+//def handleIntraLogin()
 
 </script>
   
@@ -86,6 +98,7 @@ export default {
   width: 15%;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width:50vh;
 }
   
 .form-group 
@@ -112,16 +125,35 @@ button
   background-color: #4CAF50;
   color: white;
   padding: 10px 15px;
+  margin: 10px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   width: 100%;
 }
-  
+
 button:hover 
 {
   background-color: #45a049;
 }
+
+  .button_intra{
+  background-color: black;
+  color: white;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  hover: 
+}
+.button_intra:hover {
+  background-color: black; 
+}
+
+
+
 
 </style>
   
