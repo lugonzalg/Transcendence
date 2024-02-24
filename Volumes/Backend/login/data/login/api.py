@@ -1,19 +1,15 @@
-import hashlib, os
+import hashlib, os , requests, jwt, random, datetime, smtplib
 from django.http import HttpResponseRedirect
 from urllib.parse import urlencode
-
 from django.contrib.auth.hashers import check_password
 #from ninja.responses import JSONResponse
 from ninja.errors import HttpError
+from django.conf import settings
 from django.core.cache import cache
-import random
-
 from . import schemas, crud, models
 from transcendence.settings import logger, GOOGLE_OUATH, TRANSCENDENCE
-
-import requests, jwt
-
 #CORE
+from django.utils import timezone
 from ninja import Router
 
 router = Router()
@@ -29,9 +25,8 @@ def get_user(request, user: schemas.Username):
     db_user = crud.get_user(user.username)
     if db_user is None:
         raise HttpError(status_code=404, message="Error: user does not exists")
+    return db_user
 
-import datetime, smtplib
-from django.utils import timezone
 
 
 ################
@@ -93,20 +88,19 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
      # Devolver la información del usuario (el schema de UserReturnSchema ya filtra lo que devolver, el usuario y el mail en un diccionario
     return 200, db_user
 
+
 ############
 # 42 LOGIN #
 ############
 
-@router.get('/intra')
-def redirect_intra(request): #Construye la URI que se usa para hacer la peticion a la intra 
 
-    #esta metida como un churro, como metemos las variables client_id, redirect_uri, ...?  
-    #Si la url es siempre igual loguee quien se loguee, igual no es necesario este endpoint?
-    peticion = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-6b7efca18b23485e50a6d9bc6df43ecc1024f25f5cf92dc6fd473fcc8647e21c&redirect_uri=http%3A%2F%2Flocalhost%3A25671%2Fapi%2Flogin%2Fintra%2Fcallback&response_type=code"
+#Construye la URI que se usa para hacer la peticion a la intra.
+@router.get('/intra')
+def redirect_intra(request): 
 
     uid = os.environ['INTRA_UID']
     auth_url = os.environ['INTRA_AUTH_URL']
-    redirect_uri = ['INTRA_REDIRECT_URI']
+    redirect_uri = os.environ['INTRA_REDIRECT_URI']
 
     # Construir la URI (la f indica que esta utilizando una cadena de formato f-string en Python.Las expresiones dentro de las llaves se evalúan y se insertan en la cadena resultante.)
     uri = f"{auth_url}?client_id={uid}&redirect_uri={redirect_uri}&response_type=code"
@@ -116,33 +110,75 @@ def redirect_intra(request): #Construye la URI que se usa para hacer la peticion
 @router.get('/intra/callback')
 def login_intra(request): 
     
+    # PASO 1 - GET CODE 
     # Recibe el código del parámetro GET
     code = request.GET.get('code')
-     #<QueryDict: {'code': ['5b6f5c362b11172402fd81c8bf4e2f40772bcc6305e0294a4fd763d49643544b']}>
-
-    # Credenciales de la aplicación desde las variables de entorno para construir la peticion de intercambio por token y validar. 
+    
+    # PASO 2 - INTERCAMBIO DE CODE POR TOKEN 
+    # Construye peticion (Credenciales de enviroment, las de la app intra) 
     uid = os.environ.get('INTRA_UID')
     secret = os.environ.get('INTRA_SECRET')
     authorization_url = os.environ.get('INTRA_VERIFY_URL')
-
-    #Construye
+    redirect_uri = os.environ.get('INTRA_REDIRECT_URI')
     data = {
         'grant_type': 'authorization_code',
         'client_id': uid,
         'client_secret': secret,
         'code': code,
-        'redirect_uri': 'tu_uri_de_redireccion',
+        'redirect_uri': redirect_uri,
     }
-    #Hace un POST????? ME PIERDOOOOOOOOO
-    #request.post()
-    # Si en la respuesta esta el token de acceso o no
-    #if response.status_code != 200:
-        #raiseERror
-    #    return response # Devuelve OK al Front
-
-    #token = response.json()['access_token']
-    #db_user = crud.create_user(token.username) #userschema   
+    #Hace un POST para intercambio por TOKEN 
+    response=requests.post(os.environ.get('INTRA_VERIFY_URL'), params= data)
     
+    if response.status_code != 200:
+        raise HttpError(status_code=response.status_code, message="Error: Authentication code Failed")
+
+    #PASO 3 - TOKEN POR INFO (ME)
+    #Construye peticion
+    access_token = response.json().get('access_token')
+    headers = {
+    'Authorization': f'Bearer {access_token}'   
+    }
+    #Hace GET para acceder a la API , endpoint "me"
+    user_info = requests.get('https://api.intra.42.fr/v2/me', headers=headers)
+
+    if user_info.status_code != 200:
+        raise HttpError(status_code=user_info.status_code, message="Error: Authentication token Failed")
+
+    #PASO 4 - Filter username info 
+    username=user_info.json().get('login')
+    email=user_info.json().get('email')
+
+    #PASO 5 - Find if user is in Database
+
+    db_user = crud.get_user_by_email(email) #igual es mejor buscarlo por email!!!
+
+    if db_user:# El usuario ya existe en la base de datos
+
+        if db_user.mode != 2: #se puede implementar como variable LOGIN MODE INTRA = 2 
+            raise HttpError(status_code=404, message="Error: User already used other authentication method")
+        logger.info('EXISTING USER LOGIN OK')
+        lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
+        return HttpResponseRedirect(lobby_url) #OK, El usuario ya existe 
+
+    #PASO 6 - Usuario no existe, Create user in Database
+    logger.info('Username does not exist, starting creation...')
+    user_create_data = {
+    "username": username,
+    "email": email,
+    "password": "IntraIntra42!", #LA ÑAPA DEL SIGLO! Que pasa con la contraseña para los usuarios que acceden por intra?  
+    "mode": 2,
+    }
+    new_user = schemas.UserCreateSchema(**user_create_data)
+    db_user = crud.create_user(user=new_user) 
+
+    #COOKIES??
+
+    logger.info('NEW USER LOGIN OK')
+    lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
+    return HttpResponseRedirect(lobby_url)
+
+     
 
 @router.post('/log')
 def login_log(request, log: schemas.LoginLogSchema):
@@ -200,7 +236,12 @@ def google_callback(request, code: str, state: str):
     user_info = jwt.decode(google_tokens['id_token'],options={"verify_signature": False})
 
     email = user_info.get('email')
-    db_user = crud.get_user_by_email(email)
+    logger.warning(user_info)
+    try:
+        db_user = crud.get_user_by_email(email)
+    except Exception as err:
+        db_user = None
+        logger.error(err)
 
     payload = {
         'url': TRANSCENDENCE['URL']['lobby'],

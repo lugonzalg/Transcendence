@@ -17,7 +17,7 @@ function collectBrowserData() {
 
 //HomeView @POST /login_log
 async function sendDataToServer(data) {
-    axiosInstance.post('/login_log', data)
+    axiosInstance.post('/login', data)
     .then((response) => {
       console.log('Datos enviados al servidor:', response);
     })
@@ -50,4 +50,17 @@ async function login(credentials) {
     }
 }
 
-export {collectBrowserData , sendDataToServer, register, login};
+async function handleIntraRedirect() {
+    try {
+      // Peticion de build url al back
+      const response = await axiosInstance.get('/intra');
+      // Redireccion a la url
+      window.location.href = response.data.url;
+    
+    } catch (error) {
+      console.error('Error al manejar el inicio de sesión con Intra 42:', error);
+    }
+}
+
+
+export { handleIntraRedirect ,collectBrowserData , sendDataToServer, register, login};
