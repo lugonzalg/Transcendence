@@ -95,8 +95,8 @@ async def test_login_connectio(request):
 
 import os
 
-GOOGLE_LOGIN_URL = os.environ['GOOGLE_LOGIN_URL']
-GOOGLE_CALLBACK_URL = os.environ['GOOGLE_CALLBACK_URL']
+S_LOGIN_GOOGLE_LOGIN_URL = os.environ['S_LOGIN_GOOGLE_LOGIN']
+S_LOGIN_GOOGLE_CALLBACK_URL = os.environ['S_LOGIN_GOOGLE_CALLBACK']
 
 @router.get('/login/google', tags=['login'])
 def login_google(request):
@@ -106,8 +106,8 @@ def login_google(request):
 
     payload = {"state": state}
 
-    logger.warning(GOOGLE_LOGIN_URL)
-    res = requests.get(GOOGLE_LOGIN_URL, params=payload)
+    logger.warning(S_LOGIN_GOOGLE_LOGIN_URL)
+    res = requests.get(S_LOGIN_GOOGLE_LOGIN_URL, params=payload)
 
     try:
         info = res.json()
@@ -143,7 +143,7 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
         "state": state,
     }
 
-    res = requests.get(GOOGLE_CALLBACK_URL, params=params)
+    res = requests.get(S_LOGIN_GOOGLE_CALLBACK, params=params)
 
     try:
         info = res.json()
