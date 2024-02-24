@@ -1,0 +1,21 @@
+services:
+
+  login:
+
+    build: 
+      context: requirements/backend/login
+      dockerfile: Dockerfile
+
+    volumes:
+
+      - v_login:/app
+
+    entrypoint: ./docker-entrypoint.sh
+
+volumes:
+        v_login:
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: /home/lukas/Trascendence/transcendence/volumes/backend/login/data
