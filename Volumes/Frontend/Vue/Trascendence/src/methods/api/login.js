@@ -1,5 +1,7 @@
 import router from '@/router';
 import axiosInstance from '../axiosService';
+//import axios from 'axios';
+
 
 // Se encarga de recoger los datos del navegador y enviarlos al servidor
 // Home View
@@ -17,7 +19,7 @@ function collectBrowserData() {
 
 //HomeView @POST /login_log
 async function sendDataToServer(data) {
-    axiosInstance.post('/login', data)
+    axiosInstance.post('http://localhost:4242/api/log', data,  { timeout: 5000 })
     .then((response) => {
       console.log('Datos enviados al servidor:', response);
     })
@@ -53,9 +55,9 @@ async function login(credentials) {
 async function handleIntraRedirect() {
     try {
       // Peticion de build url al back
-      const response = await axiosInstance.get('/intra');
+     // const response = await axios.get('http://localhost:4242/api/intra');
       // Redireccion a la url
-      window.location.href = response.data.url;
+      window.location.href = 'http://localhost:4242/api/intra';
     
     } catch (error) {
       console.error('Error al manejar el inicio de sesión con Intra 42:', error);
