@@ -15,5 +15,5 @@ INTRA_REDIRECT_URI='http://localhost:25671/api/login/intra/callback'
 INTRA_AUTH_URL= 'https://api.intra.42.fr/oauth/authorize'
 INTRA_VERIFY_URL='https://api.intra.42.fr/oauth/token'
 GATEWAY_PORT=4242
-SERVICE_GOOGLE_LOGIN_URL="http://login:25671/api/login/google"
-SERVICE_GOOGLE_CALLBACK_URL="http://login:25671/api/login/google/callback"
+S_LOGIN_GOOGLE_LOGIN_URL="http://login:25671/api/login/google"
+S_LOGIN_GOOGLE_CALLBACK_URL="http://login:25671/api/login/google/callback"

@@ -6,24 +6,29 @@ from django.http import HttpResponseRedirect
 import hashlib, os, requests, jwt, datetime, aiohttp
 from . import schemas
 
+import os
 from ninja import Router
 from ninja.errors import HttpError
 from django.core.validators import validate_email
 
 router = Router()
 
+S_LOGIN_REGISTER= os.environ['S_LOGIN_REGISTER']
+S_LOGIN_DEFAULT_LOGIN= os.environ['S_LOGIN_DEFAULT_LOGIN']
+S_LOGIN_GOOGLE_LOGIN= os.environ['S_LOGIN_GOOGLE_LOGIN']
+S_LOGIN_GOOGLE_CALLBACK= os.environ['S_LOGIN_GOOGLE_CALLBACK']
+
 BEARER_OFFSET = 7
 SECRET = TRANSCENDENCE['JWT']['secret']
 ALGORITHM = TRANSCENDENCE['JWT']['algorithm']
 REFRESH = TRANSCENDENCE['JWT']['refresh']
-
 
 def encode_token(jwt_input: schemas.JWTInput) -> str:
 
     exp_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=jwt_input.expire_time)
 
     payload = {
-        "email": jwt_input.email,
+        "username": jwt_input.username,
         "exp": exp_date
     }
 
@@ -79,7 +84,7 @@ def refresh_jwt(jwt_token: schemas.JWTToken):
         raise HttpError(status_code=403, message="Error: Unauthorized")
 
     jwt_input = schemas.JWTInput(
-        email=email,
+        username=email,
         expire_time=30
     )
 
@@ -93,11 +98,6 @@ async def test_login_connectio(request):
         async with session.get('http://login:25671/api/login/test') as res:
             return await res.json()
 
-import os
-
-S_LOGIN_GOOGLE_LOGIN_URL = os.environ['S_LOGIN_GOOGLE_LOGIN']
-S_LOGIN_GOOGLE_CALLBACK_URL = os.environ['S_LOGIN_GOOGLE_CALLBACK']
-
 @router.get('/login/google', tags=['login'])
 def login_google(request):
 
@@ -106,8 +106,8 @@ def login_google(request):
 
     payload = {"state": state}
 
-    logger.warning(S_LOGIN_GOOGLE_LOGIN_URL)
-    res = requests.get(S_LOGIN_GOOGLE_LOGIN_URL, params=payload)
+    logger.warning(S_LOGIN_GOOGLE_LOGIN)
+    res = requests.get(S_LOGIN_GOOGLE_LOGIN, params=payload)
 
     try:
         info = res.json()
@@ -156,7 +156,7 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
     #HANDLE OTP
     logger.warning(email)
     logger.warning(info)
-    jwt_input = schemas.JWTInput(email=email)
+    jwt_input = schemas.JWTInput(username=email)
 
     if not res.ok:
         jwt_input.permission = 0
@@ -168,11 +168,11 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
     response.set_cookie('refresh', jwt_token.refresh)
     return response
 
-@router.get('/opt')
+@router.get('/otp')
 async def check_otp(request):
 
     """
-    jwt_input = schemas.JWTInput(email=email)
+    jwt_input = schemas.JWTInput(username=email)
 
     if not res.ok:
         jwt_input.permission = 0
@@ -185,3 +185,48 @@ async def check_otp(request):
     """
 
     return 
+
+@router.get('/login/default', tags=['login'])
+def login_default(request, username: str, password: str):
+
+    payload = {
+        'username': username,
+        'password': password
+    }
+    res = requests.post(S_LOGIN_DEFAULT_LOGIN, json=payload)
+
+    if not res.ok:
+        raise HttpError(status_code=res.status_code, message=res.json())
+
+    logger.warning("LOGIN DEFAULT RESULT")
+    logger.warning(res.status_code)
+    logger.warning(res.json())
+    return res.json()
+
+@router.post('/login/register', tags=['login'])
+def login_register(request, username: str, email: str, password: str):
+
+    payload = {
+        'username': username,
+        'password': password,
+        'email': email
+    }
+
+    headers = {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+    }
+
+    res = requests.post(S_LOGIN_REGISTER, headers=headers, json=payload)
+
+    if not res.ok:
+        raise HttpError(status_code=res.status_code, message=res.json())
+
+    return  res.json()
+
+@router.post('/login/unknown', tags=['login'])
+def login_unknown(request, username: str):
+
+    jwt_input = schemas.JWTInput(username=username)
+    jwt_token = create_jwt(jwt_input)
+    return jwt_token

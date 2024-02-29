@@ -8,16 +8,7 @@ from pydantic import validator
 ###############
 
 class JWTInput(Schema):
-    email: str = Field(max_length=256, examples=["walter@gmail.com"])
-
-    @validator('email')
-    def validate_email(cls, v):
-
-        try:
-            validate_email(v)
-        except Exception as err:
-            raise HttpError(status_code=404, message="Email: bad format")
-        return v
+    username: str = Field(max_length=32, examples=["lugonzal"])
     expire_time: int = Field(ge=5, default=30)
     permission: int = Field(default=1)
 

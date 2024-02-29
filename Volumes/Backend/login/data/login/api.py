@@ -14,7 +14,7 @@ from ninja import Router
 
 router = Router()
 
-@router.post('/create_user', response=schemas.UserReturnSchema)
+@router.post('/register', response=schemas.UserReturnSchema)
 def create_user(request, user: schemas.UserCreateSchema):
     return crud.create_user(user, TRANSCENDENCE['LOGIN']['LOCAL'])
 
@@ -66,7 +66,7 @@ def handle_otp(db_user: models.user_login) -> bool:
         otp_code=otp_code
     )
 
-@router.post('/login_user', response={200: schemas.UserReturnSchema, 428: schemas.UserReturnSchema}) #Creacion de endpoint
+@router.post('/default', response={200: schemas.UserReturnSchema, 428: schemas.UserReturnSchema}) #Creacion de endpoint
 def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el schema DE CREACION DE USER definido en schemas
 
    #llama a la funcion get_user de crud.py y le devuelve el user objeto con la validacion del schema UserLogin
@@ -81,7 +81,7 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
     if not check_password(user.password, db_user.password):
         raise HttpError(status_code=401, message="Error: incorrect password")
 
-    if check_user():
+    if check_user(db_user):
         handle_otp()
         return 428, db_user
 

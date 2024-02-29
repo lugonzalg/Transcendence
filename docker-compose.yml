@@ -22,6 +22,9 @@ services:
     image: transcendence_backend_login
     env_file:
       - .envs/.env.login
+
+    ports:
+        - 25671:25671
     volumes:
       - v_login:/app
       - v_login_log:/log
