@@ -35,9 +35,12 @@ services:
       context: Services/Backend/gateway
       dockerfile: Dockerfile
 
+    depends_on:
+      - postgres
+      - login
     image: transcendence_backend_gateway
     env_file:
-      - .envs/.env.gateway
+      - .envs/.env.login
 
     ports:
       - 4242:4242
@@ -54,7 +57,7 @@ services:
       context: ./Services/Database/login/
     restart: always  
     env_file:
-      - .envs/.env.gateway
+      - .envs/.env.login
     volumes:
       - v_postgres_data:/var/lib/postgresql/data
 
@@ -99,6 +102,22 @@ services:
 
     volumes:
       - v_pg_vault_data:/var/lib/postgresql/data
+
+  create-data:
+    build:
+      context: ./Services/Create_Data
+      dockerfile: Dockerfile
+    container_name: transcendence_create_data
+    env_file:
+      - .envs/.env.create_data
+    image: transcendence_create_data
+    depends_on:
+      - login
+
+    volumes:
+      - ./Services/Create_Data/scripts:/docker-entrypoint
+      - ./Services/Create_Data/conf:/conf
+    entrypoint: python /docker-entrypoint/init.py
 
 volumes:
         v_gateway:

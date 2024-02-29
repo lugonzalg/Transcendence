@@ -120,8 +120,6 @@ def login_intra(request):
     secret = os.environ.get('INTRA_SECRET')
     authorization_url = os.environ.get('INTRA_VERIFY_URL')
     redirect_uri = os.environ.get('INTRA_REDIRECT_URI')
-    #headers = {
-    #    'Content-Length': '', 'Content-Type': 'text/plain', 'Host': 'localhost:4242', 'Connection': 'keep-alive', 'Upgrade-Insecure-Requests': '1', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'navigate', 'Sec-Fetch-User': '?1', 'Sec-Fetch-Dest': 'document', 'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"', 'Sec-Ch-Ua-Mobile': '?0', 'Sec-Ch-Ua-Platform': '"macOS"', 'Accept-Encoding': 'gzip, deflate, br', 'Accept-Language': 'es-ES,es;q=0.9', 'Cookie': 'grafana_session=ed5c79bc3906813c7b0ffa4fc802fe83'}
 
     data = {
         'grant_type': 'authorization_code',
@@ -271,3 +269,18 @@ def google_callback(request, code: str, state: str):
 @router.get("/test")
 def test_login(request):
     return {"login":"ok"}
+
+from typing import List
+
+@router.post('/create/list')
+def create_list(request, users: List[schemas.UserCreateSchema]):
+
+    created = 0
+    for user in users:
+        try:
+            crud.create_user(user)
+            created += 1
+        except Exception as err:
+            logger.warning(f"User creation failed: {err}")
+
+    return {"message": f"Users created: {created}"}

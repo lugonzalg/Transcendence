@@ -17,10 +17,10 @@ build-all:
 	$(COMPOSE) build
 
 clean:
-	bash /manager.sh --clean
+	bash Tools/manager.sh --clean
 
 cleant-all:
-	bash /manager.sh --clean -all
+	bash Tools/manager.sh --clean -all
 
 down:
 	$(COMPOSE) down
@@ -56,3 +56,6 @@ stop-all: down
 
 psql:
 	$(COMPOSE) exec postgres psql -U Astro98 transcendence
+
+migrations:
+	cd Tools && python3 main_cleaner.py
