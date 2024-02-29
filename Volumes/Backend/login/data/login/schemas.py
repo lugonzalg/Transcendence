@@ -6,6 +6,7 @@ from django.core.validators import validate_email
 from transcendence.settings import logger
 import re, base64
 
+
 username_regex='^[A-Za-z0-9_]+$'
 
 class Username(Schema):
@@ -42,7 +43,8 @@ class UserLogin(Username):
 
 class UserCreateSchema(UserLogin):
     email: str = Field(max_length=256, examples=["walter@gmail.com"])
-
+    mode: int=Field(ge=0,le=2)
+    
     @validator('email')
     def validate_email(cls, v):
 

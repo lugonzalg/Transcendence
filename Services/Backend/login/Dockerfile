@@ -2,6 +2,8 @@ FROM python:alpine3.18
 
 RUN apk add --update bash sudo build-base libpq-dev
 
+RUN apk add libffi-dev
+
 COPY ./tools/requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
 

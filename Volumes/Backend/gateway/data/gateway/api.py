@@ -91,6 +91,17 @@ def refresh_jwt(jwt_token: schemas.JWTToken):
     jwt_token.token = encode_token(jwt_input)
     return jwt_token
 
+#/log se encarga de recibir la informacion recopilada por el servidor sobre el navegador del usuario cuando entra en home y 
+# redirigirla al endpoint /log del back para que la gestione. 
+@router.post('/log', tags=['log'])
+async def log(request):
+
+    logger.warning('DATATOSERVER EN GATEWAY')
+    async with aiohttp.ClientSession() as session:
+        async with session.post('http://login:25671/api/login/log') as res:
+            return await res.json()
+
+
 @router.get('/test/login', tags=['test connection'])
 async def test_login_connectio(request):
 
@@ -183,8 +194,48 @@ async def check_otp(request):
     response.set_cookie('token', jwt_token.token)
     response.set_cookie('refresh', jwt_token.refresh)
     """
-
     return 
+
+@router.get('/intra', tags=['login']) #no entiendo el tema tags 
+def login_intra(request):
+
+    #  JWT, OTP y cookies
+
+    res = requests.get('http://login:25671/api/login/intra')
+    try:
+        info = res.json()
+    except Exception as err:
+        raise HttpError(status_code=500, message="Error: Login Service Failed")
+
+    if not res.ok:
+        detail = info.get('detail')
+        if detail is None:
+            raise HttpError(status_code=400, message="Error: Unknown error")
+        raise HttpError(status_code=res.status_code, message=detail)
+
+    url = info.get('url')
+    if url is None:
+        raise HttpError(status_code=400, message="Error: url not found")
+
+    return HttpResponseRedirect(url)
+
+@router.get('/login/intra_callback', tags=['login'])
+def login_intra_callback(request, code:str):
+
+    payload = {
+        "code": code
+    }
+    res = requests.get('http://login:25671/api/login/intra/callback', params=payload)
+    try:
+        info = res.json()
+    except Exception as err:
+        raise HttpError(status_code=500, message="Error: Login Service Failed")
+
+    url = info.get('url')
+
+     # JWT, OTP y cookies
+
+    return HttpResponseRedirect(url)
 
 @router.get('/login/default', tags=['login'])
 def login_default(request, username: str, password: str):

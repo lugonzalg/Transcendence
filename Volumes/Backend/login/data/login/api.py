@@ -113,13 +113,16 @@ def login_intra(request):
     # PASO 1 - GET CODE 
     # Recibe el código del parámetro GET
     code = request.GET.get('code')
-    
+
     # PASO 2 - INTERCAMBIO DE CODE POR TOKEN 
     # Construye peticion (Credenciales de enviroment, las de la app intra) 
     uid = os.environ.get('INTRA_UID')
     secret = os.environ.get('INTRA_SECRET')
     authorization_url = os.environ.get('INTRA_VERIFY_URL')
     redirect_uri = os.environ.get('INTRA_REDIRECT_URI')
+    #headers = {
+    #    'Content-Length': '', 'Content-Type': 'text/plain', 'Host': 'localhost:4242', 'Connection': 'keep-alive', 'Upgrade-Insecure-Requests': '1', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'navigate', 'Sec-Fetch-User': '?1', 'Sec-Fetch-Dest': 'document', 'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"', 'Sec-Ch-Ua-Mobile': '?0', 'Sec-Ch-Ua-Platform': '"macOS"', 'Accept-Encoding': 'gzip, deflate, br', 'Accept-Language': 'es-ES,es;q=0.9', 'Cookie': 'grafana_session=ed5c79bc3906813c7b0ffa4fc802fe83'}
+
     data = {
         'grant_type': 'authorization_code',
         'client_id': uid,
@@ -127,9 +130,10 @@ def login_intra(request):
         'code': code,
         'redirect_uri': redirect_uri,
     }
+
     #Hace un POST para intercambio por TOKEN 
     response=requests.post(os.environ.get('INTRA_VERIFY_URL'), params= data)
-    
+   
     if response.status_code != 200:
         raise HttpError(status_code=response.status_code, message="Error: Authentication code Failed")
 
@@ -150,16 +154,15 @@ def login_intra(request):
     email=user_info.json().get('email')
 
     #PASO 5 - Find if user is in Database
-
-    db_user = crud.get_user_by_email(email) #igual es mejor buscarlo por email!!!
-
-    if db_user:# El usuario ya existe en la base de datos
-
+    try:
+        db_user = crud.get_user_by_email(email) 
         if db_user.mode != 2: #se puede implementar como variable LOGIN MODE INTRA = 2 
             raise HttpError(status_code=404, message="Error: User already used other authentication method")
-        logger.info('EXISTING USER LOGIN OK')
-        lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
-        return HttpResponseRedirect(lobby_url) #OK, El usuario ya existe 
+        logger.warning('EXISTING USER LOGIN OK')
+        lobby_url = 'http://localhost:8080/Lobby'
+        return {"url":lobby_url} #OK, El usuario ya existe 
+    except Exception as err:
+        logger.error(err)
 
     #PASO 6 - Usuario no existe, Create user in Database
     logger.info('Username does not exist, starting creation...')
@@ -174,15 +177,16 @@ def login_intra(request):
 
     #COOKIES??
 
-    logger.info('NEW USER LOGIN OK')
-    lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
-    return HttpResponseRedirect(lobby_url)
-
+    logger.warning('NEW USER LOGIN OK')
+    lobby_url = 'http://localhost:8080/Lobby'
+    return {"url": lobby_url}
      
 
 @router.post('/log')
-def login_log(request, log: schemas.LoginLogSchema):
-    logger.info(log)
+def login_log(request):
+    #si meto log: schemas.LoginLogSchema como param no encaja
+    logger.warning('DATATOSERVER EN LOGIN/LOG')
+    #Se gestionaria esa info, PARA QUE?, Que devolvemos?
     return {"test": "ok"}
 
 @router.post('/test_headers')
