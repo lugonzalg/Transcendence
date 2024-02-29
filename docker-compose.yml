@@ -103,10 +103,16 @@ services:
     volumes:
       - v_pg_vault_data:/var/lib/postgresql/data
 
+  haproxy:
+
+    build:
+      context: ./Services/Haproxy
+    container_name: transcendence_haproxy
+    image: transcendence_haproxy
+
   create-data:
     build:
       context: ./Services/Create_Data
-      dockerfile: Dockerfile
     container_name: transcendence_create_data
     env_file:
       - .envs/.env.create_data
