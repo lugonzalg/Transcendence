@@ -32,19 +32,12 @@
     </div>
   </div>
 </nav>
-
-<h1 class="text-center">Dummy</h1>
-
 </template>
   
 <script>
-export default 
-{
-  name: 'DefaultNavbar2',
-}
+export default { name: 'DefaultNavbar2'}
 </script>
   
-
 <style scoped>
 </style>
   

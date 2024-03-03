@@ -5,6 +5,7 @@ import LoginView from '../views/LoginView.vue';
 import LobbyView from '../views/LobbyView.vue';
 import OTPView from '@/views/OTPView.vue'
 import LandingPage from '@/views/LandingPage.vue';
+import MainDashboard from '@/views/MainDashboard.vue';
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/landing',
     name: 'LandingPage',
     component: LandingPage,
+  },
+  {
+    path: '/dashboard',
+    name: 'MainDashboard',
+    component: MainDashboard,
   }
 ];
 
