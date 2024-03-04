@@ -158,7 +158,11 @@ def login_intra(request):
         db_user = crud.get_user_by_email(email) 
         if db_user.mode != 2: #se puede implementar como variable LOGIN MODE INTRA = 2 
             raise HttpError(status_code=404, message="Error: User already used other authentication method")
-        logger.warning('EXISTING USER LOGIN OK')
+        elif check_user(db_user):
+            handle_otp(db_user)
+            payload['url'] = TRANSCENDENCE['URL']['otp'],
+            return 428, payload
+        logger.info('EXISTING USER LOGIN OK')
         lobby_url = 'http://localhost:8080/Lobby'
         return {"url":lobby_url} #OK, El usuario ya existe 
     except Exception as err:
