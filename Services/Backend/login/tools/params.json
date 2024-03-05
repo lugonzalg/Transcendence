@@ -45,10 +45,10 @@
             "algorithm": "HS256"
         },
         "SMTP": {
-            "sender":"noreply@trascendence.tech",
-            "address":"mail",
-            "port":25,
-            "otp": 1234
+            "email":"manage@trascendence.tech",
+            "password": "mime999!",
+            "port":465,
+            "server": "smtp.hostinger.com"
         },
         "LOGIN": {
             "LOCAL": 0,

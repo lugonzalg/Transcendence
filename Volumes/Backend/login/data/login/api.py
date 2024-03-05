@@ -11,6 +11,7 @@ from transcendence.settings import logger, GOOGLE_OUATH, TRANSCENDENCE
 #CORE
 from django.utils import timezone
 from ninja import Router
+from typing import List
 
 router = Router()
 
@@ -33,11 +34,11 @@ def get_user(request, user: schemas.Username):
 # CUSTOM LOGIN #
 ################
 
-def send_email(sender: str, receiver: str, otp_code: int):
+def send_email(sender: dict, receiver: str, otp_code: int):
 
     try:
         mail = schemas.Mail(
-            sender=sender,
+            sender=sender.get("email"),
             receiver=receiver,
         )
     except ValueError as err:
@@ -47,8 +48,21 @@ def send_email(sender: str, receiver: str, otp_code: int):
     mail.build(otp_code)
 
     try:
-        with smtplib.SMTP(TRANSCENDENCE['SMTP']['address'], TRANSCENDENCE['SMTP']['port']) as server:
-            server.sendmail(sender, receiver, mail.message)
+        server = sender.get("server")
+        port = sender.get("port")
+        sender_email = sender.get("email")
+        sender_password = sender.get("password")
+
+        logger.warning("Sending email: ")
+        logger.warning(f"sender: {server} - password: {port}")
+        with smtplib.SMTP_SSL(server, port) as server:
+
+            logger.warning(f"sender: {sender_email} - password: {sender_password}")
+            retval = server.login(sender_email, sender_password)
+            logger.warning(f"Login: {retval}")
+
+            server.sendmail(sender_email, receiver, mail.message)
+
         return True
 
     except Exception as err:
@@ -61,7 +75,7 @@ def handle_otp(db_user: models.user_login) -> bool:
     otp_code=random.randint(0000, 9999)
     cache.add(db_user.username, otp_code, 30)
     return send_email(
-        sender=TRANSCENDENCE['SMTP']['sender'],
+        sender=TRANSCENDENCE['SMTP'],
         receiver=db_user.email,
         otp_code=otp_code
     )
@@ -180,19 +194,6 @@ def login_intra(request):
     return {"url": lobby_url}
      
 
-@router.post('/log')
-def login_log(request):
-    #si meto log: schemas.LoginLogSchema como param no encaja
-    logger.warning('DATATOSERVER EN LOGIN/LOG')
-    #Se gestionaria esa info, PARA QUE?, Que devolvemos?
-    return {"test": "ok"}
-
-@router.post('/test_headers')
-def test_headers(request):
-    logger.warning("HEADERS")
-    logger.warning(request.headers)
-    return {"test": "ok"}
-
 ################
 # GOOGLE LOGIN #
 ################
@@ -266,11 +267,16 @@ def google_callback(request, code: str, state: str):
 
     return 200, payload
 
-@router.get("/test")
-def test_login(request):
-    return {"login":"ok"}
+@router.post('/test/otp')
+def test_otp(request, receiver: str):
 
-from typing import List
+    logger.warning(f"Receiver: {receiver}")
+    db_user = crud.get_user_by_email(receiver)
+    logger.warning(db_user)
+    retval = handle_otp(db_user)
+
+    return {"status": retval}
+
 
 @router.post('/create/list')
 def create_list(request, users: List[schemas.UserCreateSchema]):

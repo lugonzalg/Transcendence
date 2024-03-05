@@ -179,6 +179,14 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
     response.set_cookie('refresh', jwt_token.refresh)
     return response
 
+@router.post('/test_otp')
+def test_otp(request, receiver: str):
+
+    payload = {"receiver": receiver}
+
+    res = requests.post("http://login:25671/api/login/test/otp", params=payload)
+    return res.json()
+
 @router.get('/otp')
 async def check_otp(request):
 
