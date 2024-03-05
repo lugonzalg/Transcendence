@@ -1,8 +1,8 @@
 name: Scheduled Reload
 
 on:
-  schedule:
-    - cron: '0 0 * * *' # Se ejecuta a las 12 de la noche UTC
+  #schedule:
+  #  - cron: '0 0 * * *' # Se ejecuta a las 12 de la noche UTC
   workflow_dispatch:
 
 jobs:
