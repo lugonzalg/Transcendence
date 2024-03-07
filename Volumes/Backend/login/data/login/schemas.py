@@ -42,7 +42,8 @@ class UserLogin(Username):
 
 class UserCreateSchema(UserLogin):
     email: str = Field(max_length=256, examples=["walter@gmail.com"])
-
+    mode: int=Field(ge=0,le=2)
+    
     @validator('email')
     def validate_email(cls, v):
 
@@ -57,7 +58,7 @@ class UserReturnSchema(ModelSchema):
     class Meta:
 
         model = models.user_login
-        fields = ['username', 'email']
+        fields = ['username']
 
 class LoginLogSchema(Schema):
     browserName: str

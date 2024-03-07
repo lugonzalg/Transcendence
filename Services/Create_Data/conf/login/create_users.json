@@ -1,0 +1,24 @@
+{
+    "values": [
+        {
+            "username":"dummy_google",
+            "email":"dummy@gmail.com",
+            "password":"TestTestTest1_!",
+            "mode":2
+        },
+        {
+            "username":"dummy_intra",
+            "email":"dummy@intra.com",
+            "password":"TestTestTest1_!",
+            "mode":1
+        },
+        {
+            "username":"dummy_default",
+            "email":"dummy@default.com",
+            "password":"TestTestTest1_!",
+            "mode":0
+        }
+    ],
+    "url": "http://login:25671/api/login/create/list",
+    "http_method": "POST"
+}
