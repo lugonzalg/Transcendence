@@ -17,10 +17,10 @@ router = Router()
 
 @router.post('/register', response=schemas.UserReturnSchema)
 def create_user(request, user: schemas.UserCreateSchema):
-    return crud.create_user(user, TRANSCENDENCE['LOGIN']['LOCAL'])
+    return crud.create_user(user)
 
 
-@router.get('/get_user')
+@router.get('/get_user', response=schemas.UserReturnSchema)
 def get_user(request, user: schemas.Username):
 
     db_user = crud.get_user(user.username)

@@ -45,7 +45,9 @@ def decode_token(token: str) -> dict:
         raise HttpError(status_code=401, message="Error: No Time Expedition")
     return decoded
 
-def create_jwt(jwt_input: schemas.JWTInput):
+def create_jwt(username: str):
+
+    jwt_input = schemas.JWTInput(username=username)
 
     #TOKEN
     token = encode_token(jwt_input)

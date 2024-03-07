@@ -16,3 +16,12 @@ class JWTToken(Schema):
 
     token: str
     refresh: str
+
+class UserLogin(Schema):
+
+    username: str
+    password: str
+
+class UserRegister(UserLogin):
+
+    email: str

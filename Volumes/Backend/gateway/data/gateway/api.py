@@ -1,9 +1,9 @@
 #CORE
 
-from transcendence.settings import TRANSCENDENCE, logger
+from transcendence.settings import logger
 from django.http import HttpResponseRedirect
 
-import hashlib, os, requests, aiohttp
+import hashlib, os, requests
 from . import schemas, auth
 
 import os
@@ -23,17 +23,8 @@ S_LOGIN_GOOGLE_CALLBACK= os.environ['S_LOGIN_GOOGLE_CALLBACK']
 async def log(request):
 
     logger.warning('DATATOSERVER EN GATEWAY')
-    async with aiohttp.ClientSession() as session:
-        async with session.post('http://login:25671/api/login/log') as res:
-            return await res.json()
+    return {"msg": 1}
 
-
-@router.get('/test/login', tags=['test connection'])
-async def test_login_connectio(request):
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get('http://login:25671/api/login/test') as res:
-            return await res.json()
 
 @router.get('/login/google', tags=['login'])
 def login_google(request):
@@ -99,7 +90,7 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
         jwt_input.permission = 0
         jwt_input.expire_time = 5
 
-    jwt_token = create_jwt(jwt_input)
+    jwt_token = auth.create_jwt(jwt_input)
     response = HttpResponseRedirect(url)
     response.set_cookie('token', jwt_token.token)
     response.set_cookie('refresh', jwt_token.refresh)
@@ -171,49 +162,39 @@ def login_intra_callback(request, code:str):
 
     return HttpResponseRedirect(url)
 
-@router.get('/login/default', tags=['login'])
-def login_default(request, username: str, password: str):
+@router.post('/login/default', tags=['login'])
+def login_default(request, user: schemas.UserLogin):
 
-    payload = {
-        'username': username,
-        'password': password
-    }
-    res = requests.post(S_LOGIN_DEFAULT_LOGIN, json=payload)
+    res = requests.post(S_LOGIN_DEFAULT_LOGIN, json=user.__dict__)
 
     if not res.ok:
-        raise HttpError(status_code=res.status_code, message=res.json())
+        raise HttpError(status_code=res.status_code, message="Error: Login failed")
 
-    logger.warning("LOGIN DEFAULT RESULT")
-    logger.warning(res.status_code)
-    logger.warning(res.json())
-    return res.json()
+    info = res.json()
+    return auth.create_jwt(**info)
 
 @router.post('/login/register', tags=['login'])
-def login_register(request, username: str, email: str, password: str):
+def login_register(request, user: schemas.UserRegister):
 
     payload = {
-        'username': username,
-        'password': password,
-        'email': email
+        'username': user.username,
+        'password': user.password,
+        'email': user.email,
+        'mode': 0
     }
 
-    headers = {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-    }
-
-    res = requests.post(S_LOGIN_REGISTER, headers=headers, json=payload)
+    res = requests.post(S_LOGIN_REGISTER, json=payload)
 
     if not res.ok:
-        raise HttpError(status_code=res.status_code, message=res.json())
+        raise HttpError(status_code=res.status_code, message="Error: Register failed")
 
-    return  res.json()
+    info = res.json()
+    return auth.create_jwt(**info)
 
 @router.post('/login/unknown', tags=['login'])
 def login_unknown(request, username: str):
 
-    jwt_input = schemas.JWTInput(username=username)
-    jwt_token = auth.create_jwt(jwt_input)
+    jwt_token = auth.create_jwt(username)
     return jwt_token
 
 @router.get("/middleware", auth=auth.authorize)

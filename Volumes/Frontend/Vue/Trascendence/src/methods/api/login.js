@@ -31,8 +31,9 @@ async function sendDataToServer(data) {
 //RegisterView @POST /create_user
 async function register(credentials) {
     try {
-        const response = await axiosInstance.post('/create_user', credentials);
+        const response = await axiosInstance.post('/login/register', credentials);
         return { success: true, data: response.data, error: null };
+
     } catch (error) {
         return { success: false, data: null, error: error.response.data.detail || 'Error desconocido.' };
     }
@@ -41,10 +42,10 @@ async function register(credentials) {
 //LoginView @POST /login_user
 async function login(credentials) {
     try {
-        const response = await axiosInstance.post('/login_user', credentials);
+        const response = await axiosInstance.post('/login/default', credentials);
         return { success: true, data: response.data, error: null };
+
     } catch (error) {
-        console.log(error.response.status);
         if (error.response.status == 428)
             router.push('/otp');
 
