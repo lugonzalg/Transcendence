@@ -3,13 +3,12 @@
 from transcendence.settings import TRANSCENDENCE, logger
 from django.http import HttpResponseRedirect
 
-import hashlib, os, requests, jwt, datetime, aiohttp
-from . import schemas
+import hashlib, os, requests, aiohttp
+from . import schemas, auth
 
 import os
 from ninja import Router
 from ninja.errors import HttpError
-from django.core.validators import validate_email
 
 router = Router()
 
@@ -17,79 +16,6 @@ S_LOGIN_REGISTER= os.environ['S_LOGIN_REGISTER']
 S_LOGIN_DEFAULT_LOGIN= os.environ['S_LOGIN_DEFAULT_LOGIN']
 S_LOGIN_GOOGLE_LOGIN= os.environ['S_LOGIN_GOOGLE_LOGIN']
 S_LOGIN_GOOGLE_CALLBACK= os.environ['S_LOGIN_GOOGLE_CALLBACK']
-
-BEARER_OFFSET = 7
-SECRET = TRANSCENDENCE['JWT']['secret']
-ALGORITHM = TRANSCENDENCE['JWT']['algorithm']
-REFRESH = TRANSCENDENCE['JWT']['refresh']
-
-def encode_token(jwt_input: schemas.JWTInput) -> str:
-
-    exp_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=jwt_input.expire_time)
-
-    payload = {
-        "username": jwt_input.username,
-        "exp": exp_date
-    }
-
-    return jwt.encode(payload, SECRET, algorithm=ALGORITHM)
-
-def decode_token(token: str) -> dict:
-
-    try:
-        decoded = jwt.decode(token, SECRET, algorithms=ALGORITHM)
-    except jwt.exceptions.InvalidSignatureError:
-        raise HttpError(status_code=400, message="Error: Invalid Token")
-
-    except jwt.exceptions.ExpiredSignatureError:
-        raise HttpError(status_code=403, message="Error: Expired Token")
-
-    except jwt.exceptions.DecodeError:
-        raise HttpError(status_code=400, message="Error: Bad Token")
-
-    except Exception as err:
-        raise HttpError(status_code=404, message="Error: Unhandled Error")
-
-    email = decode_token.get("email")
-    if email is None or not validate_email(email):
-        raise HttpError(status_code=403, message="Error: User Unauthorized")
-
-    if decoded.get("exp") is None:
-        raise HttpError(status_code=403, message="Error: No Time Expedition")
-    return decoded
-
-def create_jwt(jwt_input: schemas.JWTInput):
-
-    #TOKEN
-    token = encode_token(jwt_input)
-
-    #REFRESH_TOKEN
-    refresh_token = encode_token(jwt_input)
-
-    return schemas.JWTToken(token=token, refresh=refresh_token)
-
-def check_jwt(request, jwt_token: schemas.JWTToken) -> bool | HttpError:
-
-    if not jwt_token.token.startswith("Bearer "):
-        raise HttpError(status_code=400, message="Error: Token does not have bearer")
-
-    return decode_token(jwt_token.token[BEARER_OFFSET:])
-
-def refresh_jwt(jwt_token: schemas.JWTToken):
-
-    decoded = decode_token(jwt_token.refresh)
-
-    email = decoded.get("email")
-    if email is None:
-        raise HttpError(status_code=403, message="Error: Unauthorized")
-
-    jwt_input = schemas.JWTInput(
-        username=email,
-        expire_time=30
-    )
-
-    jwt_token.token = encode_token(jwt_input)
-    return jwt_token
 
 #/log se encarga de recibir la informacion recopilada por el servidor sobre el navegador del usuario cuando entra en home y 
 # redirigirla al endpoint /log del back para que la gestione. 
@@ -287,5 +213,9 @@ def login_register(request, username: str, email: str, password: str):
 def login_unknown(request, username: str):
 
     jwt_input = schemas.JWTInput(username=username)
-    jwt_token = create_jwt(jwt_input)
+    jwt_token = auth.create_jwt(jwt_input)
     return jwt_token
+
+@router.get("/middleware", auth=auth.authorize)
+def test_middleware(request):
+    return {"msg": 1}
