@@ -11,15 +11,16 @@ from transcendence.settings import logger, GOOGLE_OUATH, TRANSCENDENCE
 #CORE
 from django.utils import timezone
 from ninja import Router
+from typing import List
 
 router = Router()
 
-@router.post('/create_user', response=schemas.UserReturnSchema)
+@router.post('/register', response=schemas.UserReturnSchema)
 def create_user(request, user: schemas.UserCreateSchema):
-    return crud.create_user(user, TRANSCENDENCE['LOGIN']['LOCAL'])
+    return crud.create_user(user)
 
 
-@router.get('/get_user')
+@router.get('/get_user', response=schemas.UserReturnSchema)
 def get_user(request, user: schemas.Username):
 
     db_user = crud.get_user(user.username)
@@ -33,11 +34,11 @@ def get_user(request, user: schemas.Username):
 # CUSTOM LOGIN #
 ################
 
-def send_email(sender: str, receiver: str, otp_code: int):
+def send_email(sender: dict, receiver: str, otp_code: int):
 
     try:
         mail = schemas.Mail(
-            sender=sender,
+            sender=sender.get("email"),
             receiver=receiver,
         )
     except ValueError as err:
@@ -47,8 +48,21 @@ def send_email(sender: str, receiver: str, otp_code: int):
     mail.build(otp_code)
 
     try:
-        with smtplib.SMTP(TRANSCENDENCE['SMTP']['address'], TRANSCENDENCE['SMTP']['port']) as server:
-            server.sendmail(sender, receiver, mail.message)
+        server = sender.get("server")
+        port = sender.get("port")
+        sender_email = sender.get("email")
+        sender_password = sender.get("password")
+
+        logger.warning("Sending email: ")
+        logger.warning(f"sender: {server} - password: {port}")
+        with smtplib.SMTP_SSL(server, port) as server:
+
+            logger.warning(f"sender: {sender_email} - password: {sender_password}")
+            retval = server.login(sender_email, sender_password)
+            logger.warning(f"Login: {retval}")
+
+            server.sendmail(sender_email, receiver, mail.message)
+
         return True
 
     except Exception as err:
@@ -61,12 +75,12 @@ def handle_otp(db_user: models.user_login) -> bool:
     otp_code=random.randint(0000, 9999)
     cache.add(db_user.username, otp_code, 30)
     return send_email(
-        sender=TRANSCENDENCE['SMTP']['sender'],
+        sender=TRANSCENDENCE['SMTP'],
         receiver=db_user.email,
         otp_code=otp_code
     )
 
-@router.post('/login_user', response={200: schemas.UserReturnSchema, 428: schemas.UserReturnSchema}) #Creacion de endpoint
+@router.post('/default', response={200: schemas.UserReturnSchema, 428: schemas.UserReturnSchema}) #Creacion de endpoint
 def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ejecuta al llamar al endpoint, crea el obj user y lo valida con el schema DE CREACION DE USER definido en schemas
 
    #llama a la funcion get_user de crud.py y le devuelve el user objeto con la validacion del schema UserLogin
@@ -81,7 +95,7 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
     if not check_password(user.password, db_user.password):
         raise HttpError(status_code=401, message="Error: incorrect password")
 
-    if check_user():
+    if check_user(db_user):
         handle_otp()
         return 428, db_user
 
@@ -113,13 +127,14 @@ def login_intra(request):
     # PASO 1 - GET CODE 
     # Recibe el código del parámetro GET
     code = request.GET.get('code')
-    
+
     # PASO 2 - INTERCAMBIO DE CODE POR TOKEN 
     # Construye peticion (Credenciales de enviroment, las de la app intra) 
     uid = os.environ.get('INTRA_UID')
     secret = os.environ.get('INTRA_SECRET')
     authorization_url = os.environ.get('INTRA_VERIFY_URL')
     redirect_uri = os.environ.get('INTRA_REDIRECT_URI')
+
     data = {
         'grant_type': 'authorization_code',
         'client_id': uid,
@@ -127,9 +142,10 @@ def login_intra(request):
         'code': code,
         'redirect_uri': redirect_uri,
     }
+
     #Hace un POST para intercambio por TOKEN 
     response=requests.post(os.environ.get('INTRA_VERIFY_URL'), params= data)
-    
+   
     if response.status_code != 200:
         raise HttpError(status_code=response.status_code, message="Error: Authentication code Failed")
 
@@ -150,16 +166,19 @@ def login_intra(request):
     email=user_info.json().get('email')
 
     #PASO 5 - Find if user is in Database
-
-    db_user = crud.get_user_by_email(email) #igual es mejor buscarlo por email!!!
-
-    if db_user:# El usuario ya existe en la base de datos
-
+    try:
+        db_user = crud.get_user_by_email(email) 
         if db_user.mode != 2: #se puede implementar como variable LOGIN MODE INTRA = 2 
             raise HttpError(status_code=404, message="Error: User already used other authentication method")
+        elif check_user(db_user):
+            handle_otp(db_user)
+            payload['url'] = TRANSCENDENCE['URL']['otp'],
+            return 428, payload
         logger.info('EXISTING USER LOGIN OK')
-        lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
-        return HttpResponseRedirect(lobby_url) #OK, El usuario ya existe 
+        lobby_url = 'http://localhost:8080/Lobby'
+        return {"url":lobby_url} #OK, El usuario ya existe 
+    except Exception as err:
+        logger.error(err)
 
     #PASO 6 - Usuario no existe, Create user in Database
     logger.info('Username does not exist, starting creation...')
@@ -174,22 +193,10 @@ def login_intra(request):
 
     #COOKIES??
 
-    logger.info('NEW USER LOGIN OK')
-    lobby_url = f'{settings.FRONTEND_BASE_URL}/Lobby'
-    return HttpResponseRedirect(lobby_url)
-
+    logger.warning('NEW USER LOGIN OK')
+    lobby_url = 'http://localhost:8080/Lobby'
+    return {"url": lobby_url}
      
-
-@router.post('/log')
-def login_log(request, log: schemas.LoginLogSchema):
-    logger.info(log)
-    return {"test": "ok"}
-
-@router.post('/test_headers')
-def test_headers(request):
-    logger.warning("HEADERS")
-    logger.warning(request.headers)
-    return {"test": "ok"}
 
 ################
 # GOOGLE LOGIN #
@@ -236,7 +243,12 @@ def google_callback(request, code: str, state: str):
     user_info = jwt.decode(google_tokens['id_token'],options={"verify_signature": False})
 
     email = user_info.get('email')
-    db_user = crud.get_user_by_email(email)
+    logger.warning(user_info)
+    try:
+        db_user = crud.get_user_by_email(email)
+    except Exception as err:
+        db_user = None
+        logger.error(err)
 
     payload = {
         'url': TRANSCENDENCE['URL']['lobby'],
@@ -259,6 +271,26 @@ def google_callback(request, code: str, state: str):
 
     return 200, payload
 
-@router.get("/test")
-def test_login(request):
-    return {"login":"ok"}
+@router.post('/test/otp')
+def test_otp(request, receiver: str):
+
+    logger.warning(f"Receiver: {receiver}")
+    db_user = crud.get_user_by_email(receiver)
+    logger.warning(db_user)
+    retval = handle_otp(db_user)
+
+    return {"status": retval}
+
+
+@router.post('/create/list')
+def create_list(request, users: List[schemas.UserCreateSchema]):
+
+    created = 0
+    for user in users:
+        try:
+            crud.create_user(user)
+            created += 1
+        except Exception as err:
+            logger.warning(f"User creation failed: {err}")
+
+    return {"message": f"Users created: {created}"}

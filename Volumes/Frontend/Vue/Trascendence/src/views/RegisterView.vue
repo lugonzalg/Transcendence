@@ -71,7 +71,7 @@ import { handleIntraRedirect } from '@/methods/api/login.js';
         this.errorMessage = error;
         this.popupTriggers.responseTrigger = true;
       } else {
-        this.$router.push('/login');
+        this.$router.push('/lobby');
       }
     },
     async redirectToIntra () {
