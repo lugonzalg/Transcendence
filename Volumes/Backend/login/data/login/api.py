@@ -212,6 +212,7 @@ def google_login(request, state: str):
     oauth_params['client_id'] = GOOGLE_OUATH['CLIENT_ID']
 
     auth_url = f"{GOOGLE_OUATH['AUTH_URL']}?{urlencode(oauth_params)}"
+    logger.warning(f"URL: {auth_url}")
     return {"url": auth_url}
 
 def check_user(db_user: models.user_login) -> bool:
@@ -243,26 +244,34 @@ def google_callback(request, code: str, state: str):
     user_info = jwt.decode(google_tokens['id_token'],options={"verify_signature": False})
 
     email = user_info.get('email')
+    username = email.split('@')[0]
     logger.warning(user_info)
+    db_user = None
+
     try:
         db_user = crud.get_user_by_email(email)
     except Exception as err:
-        db_user = None
         logger.error(err)
 
     payload = {
         'url': TRANSCENDENCE['URL']['lobby'],
-        'email': email
+        'username': username
     }
 
     if db_user is None:
-        logger.warning("User does not exist!")
-        new_user = schemas.UserCreateSchema(
-            username="place_holder",
-            email=email,
-            password="Asdfasdfasdf$1"
-        )
-        crud.create_user(new_user, TRANSCENDENCE['LOGIN']['GOOGLE'])
+        logger.warning("Creating a new user")
+        try:
+            new_user = schemas.UserCreateSchema(
+                username=username,
+                email=email,
+                password="Asdfasdfasdf$1",
+                mode=TRANSCENDENCE['LOGIN']['GOOGLE']
+            )
+            db_user = crud.create_user(new_user)
+        except Exception as err:
+            logger.error(err)
+
+        logger.warning(f"DB_USER: {db_user}")
 
     elif check_user(db_user):
         handle_otp(db_user)

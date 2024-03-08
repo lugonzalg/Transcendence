@@ -155,6 +155,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://65.109.174.85:8080",
     "http://65.109.174.85:25671",
     "http://65.109.174.85",
+    "http://trascendence.tech",
     "https://trascendence.tech",
     "http://localhost:8080",
     "https://localhost:8080",

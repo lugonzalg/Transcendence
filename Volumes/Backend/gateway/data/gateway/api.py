@@ -79,21 +79,20 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
         raise HttpError(status_code=500, message="Error: Login Service Failed")
 
     url = info.get('url')
-    email = info.get('email')
+    username = info.get('username')
 
     #HANDLE OTP
-    logger.warning(email)
+    logger.warning(f"EMAIL: {username}")
     logger.warning(info)
-    jwt_input = schemas.JWTInput(username=email)
+    jwt_input = auth.create_jwt(username=username)
 
     if not res.ok:
         jwt_input.permission = 0
         jwt_input.expire_time = 5
 
-    jwt_token = auth.create_jwt(jwt_input)
     response = HttpResponseRedirect(url)
-    response.set_cookie('token', jwt_token.token)
-    response.set_cookie('refresh', jwt_token.refresh)
+    response.set_cookie('token', jwt_input.token)
+    response.set_cookie('refresh', jwt_input.refresh)
     return response
 
 @router.post('/test_otp')
