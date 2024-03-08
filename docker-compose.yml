@@ -61,19 +61,19 @@ services:
     volumes:
       - v_postgres_data:/var/lib/postgresql/data
 
-  mail:  
-    container_name: transcendence_mail 
-    image: transcendence_mail
-    build:
-      context: ./Services/Mail/
-    restart: always
-    environment:
-      - SMTP_USER
-      - SMTP_PASS
-    ports:
-      - 25:25 
-    #ports:  
-    # - "5432:5432"
+ # mail:  
+  #  container_name: transcendence_mail 
+  #  image: transcendence_mail
+  #  build:
+  #    context: ./Services/Mail/
+  #  restart: always
+  #  environment:
+  #    - SMTP_USER
+  #    - SMTP_PASS
+  #  ports:
+  #    - 25:25 
+  #  #ports:  
+  #  # - "5432:5432"
 
   vault:
     build:
