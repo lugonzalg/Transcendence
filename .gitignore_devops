@@ -1,0 +1,10 @@
+.env
+.envs/
+.github/
+Makefile
+README.md
+dependencies/
+deploy/
+develop/
+devops_holder/
+manager.sh

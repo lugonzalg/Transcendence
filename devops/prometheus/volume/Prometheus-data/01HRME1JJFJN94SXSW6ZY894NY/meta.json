@@ -1,0 +1,17 @@
+{
+	"ulid": "01HRME1JJFJN94SXSW6ZY894NY",
+	"minTime": 1710072000000,
+	"maxTime": 1710079200000,
+	"stats": {
+		"numSamples": 603360,
+		"numSeries": 1257,
+		"numChunks": 5028
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01HRME1JJFJN94SXSW6ZY894NY"
+		]
+	},
+	"version": 1
+}
