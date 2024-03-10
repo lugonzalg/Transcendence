@@ -60,12 +60,13 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./logstash/build/main/toolslogstash-config:/usr/share/logstash/config
+      - ./logstash/build/main/tools/logstash-config:/usr/share/logstash/config
       - ./logstash/build/main/tools/logstash-pipeline:/usr/share/logstash/pipeline
 
   filebeat:
     build: filebeat/build/main
     volumes:
+      - ./filebeat/build/main/tools/filebeat.yml:/usr/share/filebeat/filebeat.yml
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./Logs:/logs
@@ -73,7 +74,7 @@ services:
       - logstash
 
   kibana:
-    image: kibana/build/main
+    image: docker.elastic.co/kibana/kibana:7.9.3
     ports:
       - "5601:5601"
 
