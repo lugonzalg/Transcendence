@@ -1,0 +1,11 @@
+/Makefile
+.env
+.envs/
+.github/
+README.md
+Services/
+deploy/
+develop/
+devops/
+devops_holder/
+manager.sh
