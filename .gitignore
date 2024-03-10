@@ -15,7 +15,7 @@ README.md
 Services/
 Volumes/
 Tools/
-core/
+deploy/
 doc/
 docker-compose.yml
 keys.txt
