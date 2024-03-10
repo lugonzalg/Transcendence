@@ -1,0 +1,42 @@
+services:
+
+  nginx:
+
+    build: ./nginx/build/main
+    container_name: transcendence_nginx
+    image: transcendence_nginx
+
+  haproxy:
+
+    build: ./haproxy/build/main
+    container_name: transcendence_haproxy
+    image: transcendence_haproxy
+
+  vault:
+    build: ./vault/build/main
+    cap_add:
+      - IPC_LOCK
+    container_name: transcendence_vault
+    depends_on:
+      - postgre-vault
+    env_file:
+      - .envs/.env.vault
+    image: transcendence_vault
+    ports:
+      - 8200:8200
+    restart: always
+
+  postgre-vault:  
+    build: ./vault/build/postgre
+    container_name: transcendence_postgre_vault
+    image: transcendence_postgre_vault
+    env_file:
+      - .envs/.env.vault
+
+    restart: always  
+    volumes:
+      - pg_vault:/var/lib/postgresql/data
+
+volumes:
+
+  pg_vault:
