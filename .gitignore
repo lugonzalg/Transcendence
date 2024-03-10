@@ -1,0 +1,7 @@
+.env
+.envs/
+.github/
+README.md
+deploy/
+devops_holder/
+manager.sh
