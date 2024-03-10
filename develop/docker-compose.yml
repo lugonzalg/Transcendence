@@ -1,0 +1,92 @@
+services:
+
+  vue:
+    build: vue/build/main
+    env_file:
+      - .envs/.env.vue
+    image: transcendence_vue_login
+    ports:
+      - "8080:8080"
+    volumes:
+      - vue_data:/Trascendence
+      - vue_log:/Logs
+
+  login:
+    build: django/build/login
+    depends_on:
+      - pg-login
+    image: transcendence_dj_login
+    env_file:
+      - .envs/.env.login
+
+    expose:
+        - 25671
+    volumes:
+      - login_data:/app
+      - django_log:/log
+
+  gateway:
+    build: django/build/gateway
+
+    depends_on:
+      - pg-login
+      - login
+    image: transcendence_dj_gateway
+    env_file:
+      - .envs/.env.login
+
+    ports:
+      - 4242:4242
+
+    volumes:
+      - gateway_data:/app
+      - django_log:/log
+  
+  pg-login:  
+    container_name: transcendence_pg_login 
+    image: transcendence_pgbase_login
+    build: django/build/pg-login
+    restart: always  
+    env_file:
+      - .envs/.env.login
+    volumes:
+      - pg-login_data:/var/lib/postgresql/data
+
+volumes:
+
+  gateway_data:
+    driver: local
+    driver_opts:
+            type: none
+            o: bind
+            device: django/volume/gateway
+
+  login_data:
+    driver: local
+    driver_opts:
+            type: none
+            o: bind
+            device: django/volume/login
+
+  django_log:
+    driver: local
+    driver_opts:
+            type: none
+            o: bind
+            device: django/log
+
+  vue_log:
+    driver: local
+    driver_opts:
+            type: none
+            o: bind
+            device: vue/log
+
+  vue_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: vue/volume/main
+
+  pg-login_data:
