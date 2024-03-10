@@ -4,4 +4,8 @@ filebeat.inputs:
   paths:
     - /logs/*.log
 output.logstash:
+<<<<<<< HEAD
   hosts: ["logstash:5044"]
+=======
+  hosts: ["logstash:5044"]
+>>>>>>> devops

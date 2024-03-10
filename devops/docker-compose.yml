@@ -1,0 +1,87 @@
+version: '3.8'
+
+services: 
+
+  grafana:
+    build: grafana/build/main
+    container_name: transcendence_grafana
+    image: transcendence_grafana
+    ports:
+    - 3000:3000
+    volumes:
+    - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+
+  prometheus:
+    build: prometheus/build/main
+    command:
+    - '--config.file=/etc/prometheus/prometheus.yml'
+    - '--storage.tsdb.path=/prometheus'
+    - '--web.enable-lifecycle'
+    container_name: transcendence_prometheus
+    image: transcendence_prometheus
+    ports:
+    - 9090:9090
+    restart: unless-stopped
+    volumes:
+    - ./prometheus/build/main/tools/prometheus.yml:/etc/prometheus/prometheus.yml
+    - ./prometheus/volume:/prometheus
+
+  node_exporter:
+    build: node-exporter/build/main
+    container_name: transcendence_node_exporter
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points'
+      - '^/(sys|proc|dev|host|etc)($$|/)'
+    image: transcendence_node_exporter
+    volumes:
+      - "/proc:/host/proc:ro"
+      - "/sys:/host/sys:ro"
+      - "/:/rootfs:ro"
+    restart: unless-stopped
+    ports:
+    - 9100:9100
+  
+  elasticsearch:
+    build: elasticsearch/build/main
+    container_name: transcendence_elasticsearch
+    image: transcendence_elasticsearch
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+
+  logstash:
+    build: logstash/build/main
+    image: transcendence_logstash
+    container_name: transcendence_logstash
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./logstash/build/main/tools/logstash-config:/usr/share/logstash/config
+      - ./logstash/build/main/tools/logstash-pipeline:/usr/share/logstash/pipeline
+
+  filebeat:
+    build: filebeat/build/main
+    volumes:
+      - ./filebeat/build/main/tools/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./Logs:/logs
+    depends_on:
+      - logstash
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.3
+    ports:
+      - "5601:5601"
+
+volumes:
+  grafana_data:
+    driver: local
+    driver_opts:
+            type: none
+            o: bind
+            device: grafana/volume

@@ -6,12 +6,20 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
     - targets: ['prometheus:9090']
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> devops
   - job_name: 'cadvisor'
     static_configs:
     - targets: ['cadvisor:7070']
 
   - job_name: 'node_exporter'
     static_configs:
+<<<<<<< HEAD
     - targets: ['node_exporter:9100']    
 
+=======
+    - targets: ['node_exporter:9100']
+>>>>>>> devops
