@@ -1,1 +1,0 @@
-FROM haproxy:alpine3.19
