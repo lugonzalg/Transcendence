@@ -10,14 +10,13 @@ Services/Backend/login/tools/*.json
 .envs/
 .github/
 .gitignore
-Makefile
+/Makefile
 README.md
 Services/
 Volumes/
 Tools/
 core/
 doc/
-docker-compose.yml
 keys.txt
 manager.sh
 core
