@@ -1,0 +1,59 @@
+{
+    "GOOGLE_OAUTH" : {
+
+        "CLIENT_ID": "426246363780-ndf5bpo6l20r76008ihp9dotftuq3tpb.apps.googleusercontent.com",
+        "CLIENT_SECRET": "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",
+        "APP_ID": "trancendence-411414",
+        "API_URI": "api:google-oauth2:login-raw:callback-raw",
+        "AUTH_URL": "https://accounts.google.com/o/oauth2/auth",
+        "ACCESS_TOKEN_URL": "https://oauth2.googleapis.com/token",
+        "USER_INFO_URL": "https://www.googleapis.com/oauth2/v3/userinfo",
+        "SCOPES_MAIL": "https://www.googleapis.com/auth/userinfo.email",
+        "SCOPES_PROFILE": "https://www.googleapis.com/auth/userinfo.profile",
+        "SCOPES_OPENID": "openid",
+        "REDIRECT_URI": "http://trascendence.tech:4242/api/login/google/callback",
+        "SCOPES": [
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "openid"
+        ],
+        "OAUTH_PARAMS_LOGIN" : {
+            "scope": "",
+            "access_type": "offline",
+            "include_granted_scopes": "true",
+            "response_type": "code",
+            "state": "",
+            "redirect_uri": "",
+            "client_id": ""
+        },
+        "OAUTH_PARAMS_TOKEN" : {
+            "code": "",
+            "client_id": "",
+            "client_secret": "",
+            "redirect_uri": "",
+            "grant_type": "authorization_code"
+        }
+    },
+    "TRANSCENDENCE": {
+        "URL": {
+            "lobby": "https://trascendence.tech/lobby",
+            "otp": "http://localhost:8080/otp"
+        },
+        "JWT": {
+            "secret": "624f21243fe81295b67131fd772e207552a22742fe9e7637e3dfdaf14ad9810d",
+            "refresh": 180,
+            "algorithm": "HS256"
+        },
+        "SMTP": {
+            "email":"manage@trascendence.tech",
+            "password": "mime999!",
+            "port":465,
+            "server": "smtp.hostinger.com"
+        },
+        "LOGIN": {
+            "LOCAL": 0,
+            "INTRA": 1,
+            "GOOGLE": 2
+        }
+    }
+}
