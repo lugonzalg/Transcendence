@@ -41,12 +41,12 @@ services:
     volumes:
       - gateway_data:/app
       - django_log:/log
-  
-  pg-login:  
-    container_name: transcendence_pg_login 
+
+  pg-login:
+    container_name: transcendence_pg_login
     image: transcendence_pgbase_login
     build: django/build/pg-login
-    restart: always  
+    restart: always
     env_file:
       - .envs/.env.login
     volumes:
