@@ -13,3 +13,4 @@ manager.sh
 .gitignore_devops
 .gitignore_dependencies
 *.log
+node_modules
