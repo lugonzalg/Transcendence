@@ -39,7 +39,7 @@ services:
       - 4242:4242
 
     networks:
-      - proxy
+      - gateway
     volumes:
       - gateway_data:/app
       - django_log:/log
@@ -94,5 +94,4 @@ volumes:
   pg-login_data:
 
 networks:
-  proxy:
-    external: true
+  gateway:
