@@ -7,6 +7,8 @@ services:
     image: transcendence_vue_login
     ports:
       - "8080:8080"
+    networks:
+      - gateway
     volumes:
       - vue_data:/Trascendence
       - vue_log:/Logs
