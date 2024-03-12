@@ -11,7 +11,7 @@
     <div class="video-background">
       <div class="video-background" :class="{ 'video-loaded': videoLoaded }"></div>
       <video preload="auto" autoplay loop muted playsinline @loadstart="videoLoaded = true">
-        <source src="../assets/mainloop.webm" type="video/webm">
+        <source src="" type="video/webm">
         Tu navegador no soporta videos.
      </video>
     </div>
