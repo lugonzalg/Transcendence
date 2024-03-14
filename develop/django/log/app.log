@@ -1,0 +1,24 @@
+[INFO|autoreload|L668] 2024-03-14T20:44:33+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:47:01+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:47:02+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:47:03+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:47:04+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:47:08+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:47:09+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:47:11+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:47:12+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:47:23+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:47:23+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:48:20+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:48:21+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:48:23+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:48:24+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:48:25+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:48:26+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:49:50+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:49:51+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:49:57+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:49:58+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L266] 2024-03-14T20:50:10+0000: /app/gateway/auth.py changed, reloading.
+[INFO|autoreload|L668] 2024-03-14T20:50:11+0000: Watching for file changes with StatReloader
+[INFO|autoreload|L668] 2024-03-14T20:52:26+0000: Watching for file changes with StatReloader

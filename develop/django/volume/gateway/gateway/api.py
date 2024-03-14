@@ -1,6 +1,6 @@
 #CORE
 
-from transcendence.settings import logger
+from transcendence.settings import logger, LOGIN
 from django.http import HttpResponseRedirect
 
 import hashlib, os, requests
@@ -12,10 +12,10 @@ from ninja.errors import HttpError
 
 router = Router()
 
-S_LOGIN_REGISTER= os.environ['S_LOGIN_REGISTER']
-S_LOGIN_DEFAULT_LOGIN= os.environ['S_LOGIN_DEFAULT_LOGIN']
-S_LOGIN_GOOGLE_LOGIN= os.environ['S_LOGIN_GOOGLE_LOGIN']
-S_LOGIN_GOOGLE_CALLBACK= os.environ['S_LOGIN_GOOGLE_CALLBACK']
+S_LOGIN_REGISTER= LOGIN['S_LOGIN_REGISTER']
+S_LOGIN_DEFAULT_LOGIN= LOGIN['S_LOGIN_DEFAULT_LOGIN']
+S_LOGIN_GOOGLE_LOGIN= LOGIN['S_LOGIN_GOOGLE_LOGIN']
+S_LOGIN_GOOGLE_CALLBACK= LOGIN['S_LOGIN_GOOGLE_CALLBACK']
 
 #/log se encarga de recibir la informacion recopilada por el servidor sobre el navegador del usuario cuando entra en home y 
 # redirigirla al endpoint /log del back para que la gestione. 

@@ -2,8 +2,6 @@ services:
 
   vue:
     build: vue/build/main
-    env_file:
-      - .envs/.env.vue
     image: transcendence_vue_login
     ports:
       - "8080:8080"
@@ -16,8 +14,6 @@ services:
     depends_on:
       - pg-login
     image: transcendence_dj_login
-    env_file:
-      - .envs/.env.login
 
     expose:
         - 25671
@@ -32,8 +28,7 @@ services:
       - pg-login
       - login
     image: transcendence_dj_gateway
-    env_file:
-      - .envs/.env.login
+
 
     ports:
       - 4242:4242
@@ -47,8 +42,6 @@ services:
     image: transcendence_pgbase_login
     build: django/build/pg-login
     restart: always
-    env_file:
-      - .envs/.env.login
     volumes:
       - pg-login_data:/var/lib/postgresql/data
 
@@ -90,3 +83,6 @@ volumes:
       device: vue/volume/main
 
   pg-login_data:
+
+networks:
+  transcendence: 

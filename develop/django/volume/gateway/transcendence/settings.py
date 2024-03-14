@@ -17,28 +17,29 @@ import logging.config
 
 logger = logging.getLogger("auth")  # __name__ is a common choice
 
-def setup_logging():
-
-    config_file = pathlib.Path(os.environ["LOGGER_PARAMS"])
-    logging.info(config_file)
-    with open(config_file) as f_in:
-        config = json.load(f_in)
-
-    config["handlers"]["file"]["filename"] = "/log/app.log"
-    logging.config.dictConfig(config)
-
-
-setup_logging()
 logging.basicConfig(level="INFO")
 
 try:
-    with open(os.environ["PARAMS"]) as fd:
-        params = json.load(fd)
+    with open("/secrets/tools_secrets.json") as fd:
+        params_tools = json.load(fd)
+    with open("/secrets/postgres_db_secrets.json") as fd:
+        params_db = json.load(fd)
+    with open("/secrets/jwt_secrets.json") as fd:
+        params_jwt = json.load(fd)
+    with open("/secrets/login_secrets.json") as fd:
+        params_login = json.load(fd)
 except FileNotFoundError:
     logger.error(f"Error: Params File Not Found")
     sys.exit(1)
 
-TRANSCENDENCE = params["TRANSCENDENCE"]
+TOOLS = params_tools["data"]["data"]
+POSTGRES = params_db["data"]["data"]
+JWT = params_jwt["data"]["data"]
+LOGIN = params_login["data"]["data"]
+
+#Config with tools on vault
+TOOLS["LOGGER"]["handlers"]["file"]["filename"] = "/log/app.log"
+logging.config.dictConfig(TOOLS["LOGGER"])
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -121,10 +122,10 @@ AUTH_PASSWORD_VALIDATORS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ['POSTGRES_DB'],
-        'HOST': os.environ['POSTGRES_HOST'],
-        'USER': os.environ['POSTGRES_USER'],
-        'PASSWORD': os.environ['POSTGRES_PASSWORD']
+        'NAME': POSTGRES['POSTGRES_DB'],
+        'HOST': POSTGRES['POSTGRES_HOST'],
+        'USER': POSTGRES['POSTGRES_USER'],
+        'PASSWORD': POSTGRES['POSTGRES_PASSWORD']
     }
 }
 

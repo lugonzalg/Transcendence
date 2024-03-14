@@ -19,7 +19,7 @@ logger = logging.getLogger("login")  # __name__ is a common choice
 
 def setup_logging():
 
-    config_file = pathlib.Path(os.environ["LOGGER_PARAMS"])
+    config_file = pathlib.Path("/tools/logger.json")
     logging.info(config_file)
     with open(config_file) as f_in:
         config = json.load(f_in)
@@ -32,7 +32,7 @@ setup_logging()
 logging.basicConfig(level="INFO")
 
 try:
-    with open(os.environ["PARAMS"]) as fd:
+    with open("/tools/params.json") as fd:
         params = json.load(fd)
 except FileNotFoundError:
     logger.error(f"Error: Params File Not Found")
