@@ -1,16 +1,41 @@
 services:
 
+  certbot:
+    build: certbot/build/main
+    container_name: transcendence_certbot
+    image: transcendence_certbot
+    volumes:
+      - certs:/etc/letsencrypt
+      - webroot:/var/www/certbot
+    entrypoint: tail -f
+
   nginx:
 
     build: ./nginx/build/main
     container_name: transcendence_nginx
     image: transcendence_nginx
+    networks:
+      - proxy
+      - develop_gateway
+    volumes:
+      - ./nginx/build/main/tools/nginx.conf:/etc/nginx/nginx.conf
+      - certs:/etc/letsencrypt
+      - webroot:/var/www/certbot
 
   haproxy:
 
     build: ./haproxy/build/main
     container_name: transcendence_haproxy
     image: transcendence_haproxy
+
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./haproxy/build/main/tools/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - certs:/etc/certs
 
   vault:
     build: ./vault/build/main
@@ -40,3 +65,10 @@ services:
 volumes:
 
   pg_vault:
+  certs:
+  webroot:
+
+networks:
+  proxy:
+  develop_gateway:
+    external: true
