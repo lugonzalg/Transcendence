@@ -17,29 +17,33 @@ import logging.handlers
 
 logger = logging.getLogger("login")  # __name__ is a common choice
 
-def setup_logging():
-
-    config_file = pathlib.Path("/tools/logger.json")
-    logging.info(config_file)
-    with open(config_file) as f_in:
-        config = json.load(f_in)
-
-    config["handlers"]["file"]["filename"] = "/log/app.log"
-    logging.config.dictConfig(config)
-
-
-setup_logging()
 logging.basicConfig(level="INFO")
 
 try:
-    with open("/tools/params.json") as fd:
-        params = json.load(fd)
+    with open("/secrets/login_secrets.json") as fd:
+        params_login = json.load(fd)
+    with open("/secrets/login_google_secrets.json") as fd:
+        params_login_google = json.load(fd)
+    with open("/secrets/transcendence_server_secrets.json") as fd:
+        params_transcendence_server = json.load(fd)
+    with open("/secrets/tools_secrets.json") as fd:
+        params_tools = json.load(fd)
+    with open("/secrets/postgres_db_secrets.json") as fd:
+        params_db = json.load(fd)
 except FileNotFoundError:
     logger.error(f"Error: Params File Not Found")
     sys.exit(1)
 
-GOOGLE_OUATH = params["GOOGLE_OAUTH"]
-TRANSCENDENCE = params["TRANSCENDENCE"]
+TOOLS = params_tools["data"]["data"]
+LOGIN = params_login["data"]["data"]
+GOOGLE_OUATH = params_login_google["data"]["data"]
+TRANSCENDENCE = params_transcendence_server["data"]["data"]
+POSTGRES = params_db["data"]["data"]
+
+#Config with tools on vault
+TOOLS["LOGGER"]["handlers"]["file"]["filename"] = "/log/app.log"
+logging.config.dictConfig(TOOLS["LOGGER"])
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -111,10 +115,10 @@ WSGI_APPLICATION = 'transcendence.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ['POSTGRES_DB'],
-        'HOST': os.environ['POSTGRES_HOST'],
-        'USER': os.environ['POSTGRES_USER'],
-        'PASSWORD': os.environ['POSTGRES_PASSWORD']
+        'NAME': POSTGRES['POSTGRES_DB'],
+        'HOST': POSTGRES['POSTGRES_HOST'],
+        'USER': POSTGRES['POSTGRES_USER'],
+        'PASSWORD': POSTGRES['POSTGRES_PASSWORD']
     }
 }
 
