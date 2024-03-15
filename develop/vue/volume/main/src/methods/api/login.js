@@ -19,7 +19,7 @@ function collectBrowserData() {
 
 //HomeView @POST /login_log
 async function sendDataToServer(data) {
-    axiosInstance.post('http://localhost:4242/api/log', data,  { timeout: 5000 })
+    axiosInstance.post('http://gateway:4242/api/log', data,  { timeout: 5000 })
     .then((response) => {
       console.log('Datos enviados al servidor:', response);
     })
