@@ -71,6 +71,7 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
         "state": state,
     }
 
+    logger.warning(f"Params: {params}")
     res = requests.get(S_LOGIN_GOOGLE_CALLBACK, params=params)
 
     try:

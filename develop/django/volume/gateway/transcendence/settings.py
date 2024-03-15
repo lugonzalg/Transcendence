@@ -53,7 +53,7 @@ SECRET_KEY = 'django-insecure-%fmk_ra(3@i6m+cto&6b$&5m!x)%1eyp#qrku=_6&*@w9a)@j=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['65.109.174.85','195.35.48.173','auth', 'localhost', 'login', 'https://localhost', 'trascendence.tech', 'gateway']
+ALLOWED_HOSTS = ['ikerketa.com', 'www.ikerketa.com','65.109.174.85','195.35.48.173','auth', 'localhost', 'login', 'https://localhost', 'trascendence.tech', 'gateway']
 
 
 # Application definition

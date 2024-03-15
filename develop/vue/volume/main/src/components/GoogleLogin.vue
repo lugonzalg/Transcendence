@@ -19,7 +19,7 @@
 
 <script>
 
-import { postGateway } from '@/methods/api/login.js';
+import { getGateway } from '@/methods/api/login.js';
 
 export default {
 
@@ -27,9 +27,13 @@ export default {
   {
     async loadGoogleOauth() {
         console.log("Google")
-        await postGateway('login/google');
-        //const url = process.env.VUE_APP_GOOGLE_OAUTH_URL;
-        //window.location.href = url;
+        const url = await getGateway('login/google');
+
+        console.log(url);
+        if (url != null) {
+            console.log("Redirecting to Google Oauth");
+            window.location.href = url;
+        }
     }
   }
 };

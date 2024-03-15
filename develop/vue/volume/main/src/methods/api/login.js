@@ -20,12 +20,26 @@ function collectBrowserData() {
 async function postGateway(endpoint) {
   axiosInstance.post(endpoint, {timeout: 1000})
   .then((response) => {
-    console.log("Succesful request: ", response);
+    console.log("Succesful POST request: ", response);
   })
   .catch((error) => {
     console.error("Error in POST request: ", error);
   });
-  
+}
+
+async function getGateway(endpoint) {
+
+  try {
+
+    const res = await axiosInstance.get(endpoint, {timeout: 1000});
+    return res.data.url;
+
+  } catch (error) {
+
+      console.error("Error in GET request: ", error);
+      return null;
+
+  }
 }
 
 //HomeView @POST /login_log
@@ -77,4 +91,5 @@ async function handleIntraRedirect() {
 }
 
 
-export { handleIntraRedirect ,collectBrowserData , sendDataToServer, register, login, postGateway};
+export { handleIntraRedirect ,collectBrowserData , sendDataToServer, register, login,
+  postGateway, getGateway};
