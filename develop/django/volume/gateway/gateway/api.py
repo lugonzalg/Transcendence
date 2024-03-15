@@ -53,7 +53,7 @@ def login_google(request):
     if url is None:
         raise HttpError(status_code=400, message="Error: url not found")
 
-    return HttpResponseRedirect(url)
+    return {'url':url}
 
 @router.get('/login/google/callback', tags=['login'])
 def login_google_callback(request, code: str, state: str, error: str | None = None):
