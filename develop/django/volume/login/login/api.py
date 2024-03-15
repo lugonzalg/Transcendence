@@ -208,7 +208,7 @@ def google_login(request, state: str):
     oauth_params = GOOGLE_OUATH['OAUTH_PARAMS_LOGIN']
     oauth_params['scope'] = ' '.join(GOOGLE_OUATH["SCOPES"])
     oauth_params['state'] = state
-    oauth_params['redirect_uri'] = GOOGLE_OUATH['REDIRECT_URI']
+    oauth_params['redirect_uri'] = 'https://ikerketa.com/api/login/google/callback'#GOOGLE_OUATH['REDIRECT_URI']
     oauth_params['client_id'] = GOOGLE_OUATH['CLIENT_ID']
 
     auth_url = f"{GOOGLE_OUATH['AUTH_URL']}?{urlencode(oauth_params)}"
@@ -230,7 +230,7 @@ def google_callback(request, code: str, state: str):
     oauth_params['code'] = code
     oauth_params['client_id'] = GOOGLE_OUATH['CLIENT_ID']
     oauth_params['client_secret'] = GOOGLE_OUATH['CLIENT_SECRET']
-    oauth_params['redirect_uri'] = GOOGLE_OUATH['REDIRECT_URI']
+    oauth_params['redirect_uri'] = 'https://ikerketa.com/api/login/google/callback'#GOOGLE_OUATH['REDIRECT_URI']
 
     res = requests.post(GOOGLE_OUATH['ACCESS_TOKEN_URL'], data=oauth_params)
     if not res.ok:
