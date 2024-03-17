@@ -17,9 +17,34 @@ function collectBrowserData() {
   sendDataToServer(data);
 }
 
+async function postGateway(endpoint) {
+  axiosInstance.post(endpoint, {timeout: 1000})
+  .then((response) => {
+    console.log("Succesful POST request: ", response);
+  })
+  .catch((error) => {
+    console.error("Error in POST request: ", error);
+  });
+}
+
+async function getGateway(endpoint) {
+
+  try {
+
+    const res = await axiosInstance.get(endpoint, {timeout: 1000});
+    return res.data.url;
+
+  } catch (error) {
+
+      console.error("Error in GET request: ", error);
+      return null;
+
+  }
+}
+
 //HomeView @POST /login_log
 async function sendDataToServer(data) {
-    axiosInstance.post('http://localhost:4242/api/log', data,  { timeout: 5000 })
+    axiosInstance.post('/log', data,  { timeout: 5000 })
     .then((response) => {
       console.log('Datos enviados al servidor:', response);
     })
@@ -66,4 +91,5 @@ async function handleIntraRedirect() {
 }
 
 
-export { handleIntraRedirect ,collectBrowserData , sendDataToServer, register, login};
+export { handleIntraRedirect ,collectBrowserData , sendDataToServer, register, login,
+  postGateway, getGateway};

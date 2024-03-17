@@ -6,6 +6,7 @@ import LobbyView from '../views/LobbyView.vue';
 import OTPView from '@/views/OTPView.vue'
 import LandingPage from '@/views/LandingPage.vue';
 import MainDashboard from '@/views/MainDashboard.vue';
+import GoogleCallback from '@/views/GoogleCallback.vue';
 
 const routes = [
   {
@@ -42,6 +43,11 @@ const routes = [
     path: '/dashboard',
     name: 'MainDashboard',
     component: MainDashboard,
+  },
+  {
+    path: '/google/callback',
+    name: 'GoogleCallback',
+    component: GoogleCallback
   }
 ];
 
