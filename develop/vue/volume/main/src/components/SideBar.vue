@@ -1,26 +1,24 @@
 <template>
-    <div class="wrapper">
-        <aside id="sidebar" :class="{ 'expand': isSidebarExpanded }">
+
+        <aside id="sidebar">
             <div class="d-flex">
-                <button class="toggle-btn" type="button" @click="toggleSidebar">
+                <button class="toggle-btn" type="button">
                     <i class="lni lni-grid-alt"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="#">Transcendence</a>
+                    <router-link to="/dashboard"></router-link>
                 </div>
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
+                        <router-link to="/dashboard" class="sidebar-link">
                         <i class="lni lni-layout"></i>
-                        <span>Inicio</span>
-                    </a>
+                        </router-link>
                 </li>
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
+                    <router-link to="/profile" class="sidebar-link">
                         <i class="lni lni-user"></i>
-                        <span>Perfil</span>
-                    </a>
+                    </router-link>
                 </li>
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link"
@@ -49,26 +47,12 @@
                 </a>
             </div>
         </aside>
-    </div>
 </template>
       
 <script>
 export default {
   name: 'SideBar',
-  data() {
-    return {
-      isSidebarExpanded: false, // Controla el estado de expansión del sidebar
-    };
-  },
-  methods: {
-    toggleSidebar() {
-      this.isSidebarExpanded = !this.isSidebarExpanded; // Cambia el estado de expansión
-    },
-    closeSiderbar() {
-        if (this.isSidebarExpanded )
-            this.isSidebarExpanded = false; // Cambia el estado de expansión
-    }
-  },
+
 }
 </script>
 
@@ -118,12 +102,9 @@ body {
     background-color: #0e2238;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
-#sidebar.expand {
-    width: 260px;
-    min-width: 260px;
-}
 
 .toggle-btn {
     background-color: transparent;

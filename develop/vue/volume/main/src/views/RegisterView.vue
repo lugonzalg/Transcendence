@@ -143,8 +143,8 @@ import { handleIntraRedirect } from '@/methods/api/login.js';
   border-radius: 4px;
   cursor: pointer;
   width: 100%;
-  hover: 
 }
+
 .button_intra:hover {
   background-color: black; 
 }
