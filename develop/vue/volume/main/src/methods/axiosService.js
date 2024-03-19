@@ -7,6 +7,8 @@ const axiosInstance = axios.create({
     //headers: {'X-Custom-Header': 'foobar'} Aqui meteremos el bearer por ejemplo
 });
 
+
+/*
 axiosInstance.interceptors.request.use(
     config => {
       const token = localStorage.getItem('userToken');
@@ -38,4 +40,6 @@ axios.interceptors.response.use(response => response, error => {
     return Promise.reject(error);
   });
 
+
+*/
 export default axiosInstance;
