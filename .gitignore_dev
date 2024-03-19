@@ -24,4 +24,4 @@ devops
 devops_holder
 deploy
 develop/vue/volume/main/src/assets/mainloop.webm
-node_modules
+node_modules/
