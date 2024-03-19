@@ -20,6 +20,7 @@ services:
     image: transcendence_dj_login
     env_file:
       - .envs/.env.login
+
     expose:
         - 25671
     networks:
