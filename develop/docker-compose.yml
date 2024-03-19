@@ -6,7 +6,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - gateway
+      - transcendence
     volumes:
       - vue_data:/Trascendence
       - vue_log:/Logs
@@ -16,16 +16,10 @@ services:
     depends_on:
       - pg-login
     image: transcendence_dj_login
-<<<<<<< HEAD
-
-=======
-    env_file:
-      - .envs/.env.login
->>>>>>> 380f624b6a944076f389509f4e598fa2200f7e18
     expose:
         - 25671
     networks:
-      - gateway
+      - transcendence
     volumes:
       - login_data:/app
       - django_log:/log
@@ -43,7 +37,7 @@ services:
       - 4242:4242
 
     networks:
-      - gateway
+      - transcendence
     volumes:
       - gateway_data:/app
       - django_log:/log
@@ -53,13 +47,6 @@ services:
     image: transcendence_pgbase_login
     build: django/build/pg-login
     restart: always
-<<<<<<< HEAD
-=======
-    env_file:
-      - .envs/.env.login
-    networks:
-      - gateway
->>>>>>> 380f624b6a944076f389509f4e598fa2200f7e18
     volumes:
       - pg-login_data:/var/lib/postgresql/data
 
@@ -103,8 +90,4 @@ volumes:
   pg-login_data:
 
 networks:
-<<<<<<< HEAD
   transcendence: 
-=======
-  gateway:
->>>>>>> 380f624b6a944076f389509f4e598fa2200f7e18
