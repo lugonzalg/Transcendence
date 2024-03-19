@@ -19,4 +19,4 @@ else
     echo "$service project found"
 fi
 
-exec python /app/manage.py runserver 0.0.0.0:$GATEWAY_PORT
+exec python /app/manage.py runserver 0.0.0.0:4242
