@@ -2,9 +2,9 @@ FROM python:alpine3.18
 
 RUN apk add --update bash sudo build-base libpq-dev libffi-dev && mkdir -p /tools
 
-COPY ./tools/params.json /tools/params.json
-COPY ./tools/logger.json /tools/logger.json
-COPY ./tools/docker-entrypoint.sh docker-entrypoint.sh
+COPY tools/params.json /tools/params.json
+COPY tools/logger.json /tools/logger.json
+COPY tools/docker-entrypoint.sh docker-entrypoint.sh
 
 COPY ./tools/requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
