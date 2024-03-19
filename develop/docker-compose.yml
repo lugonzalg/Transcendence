@@ -16,6 +16,12 @@ services:
     depends_on:
       - pg-login
     image: transcendence_dj_login
+<<<<<<< HEAD
+=======
+    env_file:
+      - .envs/.env.login
+
+>>>>>>> dev-lugonzal
     expose:
         - 25671
     networks:
