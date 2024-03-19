@@ -7,7 +7,7 @@ RUN apk add --update && apk add curl
 RUN apk update && apk add --upgrade jq
 
 # Hacer la petición para obtener las variables de entorno y guardarlas en un archivo JSON
-RUN curl -k --header "X-Vault-Token: hvs.Dd77um8uAHucsxDQwx6RQSoz" --request GET https://195.35.48.173:8200/v1/transcendence/data/postgres_db > /tmp/secrets.json
+RUN curl -k --header "X-Vault-Token: ${VAULT_TOKEN}" --request GET https://195.35.48.173:8200/v1/transcendence/data/postgres_db > /tmp/secrets.json
 
 # Extraer las variables de entorno del archivo JSON y exportarlas
 RUN export $(jq -r '.data.data | to_entries | .[] | "\(.key)=\(.value)"' /tmp/secrets.json)
