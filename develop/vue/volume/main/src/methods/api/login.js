@@ -46,8 +46,8 @@ async function login(credentials) {
       return { success: true, data: response.data, error: null };
   } catch (error) {
       if (error.response) {
-        return { success: false, data: null, error: 'Necesita verificación OTP', status: 428 };
-        //return { success: false, data: null, error: error.response.data.detail || 'Error desconocido.' };
+        //return { success: false, data: null, error: 'Necesita verificación OTP', status: 428 };
+        return { success: false, data: null, error: error.response.data.detail || 'Error desconocido.' };
       } else {
           console.error("Error making the request:", error);
           return { success: false, data: null, error: 'Necesita verificación OTP', status: 428 };
