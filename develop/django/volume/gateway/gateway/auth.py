@@ -1,13 +1,13 @@
 from django.core.validators import validate_email
 from ninja.errors import HttpError
-from transcendence.settings import TRANSCENDENCE, logger
+from transcendence.settings import JWT, logger
 import datetime, jwt
 from . import schemas
 
 BEARER_OFFSET = 7
-SECRET = TRANSCENDENCE['JWT']['secret']
-ALGORITHM = TRANSCENDENCE['JWT']['algorithm']
-REFRESH = TRANSCENDENCE['JWT']['refresh']
+SECRET = JWT['secret']
+ALGORITHM = JWT['ALGORITHM']
+#REFRESH = JWT['REFRESH']
 
 
 def encode_token(jwt_input: schemas.JWTInput) -> str:
