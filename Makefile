@@ -3,7 +3,8 @@ COMPOSE=docker compose -f docker-compose.yml
 .PHONY: all build build-all clean clean-all down fclean follow follow-all ps restart restart-all stop stop-all
 
 all:
-	$(COMPOSE) up -d
+	make -C ./dependencies
+	make -C ./develop
 
 vault:
 	$(COMPOSE) up -d vault
