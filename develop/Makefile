@@ -32,3 +32,6 @@ live:
 
 follow:
 	$(COMPOSE) logs --follow --tail 200 $(SER)
+
+psql:
+	$(COMPOSE) exec pg-login psql -U Astro98 transcendence

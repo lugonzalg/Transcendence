@@ -19,12 +19,21 @@
 
 <script>
 
+import { getGateway } from '@/methods/api/login.js';
+
 export default {
+
   methods: 
   {
     async loadGoogleOauth() {
-        const url = process.env.VUE_APP_GOOGLE_OAUTH_URL;
-        window.location.href = url;
+        console.log("Google")
+        const url = await getGateway('login/google');
+
+        console.log(url);
+        if (url != null) {
+            console.log("Redirecting to Google Oauth");
+            window.location.href = url;
+        }
     }
   }
 };
