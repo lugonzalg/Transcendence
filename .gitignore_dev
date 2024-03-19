@@ -16,3 +16,4 @@ manager.sh
 node_modules
 *.log.*
 *.pyc
+log
