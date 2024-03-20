@@ -9,4 +9,6 @@ README.md
 deploy/
 devops_holder/
 manager.sh
+*.swp
 .gitignore*
+test
