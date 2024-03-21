@@ -7,9 +7,12 @@ services:
     container_name: transcendence_grafana
     image: transcendence_grafana
     ports:
-    - 3000:3000
+    - 81:3000
+    networks:
+      - monitor
     volumes:
     - grafana_data:/var/lib/grafana
+    - ./grafana/build/main/tools/grafana.ini:/etc/grafana/grafana.ini
     restart: unless-stopped
 
   prometheus:
@@ -85,3 +88,6 @@ volumes:
             type: none
             o: bind
             device: grafana/volume
+
+networks:
+  monitor:
