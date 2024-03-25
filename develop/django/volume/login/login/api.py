@@ -209,7 +209,7 @@ def google_login(request, state: str):
     oauth_params = GOOGLE['GOOGLE_OAUTH']['OAUTH_PARAMS_LOGIN']
     oauth_params['scope'] = ' '.join(GOOGLE['GOOGLE_OAUTH']["SCOPES"])
     oauth_params['state'] = state
-    oauth_params['redirect_uri'] = 'https://ikerketa.com/api/login/google/callback'#GOOGLE_OUATH['REDIRECT_URI']
+    oauth_params['redirect_uri'] = 'https://trascendence.tech/api/login/google/callback'#GOOGLE_OUATH['REDIRECT_URI']
     oauth_params['client_id'] = GOOGLE['GOOGLE_OAUTH']['CLIENT_ID']
 
     auth_url = f"{GOOGLE['GOOGLE_OAUTH']['AUTH_URL']}?{urlencode(oauth_params)}"
@@ -231,7 +231,7 @@ def google_callback(request, code: str, state: str):
     oauth_params['code'] = code
     oauth_params['client_id'] = GOOGLE['GOOGLE_OAUTH']['CLIENT_ID']
     oauth_params['client_secret'] = GOOGLE['GOOGLE_OAUTH']['CLIENT_SECRET']
-    oauth_params['redirect_uri'] = 'https://ikerketa.com/api/login/google/callback'#GOOGLE_OUATH['REDIRECT_URI']
+    oauth_params['redirect_uri'] = 'https://trascendence.tech/api/login/google/callback'#GOOGLE_OUATH['REDIRECT_URI']
 
     res = requests.post(GOOGLE['GOOGLE_OAUTH']['ACCESS_TOKEN_URL'], data=oauth_params)
     if not res.ok:

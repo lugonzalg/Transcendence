@@ -63,7 +63,7 @@ async function handleIntraRedirect() {
       // Peticion de build url al back
      // const response = await axios.get('http://localhost:4242/api/intra');
       // Redireccion a la url
-      window.location.href = 'http://localhost:4242/api/intra';
+      window.location.href = 'https://trascendence.tech/api/intra';
     
     } catch (error) {
       console.error('Error al manejar el inicio de sesión con Intra 42:', error);

@@ -1,7 +1,7 @@
 FROM python:alpine3.18 AS builder
 
-ARG ADMIN
 ARG VAULT_TOKEN
+ARG VAULT_URL
 
 COPY tools/docker-entrypoint.sh /docker-entrypoint.sh
 COPY tools/requirements.txt /requirements.txt
@@ -10,8 +10,8 @@ RUN apk add --update bash sudo build-base libpq-dev curl \
         && mkdir secrets \
         && pip install -r requirements.txt \
         && chmod +x /docker-entrypoint.sh \
-        && curl  -k --header "X-Vault-Token: ${VAULT_TOKEN}"  --request GET  https://65.109.174.85:8200/v1/transcendence/data/postgres_db > secrets/postgres_db_secrets.json \
-        && curl -k --header "X-Vault-Token: ${VAULT_TOKEN}"  --request GET  https://65.109.174.85:8200/v1/transcendence/data/logger > secrets/logger_secrets.json
+        && curl  -k --header "X-Vault-Token: ${VAULT_TOKEN}"  --request GET  ${VAULT_URL}/v1/transcendence/data/postgres_db > secrets/postgres_db_secrets.json \
+        && curl -k --header "X-Vault-Token: ${VAULT_TOKEN}"  --request GET  ${VAULT_URL}/v1/transcendence/data/logger > secrets/logger_secrets.json
 
 FROM python:alpine3.18 AS runner
 
@@ -28,5 +28,7 @@ RUN mkdir -p /app \
         && chown $ADMIN:$ADMIN /app
 
 USER $ADMIN
+
+EXPOSE 22748
 
 ENTRYPOINT [ "./docker-entrypoint.sh" ]

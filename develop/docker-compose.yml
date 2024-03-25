@@ -8,7 +8,7 @@ services:
     networks:
        - transcendence
     volumes:
-      - vue_data:/Trascendence
+      - ./vue/volume/main:/Trascendence
       - vue_log:/Logs
 
   user:
@@ -16,6 +16,7 @@ services:
       context: django/build/user
       args:
         - VAULT_TOKEN=$VAULT_TOKEN
+        - VAULT_URL=$VAULT_URL
         - ADMIN=$ADMIN
 
     container_name: transcendence_dj_user
@@ -23,8 +24,6 @@ services:
       - pg-login
 
     image: transcendence_dj_user
-    expose:
-        - 22748
     networks:
       - transcendence
     volumes:
@@ -36,13 +35,13 @@ services:
       context: django/build/login
       args:
         - VAULT_TOKEN=$VAULT_TOKEN
+        - VAULT_URL=$VAULT_URL
+        - ADMIN=$ADMIN
 
     container_name: transcendence_dj_login
     depends_on:
       - pg-login
     image: transcendence_dj_login
-    expose:
-        - 25671
     networks:
       - transcendence
     volumes:
@@ -55,8 +54,9 @@ services:
       context: django/build/gateway
       args:
         - VAULT_TOKEN=$VAULT_TOKEN
+        - VAULT_URL=$VAULT_URL
+        - ADMIN=$ADMIN
     container_name: transcendence_dj_gateway
-
     depends_on:
       - pg-login
       - login
@@ -117,13 +117,6 @@ volumes:
             type: none
             o: bind
             device: vue/log
-
-  vue_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: vue/volume/main
 
   pg-login_data:
 

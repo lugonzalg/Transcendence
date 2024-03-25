@@ -11,7 +11,7 @@ services:
     networks:
       - monitor
     volumes:
-    - grafana_data:/var/lib/grafana
+    - ./grafana/volume:/var/lib/grafana
     - ./grafana/build/main/tools/grafana.ini:/etc/grafana/grafana.ini
     restart: unless-stopped
 
