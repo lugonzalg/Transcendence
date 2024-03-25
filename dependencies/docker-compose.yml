@@ -29,6 +29,7 @@ services:
 
     networks:
       - proxy
+      - devops_monitor
     ports:
       - 80:80
       - 443:443

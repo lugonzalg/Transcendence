@@ -62,19 +62,22 @@ services:
     container_name: transcendence_logstash
     ports:
       - "5000:5000"
+    networks:
+      - monitor
     volumes:
       - ./logstash/build/main/tools/logstash-config:/usr/share/logstash/config
       - ./logstash/build/main/tools/logstash-pipeline:/usr/share/logstash/pipeline
+    cpus: 1.0
+    mem_limit: 512m
 
   filebeat:
     build: filebeat/build/main
-    volumes:
-      - ./filebeat/build/main/tools/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./Logs:/logs
     depends_on:
       - logstash
+    expose:
+      - 9000
+    networks:
+      - monitor
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.9.3
