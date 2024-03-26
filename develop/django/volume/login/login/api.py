@@ -112,9 +112,10 @@ def login_user(request, user: schemas.UserLogin): #Creacion de funcion que se ej
 @router.get('/intra')
 def redirect_intra(request): 
 
-    uid = LOGIN['INTRA_UID']
-    auth_url = LOGIN['INTRA_AUTH_URL']
-    redirect_uri = LOGIN['INTRA_REDIRECT_URI']
+    logger.warning(f"INTRA: {INTRA}")
+    uid = INTRA['INTRA_UID']
+    auth_url = INTRA['INTRA_AUTH_URL']
+    redirect_uri = INTRA['INTRA_REDIRECT_URI']
 
     # Construir la URI (la f indica que esta utilizando una cadena de formato f-string en Python.Las expresiones dentro de las llaves se evalúan y se insertan en la cadena resultante.)
     uri = f"{auth_url}?client_id={uid}&redirect_uri={redirect_uri}&response_type=code"
@@ -205,13 +206,14 @@ def login_intra(request):
 @router.get('/google')
 def google_login(request, state: str):
 
-    logger.warning(GOOGLE)
     oauth_params = GOOGLE['GOOGLE_OAUTH']['OAUTH_PARAMS_LOGIN']
+    logger.warning(f"Params: {oauth_params}")
     oauth_params['scope'] = ' '.join(GOOGLE['GOOGLE_OAUTH']["SCOPES"])
     oauth_params['state'] = state
-    oauth_params['redirect_uri'] = 'https://trascendence.tech/api/login/google/callback'#GOOGLE_OUATH['REDIRECT_URI']
+    oauth_params['redirect_uri'] = 'https://trascendence.tech/api/login/google/callback'
     oauth_params['client_id'] = GOOGLE['GOOGLE_OAUTH']['CLIENT_ID']
 
+    logger.warning(f"Google: {GOOGLE}")
     auth_url = f"{GOOGLE['GOOGLE_OAUTH']['AUTH_URL']}?{urlencode(oauth_params)}"
     logger.warning(f"URL: {auth_url}")
     return {"url": auth_url}
@@ -255,7 +257,7 @@ def google_callback(request, code: str, state: str):
         logger.error(err)
 
     payload = {
-        'url': TRANSCENDENCE['URL']['lobby'],
+        'url': 'https://trascendence.tech/dashboard',
         'username': username,
         'user_id': None
     }

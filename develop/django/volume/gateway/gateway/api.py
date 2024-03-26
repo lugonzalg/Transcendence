@@ -173,7 +173,9 @@ def login_default(request, user: schemas.UserLogin):
         raise HttpError(status_code=res.status_code, message="Error: Login failed")
 
     info = res.json()
-    return auth.create_jwt(**info)
+    user_id = info.get('id')
+    username = info.get('username')
+    return auth.create_jwt(username=username, user_id=user_id)
 
 @router.post('/login/register', tags=['login'])
 def login_register(request, user: schemas.UserRegister):
@@ -192,7 +194,9 @@ def login_register(request, user: schemas.UserRegister):
         raise HttpError(status_code=res.status_code, message="Error: Register failed")
 
     info = res.json()
-    return auth.create_jwt(**info)
+    user_id = info.get('id')
+    username = info.get('username')
+    return auth.create_jwt(username=username, user_id=user_id)
 
 @router.post('/login/unknown', tags=['login'])
 def login_unknown(request, username: str):

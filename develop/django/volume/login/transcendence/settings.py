@@ -26,7 +26,7 @@ try:
         params_google_login = json.load(fd)
     with open("/secrets/login_google_secrets.json") as fd:
         params_login_google = json.load(fd)
-    with open("/secrets/server.json") as fd:
+    with open("/secrets/server_secrets.json") as fd:
         params_server = json.load(fd)
     with open("/secrets/logger_secrets.json") as fd:
         params_logger = json.load(fd)
@@ -41,12 +41,12 @@ INTRA = params_intra_login["data"]["data"]
 GOOGLE = params_google_login["data"]["data"]
 TRANSCENDENCE = params_server["data"]["data"]
 POSTGRES = params_db["data"]["data"]
-logger.warning(POSTGRES)
 
 #Config with tools on vault
-LOGGER["handlers"]["file"]["filename"] = "/log/app.log"
+LOGGER["handlers"]["file"]["filename"] = "/log/login.log"
 logging.config.dictConfig(LOGGER)
 
+logger.warning(f"GOOGLE: {GOOGLE}")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

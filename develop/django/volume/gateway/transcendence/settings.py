@@ -42,7 +42,7 @@ GOOGLE = params_google_login["data"]["data"]
 INTRA = params_intra_login["data"]["data"]
 
 #Config with tools on vault
-LOGGER["handlers"]["file"]["filename"] = "/log/app.log"
+LOGGER["handlers"]["file"]["filename"] = "/log/gateway.log"
 logging.config.dictConfig(LOGGER)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

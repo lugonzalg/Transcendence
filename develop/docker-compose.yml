@@ -27,8 +27,8 @@ services:
     networks:
       - transcendence
     volumes:
-      - user_data:/app
-      - django_log:/log
+      - ./django/volume/user:/app
+      - ./django/log:/log
 
   login:
     build:
@@ -45,8 +45,8 @@ services:
     networks:
       - transcendence
     volumes:
-      - login_data:/app
-      - django_log:/log
+      - ./django/volume/login:/app
+      - ./django/log:/log
 
   gateway:
   
@@ -61,15 +61,11 @@ services:
       - pg-login
       - login
     image: transcendence_dj_gateway
-
-    expose:
-      - 4242
-
     networks:
       - transcendence
     volumes:
-      - gateway_data:/app
-      - django_log:/log
+      - ./django/volume/gateway:/app
+      - ./django/log:/log
 
   pg-login:
     build: django/build/pg-login
@@ -82,34 +78,6 @@ services:
       - pg-login_data:/var/lib/postgresql/data
 
 volumes:
-
-  user_data:
-    driver: local
-    driver_opts:
-            type: none
-            o: bind
-            device: django/volume/user
-
-  gateway_data:
-    driver: local
-    driver_opts:
-            type: none
-            o: bind
-            device: django/volume/gateway
-
-  login_data:
-    driver: local
-    driver_opts:
-            type: none
-            o: bind
-            device: django/volume/login
-
-  django_log:
-    driver: local
-    driver_opts:
-            type: none
-            o: bind
-            device: django/log
 
   vue_log:
     driver: local
