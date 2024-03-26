@@ -94,8 +94,9 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
         jwt_input.expire_time = 5
 
     response = HttpResponseRedirect(url)
-    response.set_cookie('token', jwt_input.token)
-    response.set_cookie('refresh', jwt_input.refresh)
+    response.set_cookie('Authorization', f"Bearer {jwt_input.token}")
+    response.set_cookie('Refresh', jwt_input.refresh)
+    logger.warning(f"Send token: {jwt_input.token}")
     return response
 
 @router.post('/test_otp')
@@ -244,6 +245,17 @@ def add_friend(request, friendname: str):
         raise HttpError(message='Error: Deleting Friend', status_code=res.status_code)
 
     return {"msg": 1}
+
+@router.patch('/user/profile', tags=['user'], auth=auth.authorize)
+def update_profile(request, user_profile: schemas.UserProfile):
+
+    logger.warning(request.headers)
+    logger.warning(user_profile)
+    #logger.warning(f"username: {username}")
+    #logger.warning(f"email: {email}")
+    #logger.warning(f"bio: {bio}")
+
+    return {'msg': 1}
 
 @router.delete('/delete/lukas')
 def delete_lukas(request):

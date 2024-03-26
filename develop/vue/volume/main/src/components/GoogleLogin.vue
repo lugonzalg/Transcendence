@@ -29,7 +29,7 @@ export default {
         console.log("Google")
         const url = await getGateway('login/google');
 
-        console.log(url);
+        console.log('Google data', url);
         if (url != null) {
             console.log("Redirecting to Google Oauth");
             window.location.href = url;

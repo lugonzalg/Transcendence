@@ -3,6 +3,15 @@ import axiosInstance from '../axiosService';
 //import axios from 'axios';
 
 
+async function patchGateway(endpoint, data) {
+  axiosInstance.patch(endpoint, data, {timeout: 1000})
+  .then((response) => {
+    console.log("Succesful POST request: ", response);
+  })
+  .catch((error) => {
+    console.error("Error in POST request: ", error);
+  });
+}
 
 async function postGateway(endpoint) {
   axiosInstance.post(endpoint, {timeout: 1000})
@@ -72,4 +81,4 @@ async function handleIntraRedirect() {
 
 
 export { handleIntraRedirect, register, login,
-  postGateway, getGateway};
+  postGateway, getGateway, patchGateway};

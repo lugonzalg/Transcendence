@@ -23,3 +23,13 @@ class UserLogin(Schema):
 class UserRegister(UserLogin):
 
     email: str
+
+#################
+#  User Profile #
+#################
+
+class UserProfile(Schema):
+
+    username: str
+    email: str
+    bio: str

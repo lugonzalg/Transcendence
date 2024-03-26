@@ -39,7 +39,6 @@ def decode_token(token: str) -> dict:
     except Exception as err:
         raise HttpError(status_code=401, message="Error: Unhandled Error")
 
-    logger.warning(f"Decoded: {decoded}")
     email = decoded.get("username")
     if email is None:
         raise HttpError(status_code=401, message="Error: User Unauthorized")
@@ -90,9 +89,19 @@ def refresh_jwt(jwt_token: schemas.JWTToken):
 
 def authorize(request):
 
-    auth = request.headers.get("Authorization")
+    auth = request.headers.get("Cookie")
     if auth is None:
         raise HttpError(status_code=403, message="Error: Unauthorized")
+
+    offset = auth.find('Bearer ')
+    if offset == -1:
+        raise HttpError(status_code=403, message="Error: Unauthorized")
+
+    end = auth.find(';', offset)
+    if end == -1:
+        raise HttpError(status_code=403, message="Error: Unauthorized")
+
+    auth = auth[offset + 7:end - 1]
 
     jwt_data = decode_token(auth)
     request.jwt_data = jwt_data
