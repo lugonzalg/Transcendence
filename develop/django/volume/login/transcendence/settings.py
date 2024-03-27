@@ -37,7 +37,7 @@ except FileNotFoundError as err:
     sys.exit(1)
 
 LOGGER = params_logger["data"]["data"]
-INTRA = params_intra_login["data"]["data"]
+LOGIN_INTRA = params_intra_login["data"]["data"]
 GOOGLE = params_google_login["data"]["data"]
 TRANSCENDENCE = params_server["data"]["data"]
 POSTGRES = params_db["data"]["data"]

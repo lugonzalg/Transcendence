@@ -123,10 +123,8 @@ async def check_otp(request):
     """
     return 
 
-@router.get('/intra', tags=['login']) #no entiendo el tema tags #son agrupaciones 
+@router.get('/intra', tags=['login']) #no entiendo el tema tags 
 def login_intra(request):
-
-    #  JWT, OTP y cookies
 
     res = requests.get('http://login:25671/api/login/intra')
     try:
@@ -158,11 +156,18 @@ def login_intra_callback(request, code:str):
     except Exception as err:
         raise HttpError(status_code=500, message="Error: Login Service Failed")
 
-    url = info.get('url')
+    username=info.get("username")
+    user_id=info.get("user_id")
+    url=info.get("url")
 
-     # JWT, OTP y cookies
+    jwt_input = auth.create_jwt(username=username, user_id=user_id)
 
-    return HttpResponseRedirect(url)
+    response = HttpResponseRedirect(url)
+    response.set_cookie('Authorization', f"Bearer {jwt_input.token}")
+    response.set_cookie('Refresh', jwt_input.refresh)
+    logger.warning(f"Send token: {jwt_input.token}")
+
+    return response
 
 @router.post('/login/default', tags=['login'])
 def login_default(request, user: schemas.UserLogin):
