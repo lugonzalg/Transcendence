@@ -15,9 +15,20 @@ from typing import List
 
 router = Router()
 
-@router.post('/register', response=schemas.UserReturnSchema)
+@router.post('/register')
 def create_user(request, user: schemas.UserCreateSchema):
-    return crud.create_user(user)
+
+    try:
+        db_user=crud.create_user(user)
+        payload = {
+        'url': "https://trascendence.tech/dashboard",
+        'username': db_user.username,
+        'user_id': db_user.id
+        }
+    except:
+        raise
+    
+    return payload
 
 
 @router.get('/get_user', response=schemas.UserReturnSchema)

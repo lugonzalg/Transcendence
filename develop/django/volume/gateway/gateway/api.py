@@ -199,9 +199,18 @@ def login_register(request, user: schemas.UserRegister):
         raise HttpError(status_code=res.status_code, message="Error: Register failed")
 
     info = res.json()
-    user_id = info.get('id')
+    logger.warning(info)
+    user_id = info.get('user_id')
     username = info.get('username')
-    return auth.create_jwt(username=username, user_id=user_id)
+    url = info.get("url")
+
+    jwt_input = auth.create_jwt(username=username, user_id=user_id)
+
+    #response.set_cookie('Authorization', f"Bearer {jwt_input.token}")
+    #response.set_cookie('Refresh', jwt_input.refresh)
+    logger.warning(f"Send token: {jwt_input.token}")
+
+    return url
 
 @router.post('/login/unknown', tags=['login'])
 def login_unknown(request, username: str):

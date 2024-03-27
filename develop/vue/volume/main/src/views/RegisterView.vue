@@ -70,10 +70,12 @@ import { handleIntraRedirect } from '@/methods/api/login.js';
       async handleRegister () {
       const { success, error } = await register(this.credentials);
       if (!success) {
+        console.log("NO SUCCESS")
         this.errorMessage = error;
         this.popupTriggers.responseTrigger = true;
       } else {
-        this.$router.push('/lobby');
+        console.log("SUCCESS VOY A DASHBOARD")
+        this.$router.push('/dashboard');
       }
     },
     async redirectToIntra () {
