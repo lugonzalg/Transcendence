@@ -12,12 +12,6 @@ class Username(Schema):
     
     username: str = Field(max_length=32, pattern=username_regex, examples=["walter"])
     
-    @validator('username')
-    def validate_username_length(cls, v):
-        if len(v) > 16:
-            raise HttpError(status_code=400, message="Username is too long")
-        return v
-
 class UserLogin(Username):
 
     password: str = Field(min_length=12, max_length=32, examples=["This_is_my_password1!"])

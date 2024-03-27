@@ -2,7 +2,7 @@ from django.db import models
 
 class user_login(models.Model):
 
-    username = models.CharField(max_length=16, unique=True)
+    username = models.CharField(max_length=32, unique=True)
     email = models.EmailField(max_length=32, unique=True)
     password = models.CharField(max_length=100)
     last_log = models.DateTimeField(auto_now=True)
