@@ -6,6 +6,26 @@ from django.core.exceptions import MultipleObjectsReturned
 from transcendence.settings import logger
 from user.models import user_login, Friends
 
+def get_user_by_id(user_id: int):
+    try:
+        logger.warning(f"Searching for user_id: {user_id}")
+        db_user = user_login.objects.filter(id=user_id).get()
+        logger.warning(f"User found: {db_user.username}")
+    except user_login.DoesNotExist:
+        logger.error(f"User not found: {username}")
+        raise HttpError(status_code=403, message="Error: Unauthorized")
+    except MultipleObjectsReturned:
+        logger.error(f"Multiple users found for: {username}")
+        raise HttpError(status_code=409, message="Error: Multiple users found")
+    except IntegrityError:
+        logger.error(f"Integrity error for: {username}")
+        raise HttpError(status_code=500, message="Integrity error")
+    except Exception as e:
+        logger.error(f"Unexpected error for {username}: {e}")
+        raise HttpError(status_code=500, message=f"Internal Server Error: {e}")
+
+    return db_user
+
 def get_user_by_name(username: str):
     try:
         logger.warning(f"Searching for username: {username}")

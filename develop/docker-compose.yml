@@ -29,6 +29,7 @@ services:
     volumes:
       - ./django/volume/user:/app
       - ./django/log:/log
+      - dependencies_avatar_data:/avatar
 
   login:
     build:
@@ -87,6 +88,8 @@ volumes:
             device: vue/log
 
   pg-login_data:
+  dependencies_avatar_data:
+    external: true
 
 networks:
   transcendence: 

@@ -3,7 +3,7 @@ from ninja import Router
 from ninja.errors import HttpError
 
 from transcendence.settings import logger
-from . import crud
+from . import crud, schemas
 
 router = Router()
 
@@ -42,3 +42,27 @@ def delete_friend(request):
     logger.warning(db_user.delete())
 
     return
+
+@router.patch('/profile')
+def update_profile(request, user_id: int, user_profile: schemas.UserProfile):
+
+    logger.warning(f"user id: {user_id}")
+    logger.warning(f"user_profile: {user_profile}")
+
+    try:
+        db_user = crud.get_user_by_id(user_id)
+        logger.warning(db_user)
+        db_user.username = user_profile.username
+        db_user.email = user_profile.email
+        db_user.save()
+    except Exception as err:
+        logger.error(err)
+        raise HttpError(status_code=409, message="User not found")
+
+    return {'message': 'success'}
+
+@router.get('/profile', response=schemas.ReturnUserProfile)
+def get_profile(request, user_id: int):
+
+    db_user = crud.get_user_by_id(user_id)
+    return db_user

@@ -2,35 +2,66 @@
 import axiosInstance from '../axiosService';
 //import axios from 'axios';
 
+async function renew_token() {
+  try {
+    const res = getGateway('/refresh')
+    console.log(res);
+
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+async function handle_error(error) {
+  console.log(error);
+  console.log(error.data);
+  console.log(error.response);
+  console.log(error.response.data);
+  
+  const err = error.response.data;
+
+  if (err == "Expired Token") {
+    renew_token();
+  }
+}
 
 async function patchGateway(endpoint, data) {
-  axiosInstance.patch(endpoint, data, {timeout: 1000})
-  .then((response) => {
-    console.log("Succesful POST request: ", response);
-  })
-  .catch((error) => {
-    console.error("Error in POST request: ", error);
-  });
-}
-
-async function postGateway(endpoint) {
-  axiosInstance.post(endpoint, {timeout: 1000})
-  .then((response) => {
-    console.log("Succesful POST request: ", response);
-  })
-  .catch((error) => {
-    console.error("Error in POST request: ", error);
-  });
-}
-
-async function getGateway(endpoint) {
   try {
 
-    const res = await axiosInstance.get(endpoint, {timeout: 1000});
-    return res.data.url;
+    const res = await axiosInstance.patch(endpoint, data,{timeout: 1000});
+    return res.data;
 
   } catch (error) {
 
+      handle_error(error);
+      console.error("Error in GET request: ", error);
+      return null;
+  }
+}
+
+async function postGateway(endpoint, data) {
+  try {
+
+    const res = await axiosInstance.post(endpoint, data,{timeout: 1000});
+    return res.data;
+
+  } catch (error) {
+
+      handle_error(error);
+      console.error("Error in GET request: ", error);
+      return null;
+  }
+}
+
+async function getGateway(endpoint, data) {
+  try {
+
+    const res = await axiosInstance.get(endpoint, data,{timeout: 1000});
+    return res.data;
+
+  } catch (error) {
+
+      handle_error(error);
       console.error("Error in GET request: ", error);
       return null;
   }

@@ -75,6 +75,9 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
     logger.warning(f"Params: {params}")
     res = requests.get(S_LOGIN_GOOGLE_CALLBACK, params=params)
 
+    if not res.ok:
+        raise HttpError(status_code=res.status_code, message="Login Service Failed")
+
     try:
         info = res.json()
     except Exception as err:
@@ -88,10 +91,6 @@ def login_google_callback(request, code: str, state: str, error: str | None = No
     logger.warning(f"EMAIL: {username}")
     logger.warning(info)
     jwt_input = auth.create_jwt(username=username, user_id=user_id)
-
-    if not res.ok:
-        jwt_input.permission = 0
-        jwt_input.expire_time = 5
 
     response = HttpResponseRedirect(url)
     response.set_cookie('Authorization', f"Bearer {jwt_input.token}")
@@ -124,7 +123,7 @@ async def check_otp(request):
     """
     return 
 
-@router.get('/intra', tags=['login']) #no entiendo el tema tags 
+@router.get('/intra', tags=['login']) #no entiendo el tema tags #son agrupaciones 
 def login_intra(request):
 
     #  JWT, OTP y cookies
@@ -209,7 +208,20 @@ def login_unknown(request, username: str):
 def test_middleware(request):
     return {"msg": 1}
 
-#USER
+#########
+#  JWT  #
+#########
+
+@router.get('/refresh', tags=['jwt'])
+def refresh_token(request):
+
+    logger.warning(request.headers)
+    return
+
+
+############
+#   USER   #
+############
 
 @router.post('/user/add/friend', auth=auth.authorize, tags=['user'])
 def add_friend(request, friendname: str):
@@ -249,13 +261,27 @@ def add_friend(request, friendname: str):
 @router.patch('/user/profile', tags=['user'], auth=auth.authorize)
 def update_profile(request, user_profile: schemas.UserProfile):
 
-    logger.warning(request.headers)
-    logger.warning(user_profile)
-    #logger.warning(f"username: {username}")
-    #logger.warning(f"email: {email}")
-    #logger.warning(f"bio: {bio}")
+    logger.warning(user_profile.__dict__)
+    user_id = request.jwt_data.get('user_id')
+    res = requests.patch('http://user:22748/api/user/profile', params={'user_id':user_id}, json=user_profile.__dict__)
 
-    return {'msg': 1}
+    if not res.ok:
+        raise HttpError(status_code=res.status_code, message="Profile update failed")
+
+    return {'message': 'success'}
+
+@router.get('/user/profile', auth=auth.authorize, tags=['user'])
+def get_profile(request):
+
+    logger.warning('Get profile data')
+    user_id = request.jwt_data.get('user_id')
+
+    res = requests.get('http://user:22748/api/user/profile', params={'user_id': user_id})
+
+    if not res.ok:
+        raise HttpError(status_code=res.status_code, message='Fetching user data failed')
+
+    return res.json()
 
 @router.delete('/delete/lukas')
 def delete_lukas(request):

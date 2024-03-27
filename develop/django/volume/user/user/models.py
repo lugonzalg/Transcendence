@@ -7,6 +7,7 @@ class user_login(models.Model):
     password = models.CharField(max_length=100)
     last_log = models.DateTimeField(auto_now=True)
     mode = models.SmallIntegerField(default=0)
+    avatar = models.CharField(max_length=120, default='/var/www/avatar/default.png')
 
     class Meta:
         db_table = 'user_login'

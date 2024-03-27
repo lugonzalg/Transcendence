@@ -26,14 +26,11 @@ export default {
   methods: 
   {
     async loadGoogleOauth() {
-        console.log("Google")
-        const url = await getGateway('login/google');
 
-        console.log('Google data', url);
-        if (url != null) {
-            console.log("Redirecting to Google Oauth");
-            window.location.href = url;
-        }
+        const data = await getGateway('login/google');
+
+        if (data != null && data.url != null)
+            window.location.href = data.url;
     }
   },
     props: {
