@@ -1,7 +1,7 @@
 from ninja.errors import HttpError
 from django.core.validators import validate_email
 from pydantic import validator
-from ninja import Schema, Field
+from ninja import Schema, Field, UploadedFile, File
 
 ###############
 # JWT Achemas #
