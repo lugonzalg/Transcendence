@@ -1,7 +1,11 @@
 services:
 
   nginx-waf:
-    build: nginx-waf/build/main
+    build:
+      context: nginx-waf/build/main
+      args:
+        - DOMAIN=$DOMAIN
+        - WWWDOMAIN=$WWWDOMAIN
     container_name: transcendence_nginx_waf
     image: transcendence_nginx_waf
     environment:
@@ -21,10 +25,15 @@ services:
       - ./nginx-waf/build/main/conf/before-crs.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
       - ./nginx-waf/build/main/conf/after-crs.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
       - ./nginx-waf/build/main/conf/default.conf:/etc/nginx/templates/conf.d/default.conf.template
-
+      - ./nginx-waf/build/main/conf/variables.templeta:/etc/nginx/templates/conf.d/variables.template
+  
   haproxy:
 
-    build: ./haproxy/build/main
+    build:
+      context: ./haproxy/build/main
+      args:
+        - DOMAIN=$DOMAIN
+        - WWWDOMAIN=$WWWDOMAIN
     container_name: transcendence_haproxy
     image: transcendence_haproxy
 
@@ -73,6 +82,7 @@ volumes:
 
 networks:
   proxy:
+
   develop_transcendence:
     external: true
 

@@ -1,0 +1,7 @@
+map $host $domain {
+  default "$WWWDOMAIN";
+}
+
+map $host $domain {
+  default "$DOMAIN";
+}
