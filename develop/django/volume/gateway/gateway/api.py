@@ -7,7 +7,7 @@ import hashlib, os, requests
 from . import schemas, auth
 
 import os
-from ninja import Router
+from ninja import Router, UploadedFile, File, Form
 from ninja.errors import HttpError
 
 router = Router()
@@ -272,9 +272,11 @@ def add_friend(request, friendname: str):
 
     return {"msg": 1}
 
-@router.patch('/user/profile', tags=['user'], auth=auth.authorize)
-def update_profile(request, user_profile: schemas.UserProfile):
+@router.post('/user/profile', tags=['user'], auth=auth.authorize)
+def update_profile(request, user_profile: schemas.UserProfile, image: File[UploadedFile]):
 
+    logger.warning(type(image))
+    return {'message': 'success'}
     logger.warning(user_profile.__dict__)
     user_id = request.jwt_data.get('user_id')
     res = requests.patch('http://user:22748/api/user/profile', params={'user_id':user_id}, json=user_profile.__dict__)

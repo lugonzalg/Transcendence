@@ -7,6 +7,13 @@
             <div class=" profile-container w-full h-screen bg-gray-300 shadow-md rounded-lg p-6 overflow-auto">
                 <h2 class="text-2xl font-bold mb-4">Editar Perfil</h2>
                 <form class="space-y-4">
+                    <!-- Image Upload -->
+                    <div>
+                        <label for="image" class="block text-sm font-medium text-black-300">Imagen de Perfil</label>
+                        <input type="file" id="image" name="image" 
+                            @change="handleImageUpload"
+                            class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm text-white focus:outline-none focus:border-blue-500">
+                    </div>
                     <!-- Nombre -->
                     <div>
                         <label for="name" class="block text-sm font-medium text-black-300">Nombre</label>
@@ -16,7 +23,7 @@
                     </div>
                     <!-- Correo Electrónico -->
                     <div>
-                        <label for="email" class="block text-sm font-medium text-black-300">Correo Electrónico</label>
+                        <label for="email" class="block text-sm font-medium text-black-300">Porreo Electrónico</label>
                         <input type="email" id="email" name="email" 
                             v-model="formData.email"
                             class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white">
@@ -59,9 +66,28 @@ export default {
         }
     },
     methods: {
+
+        handleImageUpload(event) {
+            const file = event.target.files[0];
+            this.formData.image = file;
+        },
+
         handleSubmit() {
-            console.log('Form data: ', this.formData.name);
-            const res = patchGateway('/user/profile', this.formData);
+            console.log('Form data: ', this.formData);
+
+            const formData = new FormData();
+            formData.append('user_', JSON.stringify(this.formData)); // If `this.formData` contains the user profile data
+            formData.append('image', this.formData.image); // Assuming `this.formData.image` is the file
+
+            // Use FormData with your request instead of JSON
+            const res = patchGateway('/user/profile', formData);
+            console.log("start");
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+            console.log("end");
+
+
             console.log(res);
         }
     },
