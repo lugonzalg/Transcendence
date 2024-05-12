@@ -13,3 +13,10 @@ class ReturnUserProfile(ModelSchema):
 
         model = models.user_login
         fields = ['username', 'avatar']
+
+class ReturnUserData(ModelSchema):
+
+    class Meta:
+
+        model = models.user_login
+        fields = ['id', 'username']

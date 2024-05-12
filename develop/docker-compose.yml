@@ -1,5 +1,10 @@
 services:
 
+  redis-user:
+    build: django/build/redis-user
+    networks:
+      - transcendence
+
   vue:
     build: vue/build/main
     image: transcendence_vue_login

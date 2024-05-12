@@ -30,6 +30,7 @@ try:
         params_google_login = json.load(fd)
     with open("/secrets/login_intra_secrets.json") as fd:
         params_intra_login = json.load(fd)
+
 except FileNotFoundError as err:
     logger.error(f"Error: Params File Not Found {err}")
     sys.exit(1)

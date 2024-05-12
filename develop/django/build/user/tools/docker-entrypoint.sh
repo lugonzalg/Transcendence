@@ -19,4 +19,5 @@ else
     echo "$service project found"
 fi
 
-exec python /app/manage.py runserver 0.0.0.0:22748
+cd /app
+exec python3 -m daphne -b :: -p 22748 transcendence.asgi:application

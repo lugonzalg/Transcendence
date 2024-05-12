@@ -5,9 +5,10 @@ from django.http import HttpResponseRedirect
 
 import hashlib, os, requests
 from . import schemas, auth
+from typing import Optional
 
 import os
-from ninja import Router, UploadedFile, File, Form
+from ninja import Router, UploadedFile, File
 from ninja.errors import HttpError
 
 router = Router()
@@ -180,7 +181,13 @@ def login_default(request, user: schemas.UserLogin):
     info = res.json()
     user_id = info.get('id')
     username = info.get('username')
-    return auth.create_jwt(username=username, user_id=user_id)
+    logger.warning(info)
+    jwt_input =  auth.create_jwt(username=username, user_id=user_id)
+
+    response = HttpResponseRedirect('https://www.ikerketa.com/dashboard')
+    response.set_cookie('Authorization', f"Bearer {jwt_input.token}")
+    response.set_cookie('Refresh', jwt_input.refresh)
+    return response
 
 @router.post('/login/register', tags=['login'])
 def login_register(request, user: schemas.UserRegister):
@@ -212,11 +219,11 @@ def login_register(request, user: schemas.UserRegister):
 
     return url
 
-@router.post('/login/unknown', tags=['login'])
-def login_unknown(request, username: str):
-
-    jwt_token = auth.create_jwt(username)
-    return jwt_token
+#@router.post('/login/unknown', tags=['login'])
+#def login_unknown(request, username: str):
+#
+#    jwt_token = auth.create_jwt(username, -1)
+#    return jwt_token
 
 @router.get("/middleware", auth=auth.authorize)
 def test_middleware(request):
@@ -275,13 +282,21 @@ def add_friend(request, friendname: str):
 @router.post('/user/profile', tags=['user'], auth=auth.authorize)
 def update_profile(request, user_profile: schemas.UserProfile, image: File[UploadedFile]):
 
-    logger.warning(type(image))
-    return {'message': 'success'}
-    logger.warning(user_profile.__dict__)
+    logger.warning(image.name)
     user_id = request.jwt_data.get('user_id')
-    res = requests.patch('http://user:22748/api/user/profile', params={'user_id':user_id}, json=user_profile.__dict__)
+    files = {
+        'image': (image.field_name, image.file, image.content_type)
+    }
+    payload = {
+        'user_id': user_id,
+        'username': user_profile.username,
+        'email': user_profile.email,
+        'bio': user_profile.bio
+    }
+    res = requests.post('http://user:22748/api/user/profile', params=payload, files=files)
 
     if not res.ok:
+        logger.error(res.json())
         raise HttpError(status_code=res.status_code, message="Profile update failed")
 
     return {'message': 'success'}
@@ -299,8 +314,130 @@ def get_profile(request):
 
     return res.json()
 
+
+@router.get('/user/friend/list', auth=auth.authorize, tags=['user'])
+def get_profile(request):
+
+    payload = {
+        'user_id': request.jwt_data.get('user_id')
+    }
+
+    res = requests.get('http://user:22748/api/user/friend/list', params=payload)
+
+    if not res.ok:
+        raise HttpError(status_code=res.status_code, message="Failed fetching user friend list")
+
+    return res.json()
+
 @router.delete('/delete/lukas')
 def delete_lukas(request):
 
     requests.delete('http://user:22748/api/user/delete/lukas')
     return {'msg': 1}
+
+@router.post('/user/add', auth=auth.authorize, tags=['user'])
+def search_user(request, user: schemas.User):
+
+    payload = {
+        'user_id': int(request.jwt_data.get('user_id')),
+        'username': request.jwt_data.get('username'),
+        'friendname': user.username
+    }
+
+    res = requests.post('http://user:22748/api/user/add', params=payload)
+
+    info = res.json()
+
+    if not res.ok:
+        raise HttpError(status_code=res.status_code, message=info.get('detail', 'Empty'))
+
+    return res.json()
+
+@router.post('/auth')
+def auth_user(request, jwt: str) -> int:
+
+    offset = jwt.find('Bearer ')
+    if offset == -1:
+        raise HttpError(status_code=403, message="Error: Unauthorized")
+
+    end = jwt.find(';', offset)
+    if end == -1:
+        raise HttpError(status_code=403, message="Error: Unauthorized")
+
+    jwt = jwt[offset + 7:end - 1]
+
+    jwt_data = auth.decode_token(jwt)
+    return jwt_data
+
+@router.post('/user/friend/request', auth=auth.authorize, tags=['user'])
+def friend_request(request, friend: schemas.FriendRequest):
+
+    payload = {
+        'status': friend.status,
+        'user_id' : request.jwt_data.get('user_id'),
+        'friend_id' : friend.id
+    }
+
+    res = requests.post('http://user:22748/api/user/friend/request', params=payload)
+
+    if not res.ok:
+        raise HttpError(status_code=res.status_code, message='test')
+
+    return res.json()
+
+########
+# GAME #
+########
+
+def safe_post(context: str, url: str, params: dict = None, json: dict = None) -> Optional[object]:
+
+    try:
+        res = requests.post(url, params=params, json=json)
+
+        return res
+    except Exception as err:
+        logger.error(f'Exception for {context}: {err}')
+
+    return None
+
+@router.post('/user/challenge', auth=auth.authorize)
+def new_game(request, simple: schemas.SimpleRequest):
+
+    user_id = request.jwt_data.get('user_id')
+
+    payload = {
+        'user_id': user_id,
+        'friend_id': simple.id
+    }
+    
+    res = safe_post('create challenge', 'http://user:22748/api/user/challenge', params=payload)
+
+    if not res.ok:
+        raise HttpError(status_code=409, message='Challenge failed')
+
+    return res.json()
+
+@router.post('/user/challenge/response', auth=auth.authorize)
+def challenge_response(request, challenge: schemas.ChallengeResponse):
+
+    payload = {
+        'user_id': request.jwt_data.get('user_id'),
+        'friend_id': challenge.id,
+        'response': challenge.response
+    }
+
+    res = safe_post('challenge response', 'http://user:22748/api/user/challenge/response', params=payload)
+
+    if not res or not res.ok:
+        raise HttpError(status_code=409, message='Challenge response failed')
+
+    return res.json()
+
+@router.get('/test_ws')
+def test_ws(request):
+
+    res = requests.get('http://user:22748/api/user/ws')
+
+    logger.warning(f"test res: {res.status_code}")
+
+    return {"msg": 1}

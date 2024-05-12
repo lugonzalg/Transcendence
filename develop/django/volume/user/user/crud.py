@@ -46,7 +46,7 @@ def get_user_by_name(username: str):
 
     return db_user
 
-def add_friend(user_id: int, db_user: user_login):
+def add_friend(user_id: int, db_user: user_login) -> bool:
 
     try:
         relation_1 = Friends(
@@ -81,3 +81,109 @@ def delete_friend(user_id: int, friend_id: int):
         logger.error(err)
         return False
     return True
+
+def get_friend_list_by_id(user_id: int):
+
+    try:
+        friend_list = Friends.objects.filter(user_id=user_id)
+    except Exception as err:
+        raise HttpError(status_code=409, message='Fetching friend list failed')
+    return friend_list
+
+from django.db.models import Q
+from typing import List, Optional
+
+def get_friend_list(user_id: int) -> Optional[List[user_login]]:
+    try:
+        # Query to find where the user is either the 'user' or the 'friend' in the Friends model
+        friends_relations = Friends.objects.filter(Q(user_id=user_id))
+
+        # Collect all user_login objects corresponding to the friends of db_user
+        friends = set()
+        for relation in friends_relations:
+            if relation.user_id == user_id:
+                friends.add((relation.friend, relation.status, relation.challenge))
+
+        return list(friends)
+
+    except Exception as err:
+        logger.error(err)
+
+    return None
+
+def accept_friend_request(user_id: int, friend_id: int) -> bool:
+
+    try:
+        friends_relations = Friends.objects.filter(Q(user_id=user_id) | Q(user_id=friend_id))
+
+        for relation in friends_relations:
+            relation.status = 2
+            relation.save()
+
+        return True
+
+    except Exception as err:
+        logger.error(err)
+
+    return False
+
+def decline_friend_request(user_id: int, friend_id: int) -> bool:
+
+    try:
+        friends_relations = Friends.objects.filter(Q(user_id=user_id) | Q(user_id=friend_id))
+
+        for relation in friends_relations:
+            relation.delete()
+
+        return True
+
+    except Exception as err:
+        logger.error(err)
+
+    return False
+
+def create_challenge(user_id: int, friend_id: int) -> bool:
+
+    try:
+        friends_relations = Friends.objects.filter(Q(user_id=user_id) & Q(friend_id=friend_id) | Q(friend_id=user_id) & Q(user_id=friend_id))
+
+        for relation in friends_relations:
+            if relation.user_id == user_id:
+                relation.challenge = 2
+            else:
+                relation.challenge = 1
+            relation.save()
+        return True
+
+    except Exception as err:
+        logger.error(err)
+
+    return False
+
+def accept_challenge(user_id: int, friend_id: int):
+
+    try:
+        friends_relations = Friends.objects.filter(Q(user_id=user_id) & Q(friend_id=friend_id) | Q(friend_id=user_id) & Q(user_id=friend_id))
+
+        for relation in friends_relations:
+            relation.challenge = 3
+            relation.save()
+        return True
+    except Exception as err:
+        logger.error(err)
+
+    return False
+
+def deny_challenge(user_id: int, friend_id: int):
+
+    try:
+        friends_relations = Friends.objects.filter(Q(user_id=user_id) & Q(friend_id=friend_id) | Q(friend_id=user_id) & Q(user_id=friend_id))
+
+        for relation in friends_relations:
+            relation.challenge = 0
+            relation.save()
+        return True
+    except Exception as err:
+        logger.error(err)
+
+    return False

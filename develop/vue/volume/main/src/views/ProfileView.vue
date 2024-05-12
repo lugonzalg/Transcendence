@@ -53,7 +53,7 @@
 <script>
 
 import SideBar from '@/components/SideBar';
-import { patchGateway } from '@/methods/api/login';
+import { postGateway } from '@/methods/api/login';
 
 export default {
     data () {
@@ -76,19 +76,16 @@ export default {
             console.log('Form data: ', this.formData);
 
             const formData = new FormData();
-            formData.append('user_', JSON.stringify(this.formData)); // If `this.formData` contains the user profile data
-            formData.append('image', this.formData.image); // Assuming `this.formData.image` is the file
+            // Append each profile field individually
+            formData.append('user_profile', JSON.stringify(this.formData));
+
+            // Append the image file
+            if (this.formData.image) {
+                formData.append('image', this.formData.image);
+            }
 
             // Use FormData with your request instead of JSON
-            const res = patchGateway('/user/profile', formData);
-            console.log("start");
-            for (let [key, value] of formData.entries()) {
-                console.log(key, value);
-            }
-            console.log("end");
-
-
-            console.log(res);
+            postGateway('/user/profile', formData);
         }
     },
     name: 'ProfileView',

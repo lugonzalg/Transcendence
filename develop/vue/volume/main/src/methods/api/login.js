@@ -13,15 +13,21 @@ async function renew_token() {
 }
 
 async function handle_error(error) {
-  console.log(error);
-  console.log(error.data);
-  console.log(error.response);
-  console.log(error.response.data);
-  
-  const err = error.response.data;
+  if (error)
+    console.log(error);
+  if (error.data)
+    console.log(error.data);
+  if (error.response) {
 
-  if (err == "Expired Token") {
-    renew_token();
+      console.log(error.response);
+    if (error.response.data) {
+      console.log(error.response.data);
+      const err = error.response.data;
+
+      if (err == "Expired Token") {
+        renew_token();
+      }
+    }
   }
 }
 
@@ -34,7 +40,7 @@ async function patchGateway(endpoint, data) {
   } catch (error) {
 
       handle_error(error);
-      console.error("Error in GET request: ", error);
+      //console.error("Error in GET request: ", error);
       return null;
   }
 }
@@ -48,7 +54,7 @@ async function postGateway(endpoint, data) {
   } catch (error) {
 
       handle_error(error);
-      console.error("Error in GET request: ", error);
+      //console.error("Error in GET request: ", error);
       return null;
   }
 }
@@ -62,7 +68,7 @@ async function getGateway(endpoint, data) {
   } catch (error) {
 
       handle_error(error);
-      console.error("Error in GET request: ", error);
+      //console.error("Error in GET request: ", error);
       return null;
   }
 }
@@ -103,7 +109,7 @@ async function handleIntraRedirect() {
       // Peticion de build url al back
      // const response = await axios.get('http://localhost:4242/api/intra');
       // Redireccion a la url
-      window.location.href = 'https://trascendence.tech/api/intra';
+      window.location.href = 'https://ikerketa.com/api/intra';
     
     } catch (error) {
       console.error('Error al manejar el inicio de sesión con Intra 42:', error);

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import GameView from '@/views/GameView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import LoginView from '../views/LoginView.vue';
 import LobbyView from '../views/LobbyView.vue';
@@ -42,6 +43,11 @@ const routes = [
     path: '/profile',
     name: 'ProfileView',
     component: ProfileView,
+  },
+  {
+    path: '/game',
+    name: 'GameView',
+    component: GameView
   }
 ];
 

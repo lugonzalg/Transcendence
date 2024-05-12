@@ -19,6 +19,18 @@ class Friends(models.Model):
     user = models.ForeignKey(user_login, related_name='friends', on_delete=models.CASCADE)
     friend = models.ForeignKey(user_login, related_name='users', on_delete=models.CASCADE)
     status = models.SmallIntegerField(default=0)
+    challenge = models.SmallIntegerField(default=0)
 
     class Meta:
         unique_together = ('user', 'friend')
+
+class MatchHistory(models.Model):
+
+    p1 = models.ForeignKey(user_login, related_name='p1_matches', on_delete=models.CASCADE)
+    p1_score = models.SmallIntegerField(user_login)
+    p2 = models.ForeignKey(user_login, related_name='p2_matches', on_delete=models.CASCADE)
+    p2_score = models.SmallIntegerField(user_login)
+    date = models.DateField()
+
+    class Meta:
+        db_table = 'user_matches'

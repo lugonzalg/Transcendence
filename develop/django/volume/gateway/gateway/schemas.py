@@ -3,6 +3,8 @@ from django.core.validators import validate_email
 from pydantic import validator
 from ninja import Schema, Field, UploadedFile, File
 
+import re
+
 ###############
 # JWT Achemas #
 ###############
@@ -17,6 +19,24 @@ class JWTToken(Schema):
 
     token: str
     refresh: str
+
+#########
+#       #
+#########
+
+class SimpleRequest(Schema):
+    id: int = Field(ge=1)
+
+class ChallengeResponse(SimpleRequest):
+
+    response: int = Field(ge=0, le=1)
+
+class FriendRequest(SimpleRequest):
+    status: bool
+
+########
+# USER #
+########
 
 class UserLogin(Schema):
 
@@ -43,6 +63,8 @@ bio_regex = '^[a-zA-Z.,:]+$'
 class User(Schema):
     
     username: str = Field(max_length=32, pattern=username_regex, examples=["walter"])
+
+class UserEmail(User):
     email: str = Field(max_length=256, examples=["walter@gmail.com"])
     
     @validator('email')
@@ -72,6 +94,6 @@ class UserLogin(User):
 
         return v
 
-class UserProfile(User):
+class UserProfile(UserEmail):
 
     bio: str = Field(min_length=12, max_length=500, pattern=bio_regex, examples=["Lorem ipsum ... "])

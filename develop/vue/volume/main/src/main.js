@@ -3,6 +3,7 @@ import App from './App.vue';
 import router from './router';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import VueCookies from 'vue-cookies';
+import Tres from '@tresjs/core'
 //import secrets from './../secrets.json'; 
 import './assets/tailwind.css'
 
@@ -16,6 +17,7 @@ import './assets/tailwind.css'
 */
 
 const app = createApp(App);
+app.use(Tres);
 app.use(router);
 app.use(VueCookies);
 app.mount('#app');

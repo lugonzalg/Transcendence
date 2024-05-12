@@ -23,9 +23,12 @@ COPY --from=builder /usr/local/bin/django-admin /usr/local/bin/django-admin
 COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
 COPY --from=builder /secrets /secrets
 
-RUN mkdir -p /app \
+RUN mkdir -p /app /avatar \
         && adduser -D -s /bin/bash $ADMIN \
-        && chown $ADMIN:$ADMIN /app
+        && chown $ADMIN:$ADMIN /app \
+        && chown $ADMIN:$ADMIN /avatar
+
+COPY tools/default.png /avatar/default.png
 
 USER $ADMIN
 

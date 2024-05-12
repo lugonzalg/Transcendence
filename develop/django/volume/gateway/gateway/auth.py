@@ -4,7 +4,6 @@ from transcendence.settings import JWT, logger
 import datetime, jwt
 from . import schemas
 
-logger.warning(JWT)
 BEARER_OFFSET = 7
 SECRET = JWT['SECRET_KEY']
 ALGORITHM = JWT['ALGORITHM']

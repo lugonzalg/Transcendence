@@ -221,7 +221,7 @@ def google_login(request, state: str):
     logger.warning(f"Params: {oauth_params}")
     oauth_params['scope'] = ' '.join(GOOGLE['GOOGLE_OAUTH']["SCOPES"])
     oauth_params['state'] = state
-    oauth_params['redirect_uri'] = 'https://trascendence.tech/api/login/google/callback'
+    oauth_params['redirect_uri'] = 'https://ikerketa.com/api/login/google/callback'
     oauth_params['client_id'] = GOOGLE['GOOGLE_OAUTH']['CLIENT_ID']
 
     logger.warning(f"Google: {GOOGLE}")
@@ -235,6 +235,7 @@ def check_user(db_user: models.user_login) -> bool:
     now = timezone.now()
     db_user.save()
 
+    return False
     return now > last_log
 
 @router.get('/google/callback', response={200: dict, 428: dict})
@@ -244,7 +245,7 @@ def google_callback(request, code: str, state: str):
     oauth_params['code'] = code
     oauth_params['client_id'] = GOOGLE['GOOGLE_OAUTH']['CLIENT_ID']
     oauth_params['client_secret'] = GOOGLE['GOOGLE_OAUTH']['CLIENT_SECRET']
-    oauth_params['redirect_uri'] = 'https://trascendence.tech/api/login/google/callback'#GOOGLE_OUATH['REDIRECT_URI']
+    oauth_params['redirect_uri'] = 'https://ikerketa.com/api/login/google/callback'#GOOGLE_OUATH['REDIRECT_URI']
 
     res = requests.post(GOOGLE['GOOGLE_OAUTH']['ACCESS_TOKEN_URL'], data=oauth_params)
     if not res.ok:
@@ -268,7 +269,7 @@ def google_callback(request, code: str, state: str):
         logger.error(err)
 
     payload = {
-        'url': 'https://trascendence.tech/dashboard',
+        'url': 'https://ikerketa.com/dashboard',
         'username': username,
         'user_id': None
     }

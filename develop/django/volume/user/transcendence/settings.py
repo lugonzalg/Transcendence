@@ -46,7 +46,7 @@ POSTGRES = params_db["data"]["data"]
 LOGGER["handlers"]["file"]["filename"] = "/log/user.log"
 logging.config.dictConfig(LOGGER)
 
-ALLOWED_HOSTS = ['user']
+ALLOWED_HOSTS = ['user', 'ikerketa.com']
 
 
 # Application definition
@@ -145,3 +145,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ASGI_APPLICATION = "transcendence.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis-user", 6379)],
+        },
+    },
+}
