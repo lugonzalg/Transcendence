@@ -8,6 +8,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 
+TEST = 0
 ADD_USER = 1
 ACCEPT_USER = 2
 DECLINE_USER = 3
@@ -53,14 +54,21 @@ class ChatConsumer(WebsocketConsumer):
 
     # Receive message from WebSocket
     def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
-        logger.warning("Message received from user")
 
-        # Send message to room group
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, {"type": "chat_message", "message": message}
-        )
+        logger.warning("Message received from user")
+        logger.warning(text_data)
+
+        try:
+            text_data_json = json.loads(text_data)
+            message = text_data_json["message"]
+
+            # Send message to room group
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name, {"type": "chat_message", "message": message}
+            )
+        except Exception as err:
+            logger.error(err)
+
 
     def _send_event(self, event_type: int, message: dict):
 
@@ -116,3 +124,9 @@ class ChatConsumer(WebsocketConsumer):
         message = event["message"]
 
         self._send_event(MATCH, message)
+
+    def test(self, event):
+        logger.warning("match")
+        message = event["message"]
+
+        self._send_event(TEST, message)

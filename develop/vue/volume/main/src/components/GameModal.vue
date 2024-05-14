@@ -1,9 +1,18 @@
 <script setup>
+
+import { getGateway } from '@/methods/api/login';
+
 const props = defineProps({
   show: Boolean,
   player1: Object,
   player2: Object
 })
+
+const handleClick = async () => {
+  const res = getGateway('/game/start')
+
+  console.log(res);
+}
 </script>
 
 <template>
@@ -13,13 +22,13 @@ const props = defineProps({
                 <div class="modal-header">
                     <div class="player-container">
                         <div class="player player-1">
-                            <img src="/avatar/1.png" alt="Player 1" class="player-icon">
-                            <h3>Player 1</h3>
+                            <img :src="player1.avatar" alt="Player 1" class="player-icon">
+                            <h3>{{ player1.username }}</h3>
                         </div>
                         <h3 class="vs">vs</h3>
                         <div class="player player-2">
-                            <img src="/avatar/1.png" alt="Player 2" class="player-icon">
-                            <h3>Player 2</h3>
+                            <img :src="player2.avatar" alt="Player 2" class="player-icon">
+                            <h3>{{ player2.username }}</h3>
                         </div>
                     </div>
                 </div>
@@ -27,7 +36,7 @@ const props = defineProps({
                 <div class="modal-footer">
                     <slot name="footer">
                         <p>Waiting for both players to be ready...</p>
-                        <button class="modal-default-button" @click="$emit('close')">OK</button>
+                        <button class="modal-default-button" @click="handleClick">Start</button>
                     </slot>
                 </div>
 

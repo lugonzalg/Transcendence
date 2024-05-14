@@ -7,6 +7,9 @@ from . import crud, schemas
 
 from user.consumers import ws_users
 
+from typing import Optional
+import requests
+
 router = Router()
 
 def get_user(username: str):
@@ -182,7 +185,8 @@ def challenge_response(request, user_id: int, friend_id: int, response: int):
         message = {'id': user_id}
         send_message_to_channel(friend_id, 'accept_challenge', message)
 
-        create_match(user_id, friend_id)
+        if not create_match(user_id, friend_id):
+            raise HttpError(status_code=404, message='match creation failed')
         return {'message': 'Challenge accepted'}
 
     if not crud.deny_challenge(user_id, friend_id):
@@ -196,7 +200,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 # Function to add users dynamically to a shared channel
-def create_match(user_1: int, user_2: int):
+def create_match(user_1: int, user_2: int) -> bool:
     channel_layer = get_channel_layer()
     group_name = f'match{user_1}_{user_2}'
     
@@ -237,3 +241,29 @@ def create_match(user_1: int, user_2: int):
                 "message": match_data
             }
         )
+
+    params = {
+        'p1_id': user_1.user.id,
+        'p2_id': user_2.user.id
+    }
+
+    res = safe_post('create_match', 'http://game:7777/api/game/create', params=params)
+
+    logger.warning('create subprocess')
+    if res is None or not res.ok:
+        logger.error('game creation failed')
+        return False
+
+    logger.warning('succed')
+    return True
+
+def safe_post(context: str, url: str, params: dict = None, json: dict = None) -> Optional[object]:
+
+    try:
+        res = requests.post(url, params=params, json=json)
+
+        return res
+    except Exception as err:
+        logger.error(f'Exception for {context}: {err}')
+
+    return None

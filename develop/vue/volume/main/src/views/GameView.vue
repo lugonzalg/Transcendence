@@ -1,17 +1,24 @@
 <script setup>
 
 import Modal from '@/components/GameModal.vue'
-
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as THREE from 'three';
 import { getGateway } from '@/methods/api/login';
+import ws from '@/services/websocket'
 
 const showModal = ref(true)
-
 const target = ref();
+const player1 = JSON.parse(localStorage.getItem('p1'));
+const player2 = JSON.parse(localStorage.getItem('p2'));
 
+// Ensure players are available
+if (!player1 || !player2) {
+  console.error("Player data not available!");
+} else {
+  //tengo que enviar un post a la plataforma para empezar la partida
+  console.log("Player 1 and Player 2 data are available.");
+}
 
 // Create the scene, camera, and renderer
 const scene = new THREE.Scene();
@@ -205,8 +212,12 @@ let p2Score = 0;
 
 function updateScoreboard() {
   // Update the score text of each player without affecting the images
-  document.querySelector("#p1_score span").innerText = `P1: ${p1Score}`;
-  document.querySelector("#p2_score span").innerText = `P2: ${p2Score}`;
+  try {
+    document.querySelector("#p1_score span").innerText = `P1: ${p1Score}`;
+    document.querySelector("#p2_score span").innerText = `P2: ${p2Score}`;
+  } catch {
+
+  }
 }
 
 // Flash duration and particle material
@@ -375,13 +386,6 @@ function animate() {
 // Append the renderer's DOM element and set up resize event listener
 onMounted(() => {
 
-
-  const player_1 = null;
-  const player_2 = null;
-
-  console.log("Mounted", showModal.value);
-  console.log("player_1", player_1);
-  console.log("player_2", player_2);
   const res = getGateway('/user/profile');
   if (res) {
     console.log(res);
@@ -427,7 +431,7 @@ function setReady() {
   <div ref="target" style="width: 100%; height: 100vh;"></div>
     <Teleport to="body">
       <!-- use the modal component, pass in the prop -->
-      <modal :player1="this.player_1" :player2="this.player_2" :show="showModal" @close="showModal = false">
+      <modal :player1="player1" :player2="player2" :show="showModal" @close="showModal = false">
         <template #header>
           <h3>Custom Header</h3>
         </template>

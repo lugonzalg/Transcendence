@@ -100,25 +100,15 @@
 </template>
 
 <script>
+
+import ws from '@/services/websocket'
 import SideBar from '@/components/SideBar';
 import { getGateway, postGateway } from '@/methods/api/login';
-import { ref } from 'vue'
 
 export default {
     name: 'MainDashboard',
     components: {
         SideBar  
-    },
-    setup() {
-        // Create reactive references for player data
-        const player1 = ref({});
-        const player2 = ref({});
-
-        // Provide these references so that descendant components can inject them
-        provide('player1', player1);
-        provide('player2', player2);
-
-        return { player1, player2 };
     },
     data() {
         return {
@@ -197,7 +187,7 @@ export default {
 
             // Optionally, send this information to the server
             try {
-                const response = await postGateway('/user/friend/request', {id: friend.id, status: 1});
+                await postGateway('/user/friend/request', {id: friend.id, status: 1});
                 friend.status = 'accepted';
             } catch (error) {
                 console.error("Error accepting friend request:", error);
@@ -250,7 +240,7 @@ export default {
         async userEvents() {
             // Replace with your WebSocket URL
             console.log("Initialize websocket");
-            this.chatSocket = new WebSocket('wss://ikerketa.com/ws/main/');
+            this.chatSocket = ws;
 
             this.chatSocket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
@@ -284,7 +274,7 @@ export default {
                     const index = this.friends.findIndex(f => f.id === info.id);
 
                     if (index != -1) {
-                        const retval = this.friends.splice(index, 1);
+                        this.friends.splice(index, 1);
                     }
                 }
                 else if (data.type == 4) { //receive challenge
@@ -317,12 +307,11 @@ export default {
                 }
                 else if (data.type == 8) { //create match
                     //console.log(info);
-                    this.player1.value = info["1"];
-                    this.player2.value = info["2"];
-
-                    console.log("player 1", this.player1);
-                    console.log("player 2", this.player2);
-                    this.$router.push('/game');
+                    localStorage.setItem("p1", JSON.stringify(info["1"]));
+                    localStorage.setItem("p2", JSON.stringify(info["2"]));
+                    
+                    // In a component
+                    this.$router.push({ path: '/game'});
                 }
                 //document.getElementById('chat-log').value += (data.message + '\n');
             };

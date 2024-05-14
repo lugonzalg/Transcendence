@@ -441,3 +441,50 @@ def test_ws(request):
     logger.warning(f"test res: {res.status_code}")
 
     return {"msg": 1}
+
+def safe_get(url: str, params: dict = None) -> Optional[object]:
+
+    try:
+        res = requests.get(url, params)
+        return res
+    except Exception as err:
+        logger.error(err)
+    return None
+
+##########
+#  GAME  #
+##########
+
+@router.get('/game/ok', tags=['game'])
+def game_service_ok(request):
+
+    res = safe_get('http://game:7777/api/game/ok')
+
+    if res is None or not res.ok:
+        raise HttpError(status_code=400, message="game service failed")
+
+    return {"message":"game service up"}
+
+@router.post('/game/create', tags=['game'])
+def create_game(request):
+
+    res = safe_post('create game', 'http://game:7777/api/game/create')
+
+    if res is None or not res.ok:
+        raise HttpError(status_code=400, message="match create failed")
+
+    return {'message': 'match created succesfully'}
+
+@router.get('/game/start', auth=auth.authorize, tags=['game'])
+def start_match(request):
+
+    params = {
+        'user_id': request.jwt_data.get('user_id')
+    }
+
+    res = safe_get('http://game:7777/api/game/start', params=params)
+
+    if res is None or not res.ok:
+        raise HttpError(status_code=404, message='game start failed')
+
+    return {'message': 'start ok'}

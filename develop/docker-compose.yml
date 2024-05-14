@@ -16,6 +16,25 @@ services:
       - ./vue/volume/main:/Trascendence
       - vue_log:/Logs
 
+  game:
+    build:
+      context: django/build/game
+      args:
+        - VAULT_TOKEN=$VAULT_TOKEN
+        - VAULT_URL=$VAULT_URL
+        - ADMIN=$ADMIN
+
+    container_name: transcendence_dj_game
+    depends_on:
+      - pg-login
+
+    image: transcendence_dj_game
+    networks:
+      - transcendence
+    volumes:
+      - ./django/volume/game:/app
+      - ./django/log:/log
+
   user:
     build:
       context: django/build/user
