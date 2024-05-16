@@ -17,6 +17,7 @@ ACCEPT_CHALLENGE = 5
 DENY_CHALLENGE = 6
 TOURNAMENT = 7
 MATCH = 8
+START = 9
 
 ws_users = {}
 
@@ -125,8 +126,13 @@ class ChatConsumer(WebsocketConsumer):
 
         self._send_event(MATCH, message)
 
+    def start(self, event):
+        logger.warning("start")
+        message = event["message"]
+
+        self._send_event(START, message)
+
     def test(self, event):
-        logger.warning("match")
         message = event["message"]
 
         self._send_event(TEST, message)

@@ -425,6 +425,19 @@ function setReady() {
   // Send this status to the server or check for opponent's status if necessary
 }
 
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('GAME - user event: ', data.type);
+  const info = data.message;
+
+  if (data.type == 8) { //game data
+  }
+  else if (data.type == 9) { //start game
+    console.log('hide modal');
+    showModal.value = false;
+  }
+}
+
 </script>
 
 <template>
