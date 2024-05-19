@@ -121,7 +121,6 @@ class ChatConsumer(WebsocketConsumer):
 
 
     def match(self, event):
-        logger.warning("match")
         message = event["message"]
 
         self._send_event(MATCH, message)

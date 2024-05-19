@@ -200,7 +200,7 @@ function createDashedDiscWithPerimeters(radius, numVerticalLines = 6, thickness 
 
 // Create and position the 3D dashed disc
 const ball = createDashedDiscWithPerimeters(0.5, 8, 0.2); // Adjust parameters as needed
-ball.position.set(0, 0.5, 0);
+//ball.position.set(0, 0.5, 0);
 scene.add(ball);
 
 // Define ball velocity and initial direction
@@ -216,13 +216,13 @@ function updateScoreboard() {
     document.querySelector("#p1_score span").innerText = `P1: ${p1Score}`;
     document.querySelector("#p2_score span").innerText = `P2: ${p2Score}`;
   } catch {
+    console.error('pdate score board failed');
 
   }
 }
 
 // Flash duration and particle material
 const flashDuration = 100;
-const particleMaterial = new THREE.PointsMaterial({ color: 0xff0000, size: 0.1 });
 
 // Function to flash an object
 function flashObject(object, flashColor) {
@@ -253,13 +253,13 @@ function increaseBallSpeed() {
 // Function to handle ball deflection based on paddle collision
 function deflectBall(paddle, direction) {
   // Calculate the relative position of the ball on the paddle
-  const relativeIntersectZ = ball.position.z - paddle.position.z;
-  const normalizedRelativeIntersectionZ = (relativeIntersectZ / (paddleWidth / 2));
-  const bounceAngle = normalizedRelativeIntersectionZ * (Math.PI / 4); // Up to 45-degree bounce
+  //const relativeIntersectZ = ball.position.z - paddle.position.z;
+  //const normalizedRelativeIntersectionZ = (relativeIntersectZ / (paddleWidth / 2));
+  //const bounceAngle = normalizedRelativeIntersectionZ * (Math.PI / 4); // Up to 45-degree bounce
 
   // Adjust the ball's velocity based on the bounce angle
-  ballVelocity.x = direction * Math.cos(bounceAngle) * Math.abs(ballVelocity.x);
-  ballVelocity.z = Math.sin(bounceAngle) * Math.abs(ballVelocity.x);
+  //ballVelocity.x = direction * Math.cos(bounceAngle) * Math.abs(ballVelocity.x);
+  //ballVelocity.z = Math.sin(bounceAngle) * Math.abs(ballVelocity.x);
 
   // Increase ball speed after deflection
   increaseBallSpeed();
@@ -275,42 +275,38 @@ function updateBall() {
   ball.position.add(ballVelocity);
 
   // Check for collisions with P1 paddle
-  if (ball.position.x - 0.5 < p1_paddle.position.x + 0.5 &&
-      ball.position.x + 0.5 > p1_paddle.position.x - 0.5 &&
-      ball.position.z > p1_paddle.position.z - 2 &&
-      ball.position.z < p1_paddle.position.z + 2) {
-    deflectBall(p1_paddle, 1); // Bounce to the right (positive x direction)
-  }
+  //if (ball.position.x - 0.5 < p1_paddle.position.x + 0.5 &&
+  //    ball.position.x + 0.5 > p1_paddle.position.x - 0.5 &&
+  //    ball.position.z > p1_paddle.position.z - 2 &&
+  //    ball.position.z < p1_paddle.position.z + 2) {
+  //  deflectBall(p1_paddle, 1); // Bounce to the right (positive x direction)
+  //}
 
   // Check for collisions with P2 paddle
-  else if (ball.position.x + 0.5 > p2_paddle.position.x - 0.5 &&
-           ball.position.x - 0.5 < p2_paddle.position.x + 0.5 &&
-           ball.position.z > p2_paddle.position.z - 2 &&
-           ball.position.z < p2_paddle.position.z + 2) {
-    deflectBall(p2_paddle, -1); // Bounce to the left (negative x direction)
-  }
+  //else if (ball.position.x + 0.5 > p2_paddle.position.x - 0.5 &&
+  //         ball.position.x - 0.5 < p2_paddle.position.x + 0.5 &&
+  //         ball.position.z > p2_paddle.position.z - 2 &&
+  //         ball.position.z < p2_paddle.position.z + 2) {
+  //  deflectBall(p2_paddle, -1); // Bounce to the left (negative x direction)
+  //}
 
   // Check for boundary collisions (top and bottom)
-  if (ball.position.z - 0.5 < -fieldHeight / 2 || ball.position.z + 0.5 > fieldHeight / 2) {
-    ballVelocity.z = -ballVelocity.z; // Invert the z-axis velocity
-  }
+  //if (ball.position.z - 0.5 < -fieldHeight / 2 || ball.position.z + 0.5 > fieldHeight / 2) {
+  //  ballVelocity.z = -ballVelocity.z; // Invert the z-axis velocity
+  //}
 
   // Update scores and reset ball if it goes out of bounds horizontally
-  if (ball.position.x - 0.5 < -fieldWidth / 2) {
-    p2Score++; // P2 gains a point
-    resetBall();
-  } else if (ball.position.x + 0.5 > fieldWidth / 2) {
-    p1Score++; // P1 gains a point
-    resetBall();
-  }
+  //if (ball.position.x - 0.5 < -fieldWidth / 2) {
+  //  p2Score++; // P2 gains a point
+  //  resetBall();
+  //} else if (ball.position.x + 0.5 > fieldWidth / 2) {
+  //  p1Score++; // P1 gains a point
+  //  resetBall();
+  //}
 
   updateEnvironment(); // Check and update environment visuals
   updateScoreboard(); // Refresh scoreboard display
 }
-
-// Create wireframe materials for the flash state
-const paddleWireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x00aa00, wireframe: true });
-const ballWireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
 
 // Ensure flashes start when scores reach a high threshold
 function updateEnvironment() {
@@ -318,7 +314,6 @@ function updateEnvironment() {
   
   if (maxScore >= 8) {
     const ratio = 0.5;//(maxScore - 8) / 2;
-    const fieldColor = new THREE.Color(0.2 + 0.8 * ratio, 0, 0);
     scene.background = new THREE.Color(0.1 + 0.4 * ratio, 0, 0);
 
   } else {
@@ -329,8 +324,8 @@ function updateEnvironment() {
 
 // Function to reset the ball to the center
 function resetBall() {
-  ball.position.set(0, 0.5, 0);
-  ballVelocity.set((Math.random() > 0.5 ? 1 : -1) * 0.05, 0, (Math.random() > 0.5 ? 1 : -1) * 0.05); // Randomize initial direction
+  //ball.position.set(0, 0.5, 0);
+  //ballVelocity.set((Math.random() > 0.5 ? 1 : -1) * 0.05, 0, (Math.random() > 0.5 ? 1 : -1) * 0.05); // Randomize initial direction
   
   // Apply initial speed factor
   ballVelocity.multiplyScalar(speedFactor);
@@ -346,11 +341,15 @@ const keyState = {
 
 // Event handlers for updating key states
 function onKeyDown(event) {
-  if (event.key in keyState) keyState[event.key] = true;
+  if (event.key in keyState) {
+    keyState[event.key] = true;
+  }
 }
 
 function onKeyUp(event) {
-  if (event.key in keyState) keyState[event.key] = false;
+  if (event.key in keyState) {
+    keyState[event.key] = false;
+  }
 }
 
 // Update paddles based on the current key state
@@ -358,12 +357,24 @@ function updatePaddles() {
   const paddleSpeed = 0.1;
 
   // Control P1 with "a" (left) and "d" (right)
-  if (p1_paddle.position.z > -5.4 && keyState.a) p1_paddle.position.z -= paddleSpeed;
-  if (p1_paddle.position.z < 5.4 && keyState.d) p1_paddle.position.z += paddleSpeed;
+  if (p1_paddle.position.z > -5.4 && keyState.a) {
+    getGateway('/game/left');
+    //p1_paddle.position.z -= paddleSpeed;
+  }
+  if (p1_paddle.position.z < 5.4 && keyState.d) {
+    getGateway('/game/right');
+    //p1_paddle.position.z += paddleSpeed;
+  }
 
   // Control P2 with "ArrowLeft" (left) and "ArrowRight" (right)
-  if (p2_paddle.position.z > -5.4 && keyState.ArrowLeft) p2_paddle.position.z -= paddleSpeed;
-  if (p2_paddle.position.z < 5.4 && keyState.ArrowRight) p2_paddle.position.z += paddleSpeed;
+  if (p2_paddle.position.z > -5.4 && keyState.ArrowLeft) {
+    getGateway('/game/left');
+    //p2_paddle.position.z -= paddleSpeed;
+  }
+  if (p2_paddle.position.z < 5.4 && keyState.ArrowRight) {
+    getGateway('/game/right');
+    //p2_paddle.position.z += paddleSpeed;
+  }
 }
 
 // Animation loop
@@ -420,20 +431,22 @@ function resizeRenderer() {
   camera.updateProjectionMatrix();
 }
 
-function setReady() {
-  playerReady.value = true;
-  // Send this status to the server or check for opponent's status if necessary
-}
-
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  console.log('GAME - user event: ', data.type);
   const info = data.message;
 
   if (data.type == 8) { //game data
+    //ball.position.set(info['ball_position'][0], 
+    //info['ball_position'][1],
+    //info['ball_position'][2]);
+    //ballVelocity.x = info['ball_v'][0];
+    //ballVelocity.y = info['ball_v'][1];
+    //ballVelocity.z = info['ball_v'][2];
+    //p1_paddle.position.z = info['p1'][2];
+    //p2_paddle.position.z = info['p2'][2];
+    //console.log(info);
   }
   else if (data.type == 9) { //start game
-    console.log('hide modal');
     showModal.value = false;
   }
 }

@@ -488,3 +488,37 @@ def start_match(request):
         raise HttpError(status_code=404, message='game start failed')
 
     return {'message': 'start ok'}
+
+LEFT = True
+RIGHT = False
+
+@router.get('/game/left', auth=auth.authorize)
+def move_pad_left(request):
+
+    params = {
+        'user_id': request.jwt_data.get('user_id'),
+        'direction': LEFT
+    }
+
+    res = safe_get('http://game:7777/api/game/move', params=params)
+
+    return {'message': 'moved'}
+
+@router.get('/game/right', auth=auth.authorize)
+def move_pad_left(request):
+
+    params = {
+        'user_id': request.jwt_data.get('user_id'),
+        'direction': RIGHT
+    }
+
+    res = safe_get('http://game:7777/api/game/move', params=params)
+
+    return {'message': 'moved'}
+
+@router.get('/game/echo')
+def game_echo(request):
+
+    res = safe_get('http://game:7777/api/game/echo')
+
+    return {'message': "ok"}

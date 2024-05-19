@@ -19,4 +19,5 @@ else
     echo "$service project found"
 fi
 
-exec python /app/manage.py runserver 0.0.0.0:4242
+#exec python /app/manage.py runserver 0.0.0.0:4242
+exec python3 -m gunicorn --chdir /app transcendence.wsgi:application --bind 0.0.0.0:4242

@@ -34,7 +34,7 @@ async function handle_error(error) {
 async function patchGateway(endpoint, data) {
   try {
 
-    const res = await axiosInstance.patch(endpoint, data,{timeout: 1000});
+    const res = await axiosInstance.patch(endpoint, data,{timeout: 2000});
     return res.data;
 
   } catch (error) {
@@ -48,7 +48,7 @@ async function patchGateway(endpoint, data) {
 async function postGateway(endpoint, data) {
   try {
 
-    const res = await axiosInstance.post(endpoint, data,{timeout: 1000});
+    const res = await axiosInstance.post(endpoint, data,{timeout: 10000});
     return res.data;
 
   } catch (error) {
@@ -62,7 +62,7 @@ async function postGateway(endpoint, data) {
 async function getGateway(endpoint, data) {
   try {
 
-    const res = await axiosInstance.get(endpoint, data,{timeout: 1000});
+    const res = await axiosInstance.get(endpoint, data,{timeout: 2000});
     return res.data;
 
   } catch (error) {
