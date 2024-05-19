@@ -200,40 +200,43 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 # Function to add users dynamically to a shared channel
-def create_match(user_1: int, user_2: int) -> bool:
+def create_match(sender: int, receiver: int) -> bool:
     channel_layer = get_channel_layer()
-    group_name = f'match{user_1}_{user_2}'
+    group_name = f'match{sender}_{receiver}'
     
     logger.warning(ws_users)
-    logger.warning(f"p1: {user_1}")
-    logger.warning(f"p2: {user_2}")
+    logger.warning(f"p1: {sender}")
+    logger.warning(f"p2: {receiver}")
     # Loop through each user to add their channel to the group
 
-    user_1 = ws_users.get(user_1)
-    user_2 = ws_users.get(user_2)
+    sender = ws_users.get(sender)
+    receiver = ws_users.get(receiver)
+    logger.warning(f"Sender: {sender.user}")
+    logger.warning(f"Receiver: {receiver.user}")
 
     match_data = {
+        "view": True,
         "1" : {
-                "username" : user_1.user.username,
-                "avatar": user_1.user.avatar
+                "username" : sender.user.username,
+                "avatar": sender.user.avatar
             },
         "2":
             {
-                "username" : user_2.user.username,
-                "avatar": user_2.user.avatar
+                "username" : receiver.user.username,
+                "avatar": receiver.user.avatar
             }
     }
-    for idx, user in enumerate([user_1, user_2]):
-        logger.warning(f"test: {user.channel_name}")
+    for idx, customer in enumerate([sender, receiver]):
+        logger.warning(f"test: {customer.channel_name}")
         
         # Perform group add synchronously
         async_to_sync(channel_layer.group_add)(
             group_name,  # New shared group name
-            user.channel_name  # User-specific channel name
+            customer.channel_name  # User-specific channel name
         )
 
 
-        user_room = f'user_{user.user.id}'
+        user_room = f'user_{customer.user.id}'
         async_to_sync(channel_layer.group_send)(
             user_room,
             {
@@ -241,10 +244,11 @@ def create_match(user_1: int, user_2: int) -> bool:
                 "message": match_data
             }
         )
+        match_data['view'] = False
 
     params = {
-        'p1_id': user_1.user.id,
-        'p2_id': user_2.user.id
+        'p1_id': sender.user.id,
+        'p2_id': receiver.user.id
     }
 
     res = safe_post('create_match', 'http://game:7777/api/game/create', params=params)

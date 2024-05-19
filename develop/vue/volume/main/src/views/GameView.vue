@@ -7,18 +7,20 @@ import * as THREE from 'three';
 import { getGateway } from '@/methods/api/login';
 import ws from '@/services/websocket'
 
-const showModal = ref(true)
-const target = ref();
 const player1 = JSON.parse(localStorage.getItem('p1'));
 const player2 = JSON.parse(localStorage.getItem('p2'));
+const view = JSON.parse(localStorage.getItem('view'));
 
 // Ensure players are available
 if (!player1 || !player2) {
   console.error("Player data not available!");
 } else {
-  //tengo que enviar un post a la plataforma para empezar la partida
   console.log("Player 1 and Player 2 data are available.");
 }
+
+//Variables 
+const showModal = ref(true)
+const target = ref();
 
 // Create the scene, camera, and renderer
 const scene = new THREE.Scene();
@@ -84,12 +86,21 @@ scene.add(p1_paddle);
 scene.add(p2_paddle);
 
 // Position paddles
-p1_paddle.position.set(-6.5, 0.51, 0);
-p2_paddle.position.set(8, 0.51, 0);
+//p1_paddle.position.set(-6.5, 0.51, 0);
+//p2_paddle.position.set(8, 0.51, 0);
 
 // Set the camera position behind p1_paddle and face p2_paddle
-camera.position.set(-10, 5, 0); // Adjust the x-axis to be behind the first paddle
-camera.lookAt(p2_paddle.position); // Make the camera look toward p2_paddle
+if (view) {
+
+  camera.position.set(-10, 5, 0); // Adjust the x-axis to be behind the first paddle
+  camera.lookAt(p2_paddle.position); // Make the camera look toward p2_paddle
+
+} else {
+
+  camera.position.set(10, 5, 0); // Adjust the x-axis to be behind the first paddle
+  camera.lookAt(p1_paddle.position); // Make the camera look toward p2_paddle
+
+}
 
 // Initialize OrbitControls
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -204,7 +215,7 @@ const ball = createDashedDiscWithPerimeters(0.5, 8, 0.2); // Adjust parameters a
 scene.add(ball);
 
 // Define ball velocity and initial direction
-const ballVelocity = new THREE.Vector3(0.05, 0, 0.00); // Adjust speed values as needed
+//const ballVelocity = new THREE.Vector3(0.05, 0, 0.00); // Adjust speed values as needed
 
 // Initialize player scores
 let p1Score = 0;
@@ -234,80 +245,6 @@ function flashObject(object, flashColor) {
   }, flashDuration);
 }
 
-// Set the initial speed factor for the ball
-let speedFactor = 1.1; // Increase this value to make the ball speed up faster
-let maxSpeed = 1; // Set a limit on how fast the ball can move
-// Paddle width and collision boundaries (adjust to fit the paddle size)
-const paddleWidth = 4;
-
-// Function to increase ball speed
-function increaseBallSpeed() {
-  ballVelocity.multiplyScalar(speedFactor);
-
-  // Cap the speed if it exceeds the maximum
-  if (ballVelocity.length() > maxSpeed) {
-    ballVelocity.setLength(maxSpeed);
-  }
-}
-
-// Function to handle ball deflection based on paddle collision
-function deflectBall(paddle, direction) {
-  // Calculate the relative position of the ball on the paddle
-  //const relativeIntersectZ = ball.position.z - paddle.position.z;
-  //const normalizedRelativeIntersectionZ = (relativeIntersectZ / (paddleWidth / 2));
-  //const bounceAngle = normalizedRelativeIntersectionZ * (Math.PI / 4); // Up to 45-degree bounce
-
-  // Adjust the ball's velocity based on the bounce angle
-  //ballVelocity.x = direction * Math.cos(bounceAngle) * Math.abs(ballVelocity.x);
-  //ballVelocity.z = Math.sin(bounceAngle) * Math.abs(ballVelocity.x);
-
-  // Increase ball speed after deflection
-  increaseBallSpeed();
-
-  // Flash paddle and create particle burst
-  flashObject(paddle, 0xff0000);
-  //createParticleBurst(ball.position);
-}
-
-// Update the ball position and detect collisions
-function updateBall() {
-  // Move the ball based on its current velocity
-  ball.position.add(ballVelocity);
-
-  // Check for collisions with P1 paddle
-  //if (ball.position.x - 0.5 < p1_paddle.position.x + 0.5 &&
-  //    ball.position.x + 0.5 > p1_paddle.position.x - 0.5 &&
-  //    ball.position.z > p1_paddle.position.z - 2 &&
-  //    ball.position.z < p1_paddle.position.z + 2) {
-  //  deflectBall(p1_paddle, 1); // Bounce to the right (positive x direction)
-  //}
-
-  // Check for collisions with P2 paddle
-  //else if (ball.position.x + 0.5 > p2_paddle.position.x - 0.5 &&
-  //         ball.position.x - 0.5 < p2_paddle.position.x + 0.5 &&
-  //         ball.position.z > p2_paddle.position.z - 2 &&
-  //         ball.position.z < p2_paddle.position.z + 2) {
-  //  deflectBall(p2_paddle, -1); // Bounce to the left (negative x direction)
-  //}
-
-  // Check for boundary collisions (top and bottom)
-  //if (ball.position.z - 0.5 < -fieldHeight / 2 || ball.position.z + 0.5 > fieldHeight / 2) {
-  //  ballVelocity.z = -ballVelocity.z; // Invert the z-axis velocity
-  //}
-
-  // Update scores and reset ball if it goes out of bounds horizontally
-  //if (ball.position.x - 0.5 < -fieldWidth / 2) {
-  //  p2Score++; // P2 gains a point
-  //  resetBall();
-  //} else if (ball.position.x + 0.5 > fieldWidth / 2) {
-  //  p1Score++; // P1 gains a point
-  //  resetBall();
-  //}
-
-  updateEnvironment(); // Check and update environment visuals
-  updateScoreboard(); // Refresh scoreboard display
-}
-
 // Ensure flashes start when scores reach a high threshold
 function updateEnvironment() {
   const maxScore = Math.max(p1Score, p2Score);
@@ -320,15 +257,6 @@ function updateEnvironment() {
     //field.material.color.set(0x333333);
     scene.background = new THREE.Color(0x000000);
   }
-}
-
-// Function to reset the ball to the center
-function resetBall() {
-  //ball.position.set(0, 0.5, 0);
-  //ballVelocity.set((Math.random() > 0.5 ? 1 : -1) * 0.05, 0, (Math.random() > 0.5 ? 1 : -1) * 0.05); // Randomize initial direction
-  
-  // Apply initial speed factor
-  ballVelocity.multiplyScalar(speedFactor);
 }
 
 // Track the state of keys for controlling the paddles
@@ -354,9 +282,7 @@ function onKeyUp(event) {
 
 // Update paddles based on the current key state
 function updatePaddles() {
-  const paddleSpeed = 0.1;
 
-  // Control P1 with "a" (left) and "d" (right)
   if (p1_paddle.position.z > -5.4 && keyState.a) {
     getGateway('/game/left');
     //p1_paddle.position.z -= paddleSpeed;
@@ -383,7 +309,7 @@ function animate() {
 
   // Update the paddles' positions
   updatePaddles();
-  updateBall();
+  //updateBall();
   //logCameraPosition();
 
   // Update controls for camera movement
@@ -436,15 +362,18 @@ ws.onmessage = (event) => {
   const info = data.message;
 
   if (data.type == 8) { //game data
-    //ball.position.set(info['ball_position'][0], 
-    //info['ball_position'][1],
-    //info['ball_position'][2]);
-    //ballVelocity.x = info['ball_v'][0];
-    //ballVelocity.y = info['ball_v'][1];
-    //ballVelocity.z = info['ball_v'][2];
-    //p1_paddle.position.z = info['p1'][2];
-    //p2_paddle.position.z = info['p2'][2];
-    //console.log(info);
+    const { ball_pos, player_pads, scores } = info;
+
+    // Update ball position
+    ball.position.set(ball_pos[0], ball_pos[1], ball_pos[2]);
+
+    // Update paddles positions
+    p1_paddle.position.set(player_pads["p1"][0], player_pads["p1"][1], player_pads["p1"][2]);
+    p2_paddle.position.set(player_pads["p2"][0], player_pads["p2"][1], player_pads["p2"][2]);
+
+    // Update scores
+    document.querySelector("#p1_score span").innerText = `P1: ${scores["p1"]}`;
+    document.querySelector("#p2_score span").innerText = `P2: ${scores["p2"]}`;
   }
   else if (data.type == 9) { //start game
     showModal.value = false;

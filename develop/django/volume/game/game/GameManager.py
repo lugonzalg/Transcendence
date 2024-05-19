@@ -28,15 +28,18 @@ class GameManager(threading.Thread):
         asyncio.set_event_loop(self.loop)
         self.loop.run_forever()
 
-    def create_game(self, player_1: str, player_2: str):
+    def create_game(self, p1_id: str, p2_id: str):
 
-        coro = self.__game(player_1, player_2)
+        coro = self.__game(p1_id, p2_id)
 
         coro_id = f"id_{self.count}"
         self.count += 1
 
-        self.queues[player_1] = queue.Queue()
-        self.queues[player_2] = queue.Queue()
+        logger.warning(f"Queue created for: {p1_id}")
+        self.queues[p1_id] = queue.Queue()
+        logger.warning(f"Queue created for: {p2_id}")
+        self.queues[p2_id] = queue.Queue()
+        logger.warning(f"Current Queues: {self.queues}")
 
         asyncio.run_coroutine_threadsafe(coro, self.loop)
         self.tasks[coro_id] = coro
@@ -85,33 +88,31 @@ class GameManager(threading.Thread):
 
     async def __handle_collisions(
         self,
-        player_1,
-        player_2,
         player_pads,
         ball_pos,
         ball_velocity,
         scores):
 
         # Check collision with player 1's paddle
-        if (ball_pos[X] - 0.5 < player_pads[player_1][X] + 0.5 and
-            ball_pos[X] + 0.5 > player_pads[player_1][X] - 0.5 and
-            ball_pos[Z] + 0.5 > player_pads[player_1][Z] - PAD_WIDTH / 2 and
-            ball_pos[Z] - 0.5 < player_pads[player_1][Z] + PAD_WIDTH / 2):
+        if (ball_pos[X] - 0.5 < player_pads['p1'][X] + 0.5 and
+            ball_pos[X] + 0.5 > player_pads['p1'][X] - 0.5 and
+            ball_pos[Z] + 0.5 > player_pads['p1'][Z] - PAD_WIDTH / 2 and
+            ball_pos[Z] - 0.5 < player_pads['p1'][Z] + PAD_WIDTH / 2):
 
             # Calculate bounce angle
-            relative_intersect_z = (ball_pos[Z] - player_pads[player_1][Z])
+            relative_intersect_z = (ball_pos[Z] - player_pads['p1'][Z])
             normalized_intersect = relative_intersect_z / (PAD_WIDTH / 2)
             bounce_angle = normalized_intersect * (math.pi / 4)  # Adjust angle range as needed
             ball_velocity[X] = math.cos(bounce_angle)
             ball_velocity[Z] = math.sin(bounce_angle)
 
         # Check collision with player 2's paddle
-        if (ball_pos[X] - 0.5 < player_pads[player_2][X] + 0.5 and
-            ball_pos[X] + 0.5 > player_pads[player_2][X] - 0.5 and
-            ball_pos[Z] + 0.5 > player_pads[player_2][Z] - PAD_WIDTH / 2 and
-            ball_pos[Z] - 0.5 < player_pads[player_2][Z] + PAD_WIDTH / 2):
+        if (ball_pos[X] - 0.5 < player_pads['p2'][X] + 0.5 and
+            ball_pos[X] + 0.5 > player_pads['p2'][X] - 0.5 and
+            ball_pos[Z] + 0.5 > player_pads['p2'][Z] - PAD_WIDTH / 2 and
+            ball_pos[Z] - 0.5 < player_pads['p2'][Z] + PAD_WIDTH / 2):
             # Calculate bounce angle
-            relative_intersect_z = (ball_pos[Z] - player_pads[player_2][Z])
+            relative_intersect_z = (ball_pos[Z] - player_pads['p2'][Z])
             normalized_intersect = relative_intersect_z / (PAD_WIDTH / 2)
             bounce_angle = normalized_intersect * (math.pi / 4)  # Adjust angle range as needed
             ball_velocity[X] = -math.cos(bounce_angle)
@@ -123,21 +124,44 @@ class GameManager(threading.Thread):
 
         # Check for scoring (ball passes left or right boundary)
         if ball_pos[X] - 0.5 < -FIELD_WIDTH / 2:
-            scores[player_2] += 1
+            scores['p2'] += 1
             # Reset ball position and velocity for a new serve
             ball_pos[:] = np.array([0, 0.5, 0], dtype=np.float32)
             ball_velocity[:] = np.array([-0.05, 0, 0], dtype=np.float32)
 
         elif ball_pos[X] + 0.5 > FIELD_WIDTH / 2:
-            scores[player_1] += 1
+            scores['p1'] += 1
             # Reset ball position and velocity for a new serve
             ball_pos[:] = np.array([0, 0.5, 0], dtype=np.float32)
             ball_velocity[:] = np.array([0.05, 0, 0], dtype=np.float32)
 
+    async def __pads_movement(
+            self, 
+            p1_id: str, 
+            p2_id: str, 
+            player_pads,
+            ball_pos,
+            ball_velocity,
+            score,
+            group_name):
+        try:
+            if not self.queues[p1_id].empty():
+                direction = self.queues[p1_id].get()
+                player_pads['p1'][Z] += (0.1 if direction else -0.1)
+                await self.__update_game_state(p1_id, p2_id, player_pads, ball_pos, ball_velocity, score, group_name)
+
+            if not self.queues[p2_id].empty():
+                direction = self.queues[p2_id].get()
+                player_pads['p2'][Z] += (0.1 if direction else -0.1)
+                await self.__update_game_state(p1_id, p2_id, player_pads, ball_pos, ball_velocity, score, group_name)
+
+        except Exception as err:
+            logger.warning(err)
+
     async def __update_game_state(
         self,
-        player_1,
-        player_2,
+        p1_id,
+        p2_id,
         player_pads,
         ball_pos,
         ball_velocity,
@@ -145,17 +169,10 @@ class GameManager(threading.Thread):
         group_name) -> bool:
 
         try:
-            if not self.queues[player_1].empty():
-                direction = self.queues[player_1].get()
-                player_pads[player_1][Z] += (0.1 if direction else -0.1)
-
-            if not self.queues[player_2].empty():
-                direction = self.queues[player_2].get()
-                player_pads[player_2][Z] += (0.1 if direction else -0.1)
 
             ball_pos += ball_velocity
 
-            await self.__handle_collisions(player_1, player_2, player_pads, ball_pos, ball_velocity, scores)
+            await self.__handle_collisions(player_pads, ball_pos, ball_velocity, scores)
 
             # Send updated state
             await self.__send_message(group_name, "match", {
@@ -166,29 +183,36 @@ class GameManager(threading.Thread):
         except Exception as err:
             logger.error(err)
 
-    async def __game(self, player_1: str, player_2: str):
+    async def __game(self, p1_id: str, p2_id: str):
 
         try:
-            await self.__wait_for_players(player_1, player_2)
+            await self.__wait_for_players(p1_id, p2_id)
 
-            group_name = f"match{player_1}_{player_2}"
+            group_name = f"match{p1_id}_{p2_id}"
             await self.__send_message(group_name, 'start', {'message':"start"})
 
             ball_pos = np.array([0, 0.5, 0], dtype=np.float32)
             ball_velocity = np.array([0.05, 0, 0], dtype=np.float32)
             player_pads = {
-                player_1: np.array([-6.5, 0.51, 0], dtype=np.float32),
-                player_2: np.array([8, 0.51, 0], dtype=np.float32)
+                'p1': np.array([-6.5, 0.51, 0], dtype=np.float32),
+                'p2': np.array([8, 0.51, 0], dtype=np.float32)
             }
-            scores = {player_1: 0, player_2: 0}
+            scores = {'p1': 0, 'p2': 0}
         except Exception as err:
             logger.error(err)
 
         logger.warning("start game")
+        frame = 16
         while True:
             try:
-                await self.__update_game_state(player_1, player_2, player_pads, ball_pos, ball_velocity, scores, group_name)
-                await asyncio.sleep(0.004)
-                #await asyncio.sleep(1)
+
+                if frame == 0:
+                    await self.__update_game_state(p1_id, p2_id, player_pads, ball_pos, ball_velocity, scores, group_name)
+                    frame = 16
+
+                await self.__pads_movement(p1_id, p2_id, player_pads, ball_pos, ball_velocity, scores, group_name)
+
+                frame -= 1
+                await asyncio.sleep(0.002)
             except Exception as err:
                 logger.error(err)

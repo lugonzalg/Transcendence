@@ -471,6 +471,9 @@ def create_game(request):
     res = safe_post('create game', 'http://game:7777/api/game/create')
 
     if res is None or not res.ok:
+        if res:
+            logger.error(f"status: {res.status_code} - detail: {res.json()}")
+
         raise HttpError(status_code=400, message="match create failed")
 
     return {'message': 'match created succesfully'}
@@ -489,8 +492,8 @@ def start_match(request):
 
     return {'message': 'start ok'}
 
-LEFT = True
-RIGHT = False
+LEFT = False
+RIGHT = True
 
 @router.get('/game/left', auth=auth.authorize)
 def move_pad_left(request):

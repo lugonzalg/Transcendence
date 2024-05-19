@@ -40,6 +40,8 @@ def create_game(request, p1_id: str, p2_id: str):
         game_manager = GameManager()
         game_manager.start()
 
+    logger.warning(f"player 1: {p1_id}")
+    logger.warning(f"player 2: {p2_id}")
     game_manager.create_game(p1_id, p2_id)
     return {'message': 'game created'}
 
@@ -48,10 +50,19 @@ def game_start(request, user_id: str):
 
     logger.warning(f"user_id: {user_id}")
 
-    if game_manager is None or user_id not in game_manager.queues:
+    try:
+        if game_manager is None or user_id not in game_manager.queues:
+            if game_manager is None:
+                logger.error("GameManager is None")
+            else:
+                logger.error(f"Cannot find user id - {game_manager.queues} ")
+            raise HttpError(status_code=400, message=f'unable to set referee for {user_id}')
+
+        game_manager.start_game(user_id)
+    except Exception as err:
+        logger.error(err)
         raise HttpError(status_code=400, message=f'unable to set referee for {user_id}')
 
-    game_manager.start_game(user_id)
 
     return {'message': 'start'}
 

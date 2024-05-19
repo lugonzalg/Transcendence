@@ -307,6 +307,7 @@ export default {
                 }
                 else if (data.type == 8) { //create match
                     //console.log(info);
+                    localStorage.setItem("view", JSON.stringify(info["view"]));
                     localStorage.setItem("p1", JSON.stringify(info["1"]));
                     localStorage.setItem("p2", JSON.stringify(info["2"]));
                     

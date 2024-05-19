@@ -27,6 +27,7 @@ class QueryAuthMiddleware:
         # checking if it is a valid user ID, or if scope["user"] is already
         # populated).
 
+        cookie = None
         headers = scope.get('headers', None)
 
         auth = None
